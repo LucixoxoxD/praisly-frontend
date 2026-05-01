@@ -3,6 +3,7 @@ import { authService } from './services/api'
 import { ToastProvider } from './components/Toast'
 import DashboardLayout from './components/DashboardLayout'
 import CustomerReview from './pages/CustomerReview'
+import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
@@ -34,9 +35,7 @@ export default function App() {
         <Routes>
           <Route
             path="/"
-            element={
-              <Navigate to={authService.isAuthenticated() ? '/dashboard' : '/login'} replace />
-            }
+            element={authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LandingPage />}
           />
           <Route path="/login"  element={<AuthOnly><Login /></AuthOnly>} />
           <Route path="/signup" element={<AuthOnly><Signup /></AuthOnly>} />
