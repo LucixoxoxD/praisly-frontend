@@ -4,7 +4,19 @@ import api from '../services/api'
 
 const CLIENT_TIMEOUT_MS = 8000
 
-// ── Fallback drafts using selected tags ──────────────────────────────────────
+const BIZ_EMOJI = {
+  dentist: '🦷', salon: '💇', gym: '💪', restaurant: '🍽️',
+  coaching: '📚', ca_firm: '📊', other: '⭐',
+}
+
+const STAR_REACTIONS = {
+  1: { emoji: '😞', label: 'That bad, huh?' },
+  2: { emoji: '😕', label: 'Could be better' },
+  3: { emoji: '😐', label: 'Just okay?' },
+  4: { emoji: '😊', label: 'Glad you liked it!' },
+  5: { emoji: '🤩', label: 'Amazing!' },
+}
+
 function buildFallbacks(name, tags) {
   const t1 = tags[0] || 'service'
   const t2 = tags[1] || 'staff'
@@ -22,115 +34,232 @@ function buildFallbacks(name, tags) {
   }
 }
 
-// ── Small helpers ─────────────────────────────────────────────────────────────
-function Fade({ children, className = '' }) {
-  return (
-    <div className={className} style={{ animation: 'fadeIn 0.25s ease' }}>
-      {children}
-    </div>
-  )
+function flatDrafts(drafts) {
+  if (!drafts) return []
+  return [...(drafts.hinglish || []), ...(drafts.english || [])]
 }
 
-function Spinner() {
-  return (
-    <div
-      style={{
-        width: 36, height: 36,
-        border: '3px solid #e5e7eb',
-        borderTopColor: '#f59e0b',
-        borderRadius: '50%',
-        animation: 'spin 0.8s linear infinite',
-      }}
-    />
-  )
-}
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
-function SkeletonCard() {
+  @keyframes cr-fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes cr-spin { to { transform: rotate(360deg); } }
+  @keyframes cr-shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+  }
+  @keyframes cr-popIn {
+    0%   { transform: scale(0.7); opacity: 0; }
+    65%  { transform: scale(1.18); }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+
+  .cr-wrap {
+    min-height: 100vh;
+    background: #f7f5f0;
+    font-family: 'Nunito', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+  }
+  .cr-shell {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 48px;
+  }
+  .cr-topbar {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px 4px;
+    min-height: 56px;
+  }
+  .cr-back {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid #e0ddd8;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 17px; color: #555;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cr-back:active { background: #eee; }
+
+  .cr-dots { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .cr-dot  { height: 8px; border-radius: 4px; transition: all 0.3s; }
+
+  .cr-body { padding: 12px 24px 0; animation: cr-fadeUp 0.28s ease both; }
+
+  .cr-avatar {
+    width: 68px; height: 68px; border-radius: 20px;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    margin: 0 auto 12px;
+    box-shadow: 0 6px 20px rgba(37,211,102,0.28);
+  }
+  .cr-biz-name { font-size: 18px; font-weight: 800; color: #1a1a1a; text-align: center; margin: 0 0 3px; }
+  .cr-biz-city { font-size: 13px; color: #999; text-align: center; margin: 0 0 28px; }
+
+  .cr-h1 { font-size: 22px; font-weight: 800; color: #1a1a1a; text-align: center; margin: 0 0 6px; }
+  .cr-sub { font-size: 14px; color: #aaa; text-align: center; margin: 0 0 28px; font-weight: 600; }
+
+  .cr-stars { display: flex; justify-content: center; gap: 10px; margin-bottom: 12px; }
+  .cr-star {
+    background: none; border: none; cursor: pointer; padding: 0;
+    font-size: 48px; line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s;
+  }
+  .cr-star:active { transform: scale(0.88) !important; }
+
+  .cr-reaction {
+    text-align: center; height: 34px; margin-bottom: 22px;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    font-size: 15px; font-weight: 800; color: #444;
+    animation: cr-popIn 0.22s ease both;
+  }
+
+  .cr-btn {
+    width: 100%; padding: 15px;
+    border-radius: 14px; border: none;
+    font-size: 16px; font-weight: 800; color: white;
+    cursor: pointer; font-family: inherit;
+    transition: opacity 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .cr-btn:active { transform: scale(0.98); }
+  .cr-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none !important; }
+
+  .cr-ghost {
+    width: 100%; padding: 12px;
+    border-radius: 14px; border: none; background: transparent;
+    font-size: 14px; font-weight: 700; color: #bbb;
+    cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cr-ghost:active { color: #888; }
+
+  .cr-card {
+    background: white; border-radius: 20px; padding: 20px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+  }
+
+  .cr-chip {
+    padding: 10px 16px; border-radius: 100px;
+    border: 2px solid #e0ddd8; background: white;
+    font-size: 14px; font-weight: 700; color: #555;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cr-chip.on {
+    border-color: #25D366; background: #f0fdf4; color: #16a34a;
+  }
+  .cr-chip:active { transform: scale(0.95); }
+
+  .cr-ai-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #bbf7d0;
+    color: #16a34a; font-size: 12px; font-weight: 800;
+    padding: 5px 13px; border-radius: 100px;
+  }
+
+  .cr-hint {
+    background: #fffbeb; border: 1px solid #fde68a;
+    border-radius: 12px; padding: 12px 16px;
+    font-size: 13px; color: #92400e; font-weight: 700;
+    text-align: center; margin-bottom: 14px;
+  }
+
+  .cr-shimmer-bar {
+    border-radius: 7px;
+    background: linear-gradient(90deg, #ece9e4 25%, #e2dfd9 50%, #ece9e4 75%);
+    background-size: 800px 100%;
+    animation: cr-shimmer 1.5s infinite;
+  }
+
+  .cr-powered {
+    text-align: center; font-size: 12px; color: #ccc;
+    margin-top: 28px; font-weight: 600;
+  }
+  .cr-powered b { color: #25D366; }
+
+  .cr-spinner {
+    width: 34px; height: 34px;
+    border: 3px solid #e5e5e5;
+    border-top-color: #25D366;
+    border-radius: 50%;
+    animation: cr-spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+`
+
+function Dots({ step, total }) {
   return (
-    <div className="w-full p-4 rounded-2xl border-2 border-gray-100 space-y-2">
-      {['90%', '75%', '55%'].map((w, i) => (
+    <div className="cr-dots">
+      {Array.from({ length: total }).map((_, i) => (
         <div
           key={i}
-          className="h-3 rounded-full bg-gray-200"
-          style={{ width: w, animation: `shimmer 1.4s ease-in-out ${i * 0.1}s infinite` }}
+          className="cr-dot"
+          style={{
+            width: i + 1 === step ? 20 : 8,
+            background: i < step ? '#25D366' : '#ddd8d0',
+          }}
         />
       ))}
     </div>
   )
 }
 
-// ── Tag chip ─────────────────────────────────────────────────────────────────
-function TagChip({ label, selected, onClick, dashed = false }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition-all focus:outline-none active:scale-95 ${
-        selected
-          ? 'bg-blue-600 text-white border-2 border-blue-600'
-          : dashed
-          ? 'bg-white text-gray-500 border-2 border-dashed border-gray-300'
-          : 'bg-white text-gray-700 border-2 border-gray-300'
-      }`}
-      style={{ WebkitTapHighlightColor: 'transparent' }}
-    >
-      {label}
-    </button>
-  )
-}
-
-// ── Draft card ────────────────────────────────────────────────────────────────
-function DraftCard({ text, isSelected, onSelect }) {
-  return (
-    <button
-      onClick={onSelect}
-      className={`w-full text-left p-4 rounded-2xl border-2 transition-all focus:outline-none active:scale-99 ${
-        isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
-      }`}
-      style={{ WebkitTapHighlightColor: 'transparent' }}
-    >
-      <p className="text-gray-800 text-sm leading-relaxed">{text}</p>
-      {isSelected && (
-        <span className="inline-block mt-2 text-xs font-semibold text-blue-600">
-          ✓ Copied to clipboard
-        </span>
-      )}
-    </button>
-  )
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────────
 export default function CustomerReview() {
   const { businessId } = useParams()
 
-  const [screen, setScreen] = useState('loading')   // loading|main|drafts-loading|positive|negative|done-positive|done-negative|error
+  const [screen, setScreen]   = useState('loading')
   const [business, setBusiness] = useState(null)
-  const [tags, setTags] = useState([])
+  const [tags, setTags]       = useState([])
+  const [error, setError]     = useState(null)
 
-  // Screen 1 state
-  const [rating, setRating] = useState(0)
+  // Screen 1
+  const [rating, setRating]         = useState(0)
+  const [hovered, setHovered]       = useState(0)
+
+  // Screen 2
   const [selectedTags, setSelectedTags] = useState([])
-  const [showOther, setShowOther] = useState(false)
-  const [customTag, setCustomTag] = useState('')
   const [customerName, setCustomerName] = useState('')
-  const [submitting, setSubmitting] = useState(false)
 
-  // Screen 2 state
+  // Screen 3
+  const [submitting, setSubmitting]     = useState(false)
   const [submitResult, setSubmitResult] = useState(null)
-  const [draftsReady, setDraftsReady] = useState(false)
-  const [selectedDraft, setSelectedDraft] = useState(null)
+  const [draftsReady, setDraftsReady]   = useState(false)
+  const [showShimmer, setShowShimmer]   = useState(true)
+  const [draftIndex, setDraftIndex]     = useState(0)
+  const [copied, setCopied]             = useState(false)
   const [googleClicked, setGoogleClicked] = useState(false)
   const [extraFeedback, setExtraFeedback] = useState('')
   const [sendingFeedback, setSendingFeedback] = useState(false)
-  const [error, setError] = useState(null)
-  const fallbackTimer = useRef(null)
 
-  // Fetch business info + tags on mount
+  const fallbackTimer = useRef(null)
+  const shimmerTimer  = useRef(null)
+
   useEffect(() => {
-    api.get(`/api/review/${businessId}`)
+    api
+      .get(`/api/review/${businessId}`)
       .then((res) => {
         setBusiness(res.data)
         setTags(res.data.tags || [])
-        setScreen('main')
+        setScreen('s1')
       })
       .catch(() => {
         setError('This review link is not valid or has expired.')
@@ -138,31 +267,32 @@ export default function CustomerReview() {
       })
   }, [businessId])
 
-  useEffect(() => () => clearTimeout(fallbackTimer.current), [])
+  useEffect(() => () => {
+    clearTimeout(fallbackTimer.current)
+    clearTimeout(shimmerTimer.current)
+  }, [])
 
-  // ── Tag toggle ──────────────────────────────────────────────────────────────
+  const isPositive = rating >= 4
+  const bizEmoji   = BIZ_EMOJI[business?.business_type] || '⭐'
+  const bizName    = business?.business_name || ''
+  const bizCity    = business?.city || ''
+
   function toggleTag(tag) {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     )
   }
 
-  const allSelectedTags = [
-    ...selectedTags,
-    ...(customTag.trim() ? [customTag.trim()] : []),
-  ]
-  const canSubmit = rating > 0 && allSelectedTags.length > 0 && !submitting
-
-  // ── Submit ──────────────────────────────────────────────────────────────────
-  async function handleSubmit() {
-    if (!canSubmit) return
+  // ── Submit (called from Screen 2 for positive, Screen 1 for negative) ───────
+  async function handleSubmit(tagsToSend) {
     setSubmitting(true)
+    setScreen('s3')
+    setShowShimmer(true)
+    setDraftsReady(false)
 
-    if (rating >= 4) {
-      setScreen('drafts-loading')
-      setDraftsReady(false)
+    shimmerTimer.current = setTimeout(() => setShowShimmer(false), 1200)
 
-      // 8-second client fallback
+    if (isPositive) {
       fallbackTimer.current = setTimeout(() => {
         setSubmitResult((prev) => {
           if (prev?.drafts) return prev
@@ -170,7 +300,7 @@ export default function CustomerReview() {
             path: 'positive',
             review_id: null,
             google_review_url: business?.google_review_url || null,
-            drafts: buildFallbacks(business?.business_name || '', allSelectedTags),
+            drafts: buildFallbacks(bizName, tagsToSend),
           }
         })
         setDraftsReady(true)
@@ -180,55 +310,59 @@ export default function CustomerReview() {
     try {
       const res = await api.post(`/api/review/${businessId}/submit`, {
         rating,
-        selected_tags: selectedTags,
-        custom_tag: customTag.trim() || null,
+        selected_tags: tagsToSend,
+        custom_tag: null,
         customer_name: customerName.trim() || null,
         customer_phone: '',
       })
       clearTimeout(fallbackTimer.current)
       setSubmitResult(res.data)
-
-      if (res.data.path === 'positive') {
-        setDraftsReady(true)
-        // screen already set to drafts-loading — just need draftsReady=true to swap skeletons
-      } else {
-        setScreen('negative')
-      }
+      setDraftsReady(true)
     } catch (err) {
       clearTimeout(fallbackTimer.current)
-      if (rating >= 4) {
-        // Use fallback drafts silently
+      if (isPositive) {
         setSubmitResult({
           path: 'positive',
           review_id: null,
           google_review_url: business?.google_review_url || null,
-          drafts: buildFallbacks(business?.business_name || '', allSelectedTags),
+          drafts: buildFallbacks(bizName, tagsToSend),
         })
-        setDraftsReady(true)
       } else {
-        setError(err.response?.data?.detail || 'Something went wrong. Please try again.')
-        setScreen('error')
+        setSubmitResult({ path: 'negative', review_id: null })
       }
+      setDraftsReady(true)
     } finally {
       setSubmitting(false)
     }
   }
 
-  // ── Draft select ────────────────────────────────────────────────────────────
-  async function handleSelectDraft(text) {
-    setSelectedDraft(text)
-    try { await navigator.clipboard.writeText(text) } catch { /* denied */ }
+  // ── Draft actions ─────────────────────────────────────────────────────────
+  const allDrafts    = flatDrafts(submitResult?.drafts)
+  const currentDraft = allDrafts[draftIndex] || ''
+
+  async function handleCopy() {
+    try { await navigator.clipboard.writeText(currentDraft) } catch {}
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2200)
     try {
       if (submitResult?.review_id) {
         await api.post(`/api/review/${businessId}/select-draft`, {
           review_id: submitResult.review_id,
-          selected_draft: text,
+          selected_draft: currentDraft,
         })
       }
-    } catch { /* non-fatal */ }
+    } catch {}
+  }
+
+  function handleRegenerate() {
+    if (allDrafts.length > 1) {
+      setDraftIndex((i) => (i + 1) % allDrafts.length)
+      setCopied(false)
+    }
   }
 
   function handleOpenGoogle() {
+    if (currentDraft) navigator.clipboard.writeText(currentDraft).catch(() => {})
     if (submitResult?.google_review_url) {
       window.open(submitResult.google_review_url, '_blank', 'noopener')
     }
@@ -242,11 +376,10 @@ export default function CustomerReview() {
           review_id: submitResult.review_id,
         })
       }
-    } catch { /* non-fatal */ }
-    setScreen('done-positive')
+    } catch {}
+    setScreen('done')
   }
 
-  // ── Private feedback ────────────────────────────────────────────────────────
   async function handleFeedbackSubmit() {
     setSendingFeedback(true)
     try {
@@ -256,257 +389,388 @@ export default function CustomerReview() {
           feedback_text: extraFeedback.trim() || '(no additional feedback)',
         })
       }
-    } catch { /* non-fatal */ }
+    } catch {}
     setSendingFeedback(false)
-    setScreen('done-negative')
+    setScreen('done')
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-  const bizName = business?.business_name || ''
+  // ── Star display color ────────────────────────────────────────────────────
+  const displayRating = hovered || rating
+  function starColor(star) {
+    if (star > displayRating) return '#e0ddd8'
+    if (displayRating >= 4)   return '#25D366'
+    if (displayRating === 3)  return '#f59e0b'
+    return '#ef4444'
+  }
 
   return (
     <>
-      <style>{`
-        @keyframes fadeIn  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-        @keyframes slideDown { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 600px; } }
-        @keyframes spin    { to { transform: rotate(360deg); } }
-        @keyframes shimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-      `}</style>
-
-      <div className="min-h-screen bg-white flex justify-center px-5 py-10">
-        <div className="w-full max-w-sm">
+      <style>{STYLES}</style>
+      <div className="cr-wrap">
+        <div className="cr-shell">
 
           {/* ── LOADING ── */}
           {screen === 'loading' && (
-            <div className="flex justify-center mt-24"><Spinner /></div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 120 }}>
+              <div className="cr-spinner" />
+            </div>
           )}
 
           {/* ── ERROR ── */}
           {screen === 'error' && (
-            <Fade className="text-center mt-20">
-              <p className="text-4xl mb-4">😕</p>
-              <p className="text-gray-700 font-medium">{error}</p>
-            </Fade>
+            <div style={{ textAlign: 'center', marginTop: 100, padding: '0 28px', animation: 'cr-fadeUp 0.3s ease' }}>
+              <p style={{ fontSize: 52, marginBottom: 16 }}>😕</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: '#555' }}>{error}</p>
+            </div>
           )}
 
-          {/* ══ SCREEN 1: STARS + TAGS ══════════════════════════════════════ */}
-          {screen === 'main' && (
-            <Fade>
-              {/* Business name */}
-              <h1 className="text-2xl font-bold text-gray-900 text-center mb-8 leading-tight">
-                {bizName}
-              </h1>
-
-              {/* Stars */}
-              <div className="flex justify-center gap-3 mb-6">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={() => { setRating(star); setSelectedTags([]); setShowOther(false); setCustomTag('') }}
-                    className="text-5xl leading-none focus:outline-none transition-transform active:scale-90"
-                    style={{ WebkitTapHighlightColor: 'transparent' }}
-                    aria-label={`${star} star${star > 1 ? 's' : ''}`}
-                  >
-                    <span style={{ color: star <= rating ? '#f59e0b' : '#d1d5db' }}>★</span>
-                  </button>
-                ))}
+          {/* ══ SCREEN 1: STAR RATING ═══════════════════════════════════════════ */}
+          {screen === 's1' && (
+            <>
+              <div className="cr-topbar">
+                <div style={{ width: 38 }} />
+                <Dots step={1} total={3} />
+                <div style={{ width: 38 }} />
               </div>
 
-              {/* Tags section — slides in after rating */}
-              {rating > 0 && (
-                <div style={{ animation: 'slideDown 0.3s ease', overflow: 'hidden' }}>
-                  <p className="text-base font-semibold text-gray-800 mb-3 text-center">
-                    {rating >= 4 ? 'What did you enjoy?' : 'What can be improved?'}
-                  </p>
+              <div className="cr-body">
+                <div className="cr-avatar">{bizEmoji}</div>
+                <p className="cr-biz-name">{bizName}</p>
+                {bizCity && <p className="cr-biz-city">📍 {bizCity}</p>}
 
-                  <div className="flex flex-wrap gap-2 justify-center mb-3">
-                    {tags.map((tag) => (
-                      <TagChip
-                        key={tag}
-                        label={tag}
-                        selected={selectedTags.includes(tag)}
-                        onClick={() => toggleTag(tag)}
-                      />
-                    ))}
-                    <TagChip
-                      label="+ Other"
-                      selected={showOther}
-                      dashed={!showOther}
-                      onClick={() => setShowOther((v) => !v)}
-                    />
+                <h1 className="cr-h1">How was your experience?</h1>
+                <p className="cr-sub">Tap a star to rate your visit</p>
+
+                <div className="cr-stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      className="cr-star"
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHovered(star)}
+                      onMouseLeave={() => setHovered(0)}
+                      aria-label={`${star} star${star > 1 ? 's' : ''}`}
+                      style={{ transform: star <= displayRating ? 'scale(1.08)' : 'scale(1)' }}
+                    >
+                      <span style={{ color: starColor(star), transition: 'color 0.15s' }}>★</span>
+                    </button>
+                  ))}
+                </div>
+
+                {rating > 0 ? (
+                  <div className="cr-reaction" key={rating}>
+                    <span style={{ fontSize: 24 }}>{STAR_REACTIONS[rating].emoji}</span>
+                    {STAR_REACTIONS[rating].label}
                   </div>
+                ) : (
+                  <div style={{ height: 34, marginBottom: 22 }} />
+                )}
 
-                  {showOther && (
-                    <Fade>
-                      <input
-                        type="text"
-                        value={customTag}
-                        onChange={(e) => setCustomTag(e.target.value)}
-                        placeholder="Add your own..."
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-gray-400 mb-3"
-                        maxLength={50}
-                        autoFocus
-                      />
-                    </Fade>
-                  )}
+                <button
+                  className="cr-btn"
+                  disabled={rating === 0}
+                  style={{
+                    background: rating === 0
+                      ? '#d0cdc8'
+                      : isPositive
+                      ? '#25D366'
+                      : '#f97316',
+                  }}
+                  onClick={() => {
+                    if (!rating) return
+                    if (isPositive) setScreen('s2')
+                    else handleSubmit([])
+                  }}
+                >
+                  {rating === 0
+                    ? 'Select a rating'
+                    : isPositive
+                    ? 'Continue →'
+                    : 'Share private feedback'}
+                </button>
 
-                  {/* Optional name */}
-                  <input
-                    type="text"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Your name (optional)"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-gray-400 mt-2 mb-5"
-                  />
+                <button className="cr-ghost" onClick={() => setScreen('done')}>
+                  Skip feedback
+                </button>
 
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!canSubmit}
-                    className="w-full py-4 rounded-2xl font-bold text-white text-base transition-opacity disabled:opacity-35"
-                    style={{ backgroundColor: canSubmit ? '#16a34a' : '#9ca3af' }}
-                  >
-                    {submitting ? 'Submitting...' : 'Submit'}
-                  </button>
-                </div>
-              )}
-            </Fade>
+                <p className="cr-powered">Powered by <b>Praisly</b></p>
+              </div>
+            </>
           )}
 
-          {/* ══ SCREEN 2a: DRAFTS (skeleton → real) ════════════════════════ */}
-          {screen === 'drafts-loading' && (
-            <Fade>
-              <div className="text-center mb-6">
-                <p className="text-3xl mb-3">🌟</p>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Here's a review based on your experience:
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  {draftsReady ? 'Tap one to select it' : 'Personalising your review...'}
-                </p>
+          {/* ══ SCREEN 2: SUGGESTION CHIPS ══════════════════════════════════════ */}
+          {screen === 's2' && (
+            <>
+              <div className="cr-topbar">
+                <button className="cr-back" onClick={() => setScreen('s1')}>←</button>
+                <Dots step={2} total={3} />
+                <div style={{ width: 38 }} />
               </div>
 
-              {!draftsReady ? (
-                <div className="space-y-3">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Hinglish</p>
-                  <SkeletonCard /><SkeletonCard /><SkeletonCard />
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4">English</p>
-                  <SkeletonCard /><SkeletonCard /><SkeletonCard />
-                </div>
-              ) : (
-                <Fade>
-                  {/* Hinglish */}
-                  {submitResult?.drafts?.hinglish?.length > 0 && (
-                    <>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Hinglish</p>
-                      <div className="space-y-3 mb-4">
-                        {submitResult.drafts.hinglish.map((text, i) => (
-                          <DraftCard key={`h${i}`} text={text} isSelected={selectedDraft === text} onSelect={() => handleSelectDraft(text)} />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  {/* English */}
-                  {submitResult?.drafts?.english?.length > 0 && (
-                    <>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">English</p>
-                      <div className="space-y-3">
-                        {submitResult.drafts.english.map((text, i) => (
-                          <DraftCard key={`e${i}`} text={text} isSelected={selectedDraft === text} onSelect={() => handleSelectDraft(text)} />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </Fade>
-              )}
+              <div className="cr-body">
+                <h1 className="cr-h1">Great! What did you love?</h1>
+                <p className="cr-sub">Pick everything that stood out</p>
 
-              {selectedDraft && (
-                <Fade className="mt-6 space-y-3">
-                  <button
-                    onClick={handleOpenGoogle}
-                    className="w-full py-4 rounded-2xl font-bold text-white text-base"
-                    style={{ backgroundColor: '#16a34a' }}
-                  >
-                    Post on Google ↗
-                  </button>
-                  {googleClicked && (
-                    <Fade>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+                  {tags.map((tag) => (
+                    <button
+                      key={tag}
+                      className={`cr-chip${selectedTags.includes(tag) ? ' on' : ''}`}
+                      onClick={() => toggleTag(tag)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+
+                <p style={{
+                  fontSize: 13, fontWeight: 800, marginBottom: 18,
+                  color: selectedTags.length > 0 ? '#25D366' : '#bbb',
+                }}>
+                  {selectedTags.length > 0
+                    ? `${selectedTags.length} highlight${selectedTags.length !== 1 ? 's' : ''} selected`
+                    : 'Select at least one to continue'}
+                </p>
+
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Your name (optional)"
+                  style={{
+                    width: '100%', padding: '12px 16px',
+                    border: '1.5px solid #e0ddd8', borderRadius: 12,
+                    fontSize: 14, fontFamily: 'inherit', color: '#333',
+                    background: 'white', outline: 'none', marginBottom: 20,
+                    boxSizing: 'border-box',
+                  }}
+                />
+
+                <button
+                  className="cr-btn"
+                  disabled={selectedTags.length === 0 || submitting}
+                  style={{ background: selectedTags.length > 0 ? '#25D366' : '#d0cdc8' }}
+                  onClick={() => handleSubmit(selectedTags)}
+                >
+                  {submitting ? 'Generating your review…' : 'Continue →'}
+                </button>
+
+                <p className="cr-powered">Powered by <b>Praisly</b></p>
+              </div>
+            </>
+          )}
+
+          {/* ══ SCREEN 3: AI REVIEW / NEGATIVE ══════════════════════════════════ */}
+          {screen === 's3' && (
+            <>
+              <div className="cr-topbar">
+                <button
+                  className="cr-back"
+                  onClick={() => setScreen(isPositive ? 's2' : 's1')}
+                >
+                  ←
+                </button>
+                <Dots step={isPositive ? 3 : 2} total={isPositive ? 3 : 2} />
+                <div style={{ width: 38 }} />
+              </div>
+
+              <div className="cr-body">
+
+                {/* ── LOADING STATE ── */}
+                {(showShimmer || !draftsReady) && (
+                  isPositive ? (
+                    /* Shimmer skeleton for positive AI review */
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+                        <span className="cr-ai-badge">✨ Personalising your review…</span>
+                      </div>
+                      <div className="cr-card">
+                        <div className="cr-shimmer-bar" style={{ height: 13, width: '88%', marginBottom: 10 }} />
+                        <div className="cr-shimmer-bar" style={{ height: 13, width: '72%', marginBottom: 10 }} />
+                        <div className="cr-shimmer-bar" style={{ height: 13, width: '52%', marginBottom: 20 }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 14, borderTop: '1px solid #f0ede8' }}>
+                          <div className="cr-shimmer-bar" style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0 }} />
+                          <div style={{ flex: 1 }}>
+                            <div className="cr-shimmer-bar" style={{ height: 10, width: 80, marginBottom: 6 }} />
+                            <div className="cr-shimmer-bar" style={{ height: 10, width: 50 }} />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Simple spinner for negative path */
+                    <div style={{ textAlign: 'center', paddingTop: 56 }}>
+                      <div className="cr-spinner" />
+                    </div>
+                  )
+                )}
+
+                {/* ── POSITIVE CONTENT ── */}
+                {!showShimmer && draftsReady && submitResult?.path === 'positive' && (
+                  <div style={{ animation: 'cr-fadeUp 0.3s ease' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                      <span className="cr-ai-badge">✨ AI-generated review — sounds just like you</span>
+                    </div>
+
+                    <div className="cr-card" style={{ position: 'relative' }}>
+                      {/* Copy button */}
                       <button
-                        onClick={handleConfirmPosted}
-                        className="w-full py-3 rounded-2xl font-semibold text-green-700 text-sm border-2 border-green-200 bg-green-50"
+                        onClick={handleCopy}
+                        style={{
+                          position: 'absolute', top: 14, right: 14,
+                          background: copied ? '#f0fdf4' : '#f5f3ef',
+                          border: `1.5px solid ${copied ? '#bbf7d0' : '#e0ddd8'}`,
+                          borderRadius: 8, padding: '5px 11px',
+                          fontSize: 12, fontWeight: 800,
+                          color: copied ? '#16a34a' : '#666',
+                          cursor: 'pointer', fontFamily: 'inherit',
+                          transition: 'all 0.2s',
+                        }}
                       >
-                        I posted it ✓
+                        {copied ? '✓ Copied' : 'Copy'}
                       </button>
-                    </Fade>
-                  )}
-                </Fade>
-              )}
-            </Fade>
-          )}
 
-          {/* ══ DONE POSITIVE ═══════════════════════════════════════════════ */}
-          {screen === 'done-positive' && (
-            <Fade className="text-center mt-20">
-              <p className="text-5xl mb-4" style={{ animation: 'fadeIn 0.4s ease' }}>🎉</p>
-              <h2 className="text-xl font-bold text-gray-900">Thank you!</h2>
-              <p className="text-gray-500 mt-2 text-sm">Your review helps {bizName} grow.</p>
-            </Fade>
-          )}
+                      <p style={{
+                        fontSize: 14, color: '#2d2d2d', lineHeight: 1.75,
+                        marginBottom: 16, paddingRight: 64,
+                      }}>
+                        {currentDraft}
+                      </p>
 
-          {/* ══ SCREEN 2b: NEGATIVE ═════════════════════════════════════════ */}
-          {screen === 'negative' && (
-            <Fade>
-              <div className="text-center mb-6">
-                <p className="text-3xl mb-3">🙏</p>
-                <h2 className="text-lg font-bold text-gray-900">
-                  Thank you for your feedback.
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  We'll make sure {bizName} hears this.
-                </p>
+                      {/* Reviewer row */}
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        borderTop: '1px solid #f0ede8', paddingTop: 14,
+                      }}>
+                        <div style={{
+                          width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+                          background: 'linear-gradient(135deg, #25D366, #128C7E)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 15, color: 'white', fontWeight: 900,
+                        }}>
+                          {customerName ? customerName[0].toUpperCase() : '?'}
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
+                            {customerName || 'Anonymous'}
+                          </p>
+                          <div style={{ display: 'flex', gap: 1, marginTop: 3 }}>
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <span key={s} style={{
+                                fontSize: 12,
+                                color: s <= rating ? '#25D366' : '#e0ddd8',
+                              }}>★</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="cr-hint">📋 Copy → Paste on Google → Submit</div>
+
+                    {/* Post on Google */}
+                    <button
+                      className="cr-btn"
+                      style={{ background: '#4285F4' }}
+                      onClick={handleOpenGoogle}
+                    >
+                      <span style={{
+                        width: 20, height: 20, borderRadius: '50%', background: 'white',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, fontWeight: 900, color: '#4285F4', flexShrink: 0,
+                      }}>G</span>
+                      Post on Google Maps
+                    </button>
+
+                    {googleClicked && (
+                      <div style={{ animation: 'cr-fadeUp 0.25s ease', marginBottom: 2 }}>
+                        <button
+                          onClick={handleConfirmPosted}
+                          style={{
+                            width: '100%', padding: '13px', borderRadius: 14,
+                            border: '2px solid #25D366', background: '#f0fdf4',
+                            color: '#16a34a', fontSize: 14, fontWeight: 800,
+                            cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10,
+                          }}
+                        >
+                          ✓ I posted it!
+                        </button>
+                      </div>
+                    )}
+
+                    {allDrafts.length > 1 && (
+                      <button className="cr-ghost" onClick={handleRegenerate}>
+                        ↺ Generate a different version
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* ── NEGATIVE CONTENT ── */}
+                {!showShimmer && draftsReady && submitResult?.path === 'negative' && (
+                  <div style={{ animation: 'cr-fadeUp 0.3s ease' }}>
+                    <div style={{ textAlign: 'center', marginBottom: 22 }}>
+                      <p style={{ fontSize: 52, marginBottom: 14 }}>🙏</p>
+                      <h2 style={{ fontSize: 20, fontWeight: 900, color: '#1a1a1a', marginBottom: 10 }}>
+                        We're sorry to hear that.
+                      </h2>
+                      <p style={{ fontSize: 15, color: '#777', lineHeight: 1.65, fontWeight: 600 }}>
+                        The owner has been notified and will follow up shortly.
+                      </p>
+                    </div>
+
+                    <div className="cr-card">
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#aaa', marginBottom: 10 }}>
+                        Want to share more details? (optional)
+                      </p>
+                      <textarea
+                        value={extraFeedback}
+                        onChange={(e) => setExtraFeedback(e.target.value)}
+                        placeholder="Tell us what happened…"
+                        rows={3}
+                        style={{
+                          width: '100%', padding: '12px',
+                          border: '1.5px solid #e0ddd8', borderRadius: 10,
+                          fontSize: 14, fontFamily: 'inherit', color: '#333',
+                          resize: 'none', outline: 'none', boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+
+                    <button
+                      className="cr-btn"
+                      style={{ background: '#374151' }}
+                      disabled={sendingFeedback}
+                      onClick={handleFeedbackSubmit}
+                    >
+                      {sendingFeedback ? 'Sending…' : 'Done'}
+                    </button>
+                  </div>
+                )}
+
+                <p className="cr-powered">Powered by <b>Praisly</b></p>
               </div>
-
-              <textarea
-                value={extraFeedback}
-                onChange={(e) => setExtraFeedback(e.target.value)}
-                placeholder="Anything else? (optional)"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 resize-none focus:outline-none focus:border-gray-400 mb-4"
-              />
-
-              <button
-                onClick={handleFeedbackSubmit}
-                disabled={sendingFeedback}
-                className="w-full py-4 rounded-2xl font-bold text-white text-base disabled:opacity-40"
-                style={{ backgroundColor: '#374151' }}
-              >
-                {sendingFeedback ? 'Sending...' : 'Send Feedback'}
-              </button>
-
-              {submitResult?.google_review_url && (
-                <p className="text-center mt-5">
-                  <a
-                    href={submitResult.google_review_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-gray-400 underline underline-offset-2"
-                  >
-                    Share on Google too →
-                  </a>
-                </p>
-              )}
-            </Fade>
+            </>
           )}
 
-          {/* ══ DONE NEGATIVE ═══════════════════════════════════════════════ */}
-          {screen === 'done-negative' && (
-            <Fade className="text-center mt-20">
-              <p className="text-5xl mb-4">💙</p>
-              <h2 className="text-xl font-bold text-gray-900">Thank you for sharing</h2>
-              <p className="text-gray-500 mt-2 text-sm leading-relaxed">
-                Your feedback has been sent to the owner privately.<br />
-                We appreciate you helping them improve.
+          {/* ══ DONE ════════════════════════════════════════════════════════════ */}
+          {screen === 'done' && (
+            <div style={{
+              textAlign: 'center', marginTop: 100, padding: '0 28px',
+              animation: 'cr-fadeUp 0.35s ease',
+            }}>
+              <p style={{ fontSize: 58, marginBottom: 18 }}>
+                {submitResult?.path === 'negative' ? '💙' : '🎉'}
               </p>
-            </Fade>
+              <h2 style={{ fontSize: 22, fontWeight: 900, color: '#1a1a1a', marginBottom: 10 }}>
+                {submitResult?.path === 'negative' ? 'Thank you for sharing' : 'Thank you!'}
+              </h2>
+              <p style={{ fontSize: 15, color: '#999', lineHeight: 1.65, fontWeight: 600 }}>
+                {submitResult?.path === 'negative'
+                  ? 'Your feedback has been shared privately with the owner.'
+                  : `Your review helps ${bizName} grow. 💚`}
+              </p>
+            </div>
           )}
 
         </div>
