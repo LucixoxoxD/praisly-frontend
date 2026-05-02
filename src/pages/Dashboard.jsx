@@ -5,6 +5,18 @@ import {
   ResponsiveContainer, AreaChart, Area,
 } from 'recharts'
 import api, { authService } from '../services/api'
+import { stripMarkdown } from '../utils/helpers'
+
+function cleanText(text) {
+  if (!text) return ''
+  let t = stripMarkdown(text)
+  while ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
+    t = t.slice(1, -1).trim()
+  }
+  t = t.replace(/\*\*(.*?)\*\*/g, '$1')
+  t = t.replace(/\*(.*?)\*/g, '$1')
+  return t
+}
 
 const PAGE_CSS = `
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
@@ -522,7 +534,7 @@ export default function Dashboard() {
                     WebkitBoxOrient: 'vertical',
                   }}
                 >
-                  {r.review_text || r.private_feedback}
+                  {cleanText(r.review_text || r.private_feedback)}
                 </p>
               )}
 

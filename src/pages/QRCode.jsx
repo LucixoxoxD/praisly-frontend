@@ -25,7 +25,8 @@ export default function QRCode() {
     ])
       .then(([imgRes, infoRes]) => {
         setQrObjectUrl(URL.createObjectURL(imgRes.data))
-        setReviewUrl(infoRes.data.review_url)
+        const base = import.meta.env.VITE_APP_URL || window.location.origin
+        setReviewUrl(`${base}/review/${infoRes.data.business_id}`)
         setBizName(infoRes.data.business_name)
       })
       .catch(() => setError('Failed to load QR code. Please try again.'))

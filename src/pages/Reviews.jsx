@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
+import { stripMarkdown } from '../utils/helpers'
+
+function cleanText(text) {
+  if (!text) return ''
+  let t = stripMarkdown(text)
+  while ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
+    t = t.slice(1, -1).trim()
+  }
+  t = t.replace(/\*\*(.*?)\*\*/g, '$1')
+  t = t.replace(/\*(.*?)\*/g, '$1')
+  return t
+}
 
 const TABS = [
   { key: '',        label: 'All' },
@@ -234,8 +246,8 @@ export default function Reviews() {
               <Stars rating={r.rating} />
             </div>
 
-            {/* Review text */}
-            {r.review_text && (
+            {/* Review text (customer_edited_text from DB) */}
+            {(r.review_text || r.customer_edited_text) && (
               <p
                 style={{
                   color: '#374151',
@@ -248,7 +260,7 @@ export default function Reviews() {
                   WebkitBoxOrient: 'vertical',
                 }}
               >
-                "{r.review_text}"
+                {cleanText(r.review_text || r.customer_edited_text)}
               </p>
             )}
 
@@ -267,14 +279,14 @@ export default function Reviews() {
                   WebkitBoxOrient: 'vertical',
                 }}
               >
-                Private feedback: {r.private_feedback}
+                Private feedback: {cleanText(r.private_feedback)}
               </p>
             )}
 
             {/* Tags for positive reviews */}
             {r.status !== 'private' && r.private_feedback && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-                {r.private_feedback
+                {cleanText(r.private_feedback)
                   .split(',')
                   .map((t) => t.trim())
                   .filter(Boolean)

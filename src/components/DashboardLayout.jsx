@@ -57,9 +57,18 @@ function getInitials(name) {
   return (words[0][0] + words[1][0]).toUpperCase()
 }
 
+function formatSubtitle(biz) {
+  const city = biz?.city?.trim()
+  if (city && city.toLowerCase() !== 'string') return city
+  const type = biz?.business_type?.trim()
+  if (type && type.toLowerCase() !== 'string') return type.charAt(0).toUpperCase() + type.slice(1)
+  return null
+}
+
 function Sidebar({ onClose }) {
   const biz = authService.getBusiness()
   const initials = getInitials(biz?.business_name)
+  const subtitle = formatSubtitle(biz)
 
   return (
     <div
@@ -168,7 +177,7 @@ function Sidebar({ onClose }) {
             >
               {biz?.business_name || 'My Business'}
             </p>
-            {biz?.city && (
+            {subtitle && (
               <p
                 style={{
                   color: 'rgba(255,255,255,0.4)',
@@ -179,7 +188,7 @@ function Sidebar({ onClose }) {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {biz.city}
+                {subtitle}
               </p>
             )}
           </div>
