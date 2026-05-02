@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../services/api'
 
 const TABS = [
@@ -8,10 +9,24 @@ const TABS = [
   { key: 'private', label: 'Private' },
 ]
 
-const PAGE_STYLE = `
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  @keyframes pulse  { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+const PAGE_CSS = `
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .review-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid #f1f5f9;
+    margin-bottom: 10px;
+    transition: box-shadow 0.2s ease;
+  }
+  .review-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
 `
+
+function ratingBorder(rating) {
+  if (rating >= 4) return '#10b981'
+  if (rating === 3) return '#f59e0b'
+  return '#ef4444'
+}
 
 function Stars({ rating }) {
   return (
@@ -49,20 +64,14 @@ function StatusBadge({ status }) {
 
 function SkeletonCard() {
   return (
-    <div
-      style={{
-        background: 'white',
-        borderRadius: 12,
-        padding: 20,
-        border: '1px solid #e2e8f0',
-        marginBottom: 10,
-      }}
-    >
-      <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-        <div style={{ background: '#e2e8f0', height: 14, width: 80, borderRadius: 6, animation: 'pulse 1.5s infinite' }} />
+    <div style={{ background: 'white', borderRadius: 12, padding: '16px 20px', border: '1px solid #e2e8f0', marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ background: '#e2e8f0', height: 14, width: 120, borderRadius: 6, animation: 'pulse 1.5s infinite' }} />
+        <div style={{ background: '#e2e8f0', height: 12, width: 60, borderRadius: 6, animation: 'pulse 1.5s infinite' }} />
       </div>
-      <div style={{ background: '#e2e8f0', height: 12, width: '65%', borderRadius: 6, animation: 'pulse 1.5s infinite' }} />
+      <div style={{ background: '#e2e8f0', height: 13, width: 80, borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
+      <div style={{ background: '#e2e8f0', height: 12, width: '70%', borderRadius: 6, marginBottom: 6, animation: 'pulse 1.5s infinite' }} />
+      <div style={{ background: '#e2e8f0', height: 12, width: '50%', borderRadius: 6, animation: 'pulse 1.5s infinite' }} />
     </div>
   )
 }
@@ -90,8 +99,8 @@ export default function Reviews() {
   }
 
   return (
-    <div style={{ animation: 'fadeUp 0.2s ease' }}>
-      <style>{PAGE_STYLE}</style>
+    <div className="fade-up">
+      <style>{PAGE_CSS}</style>
 
       {/* Header */}
       <div
@@ -166,117 +175,130 @@ export default function Reviews() {
             border: '1px solid #e2e8f0',
           }}
         >
-          <p style={{ fontSize: 36, marginBottom: 12 }}>📭</p>
-          <p style={{ color: '#64748b', fontWeight: 500, margin: 0 }}>No reviews found</p>
-          <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 4 }}>
-            {tab ? `No ${tab} reviews yet` : 'Share your QR code to start collecting reviews!'}
+          <p style={{ fontSize: 36, marginBottom: 12 }}>🌟</p>
+          <p style={{ color: '#374151', fontWeight: 600, fontSize: 15, margin: 0 }}>No reviews yet</p>
+          <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 4, marginBottom: 16 }}>
+            {tab ? `No ${tab} reviews yet` : 'Share your QR code to start collecting reviews'}
           </p>
+          {!tab && (
+            <Link
+              to="/qr"
+              style={{
+                display: 'inline-block',
+                padding: '9px 20px',
+                background: '#10b981',
+                color: 'white',
+                borderRadius: 8,
+                textDecoration: 'none',
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              View QR Code →
+            </Link>
+          )}
         </div>
       ) : (
         data.reviews.map((r) => (
           <div
             key={r.id}
-            style={{
-              background: 'white',
-              borderRadius: 12,
-              padding: 20,
-              border: '1px solid #e2e8f0',
-              marginBottom: 10,
-              transition: 'box-shadow 0.15s',
-            }}
+            className="review-card"
+            style={{ borderLeft: `4px solid ${ratingBorder(r.rating)}` }}
           >
+            {/* Top row: name + date */}
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                flexWrap: 'wrap',
-                gap: 10,
+                alignItems: 'center',
+                marginBottom: 6,
+                gap: 8,
               }}
             >
-              {/* Left: stars, name, text, tags */}
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <Stars rating={r.rating} />
-                  <span style={{ color: '#0f172a', fontWeight: 600, fontSize: 14 }}>
-                    {r.customer_name || 'Anonymous'}
-                  </span>
-                </div>
+              <span style={{ color: '#0f172a', fontWeight: 600, fontSize: 14 }}>
+                {r.customer_name || 'Anonymous'}
+              </span>
+              <span style={{ color: '#94a3b8', fontSize: 12, flexShrink: 0 }}>
+                {r.created_at
+                  ? new Date(r.created_at).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })
+                  : ''}
+              </span>
+            </div>
 
-                {r.review_text && (
-                  <p
-                    style={{
-                      color: '#374151',
-                      fontSize: 14,
-                      lineHeight: 1.6,
-                      margin: '0 0 6px',
-                    }}
-                  >
-                    "{r.review_text}"
-                  </p>
-                )}
+            {/* Stars */}
+            <div style={{ marginBottom: 8 }}>
+              <Stars rating={r.rating} />
+            </div>
 
-                {r.status === 'private' && r.private_feedback && (
-                  <p
-                    style={{
-                      color: '#64748b',
-                      fontSize: 13,
-                      lineHeight: 1.6,
-                      margin: '0 0 6px',
-                      fontStyle: 'italic',
-                    }}
-                  >
-                    Private feedback: {r.private_feedback}
-                  </p>
-                )}
-
-                {/* Tags for positive reviews — stored as comma-separated in private_feedback */}
-                {r.status !== 'private' && r.private_feedback && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-                    {r.private_feedback
-                      .split(',')
-                      .map((t) => t.trim())
-                      .filter(Boolean)
-                      .map((tag, i) => (
-                        <span
-                          key={i}
-                          style={{
-                            padding: '2px 8px',
-                            borderRadius: 20,
-                            background: '#f1f5f9',
-                            color: '#475569',
-                            fontSize: 11,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Right: badge + date */}
-              <div
+            {/* Review text */}
+            {r.review_text && (
+              <p
                 style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-end',
-                  gap: 6,
-                  flexShrink: 0,
+                  color: '#374151',
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  margin: '0 0 6px',
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
                 }}
               >
-                <StatusBadge status={r.status} />
-                <span style={{ color: '#94a3b8', fontSize: 12 }}>
-                  {r.created_at
-                    ? new Date(r.created_at).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })
-                    : ''}
-                </span>
+                "{r.review_text}"
+              </p>
+            )}
+
+            {/* Private feedback */}
+            {r.status === 'private' && r.private_feedback && (
+              <p
+                style={{
+                  color: '#64748b',
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                  margin: '0 0 6px',
+                  fontStyle: 'italic',
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
+                Private feedback: {r.private_feedback}
+              </p>
+            )}
+
+            {/* Tags for positive reviews */}
+            {r.status !== 'private' && r.private_feedback && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+                {r.private_feedback
+                  .split(',')
+                  .map((t) => t.trim())
+                  .filter(Boolean)
+                  .map((tag, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: 20,
+                        background: '#f1f5f9',
+                        color: '#475569',
+                        fontSize: 11,
+                        fontWeight: 500,
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
               </div>
+            )}
+
+            {/* Status badge */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <StatusBadge status={r.status} />
             </div>
           </div>
         ))

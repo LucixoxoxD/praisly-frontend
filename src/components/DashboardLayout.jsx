@@ -6,12 +6,60 @@ const NAV = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
   { to: '/reviews',   icon: '⭐', label: 'Reviews' },
   { to: '/qr',        icon: '📱', label: 'QR Code' },
+  { to: '/send',      icon: '📤', label: 'Send Request' },
   { to: '/settings',  icon: '⚙️', label: 'Settings' },
   { to: '/billing',   icon: '💳', label: 'Billing' },
 ]
 
+const SIDEBAR_CSS = `
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    color: rgba(255,255,255,0.55);
+    background: transparent;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    transition: background 0.15s ease, color 0.15s ease, border-left-color 0.2s ease;
+  }
+  .nav-link:hover {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.85);
+  }
+  .nav-link.active {
+    color: #ffffff;
+    background: rgba(255,255,255,0.07);
+    font-weight: 600;
+    border-left-color: #10b981;
+  }
+  .sidebar-logout {
+    color: rgba(255,255,255,0.35);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 0;
+    transition: color 0.15s;
+    font-family: inherit;
+  }
+  .sidebar-logout:hover { color: rgba(255,255,255,0.8); }
+`
+
+function getInitials(name) {
+  if (!name) return 'MY'
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  return (words[0][0] + words[1][0]).toUpperCase()
+}
+
 function Sidebar({ onClose }) {
   const biz = authService.getBusiness()
+  const initials = getInitials(biz?.business_name)
 
   return (
     <div
@@ -24,8 +72,17 @@ function Sidebar({ onClose }) {
         minHeight: '100vh',
       }}
     >
-      {/* Logo */}
-      <div style={{ padding: '24px 20px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <style>{SIDEBAR_CSS}</style>
+
+      {/* Logo row */}
+      <div
+        style={{
+          padding: '24px 20px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <span
           style={{
             color: 'white',
@@ -65,21 +122,7 @@ function Sidebar({ onClose }) {
             key={item.to}
             to={item.to}
             onClick={onClose}
-            style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '10px 12px',
-              borderRadius: 8,
-              marginBottom: 2,
-              color: isActive ? '#ffffff' : 'rgba(255,255,255,0.55)',
-              background: isActive ? 'rgba(255,255,255,0.07)' : 'transparent',
-              borderLeft: `3px solid ${isActive ? '#10b981' : 'transparent'}`,
-              textDecoration: 'none',
-              fontSize: 14,
-              fontWeight: isActive ? 600 : 400,
-              transition: 'all 0.15s ease',
-            })}
+            className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
           >
             <span style={{ fontSize: 16 }}>{item.icon}</span>
             <span>{item.label}</span>
@@ -87,35 +130,61 @@ function Sidebar({ onClose }) {
         ))}
       </nav>
 
-      {/* Bottom: business name + logout */}
-      <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <p
-          style={{
-            color: 'rgba(255,255,255,0.4)',
-            fontSize: 12,
-            marginBottom: 6,
-            fontWeight: 500,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {biz?.business_name || 'My Business'}
-        </p>
-        <button
-          onClick={() => authService.logout()}
-          style={{
-            color: 'rgba(255,255,255,0.35)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 13,
-            padding: 0,
-            transition: 'color 0.15s',
-          }}
-          onMouseEnter={(e) => (e.target.style.color = 'rgba(255,255,255,0.8)')}
-          onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.35)')}
-        >
+      {/* Divider above bottom section */}
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+
+      {/* Bottom: avatar + business name + city + logout */}
+      <div style={{ padding: '16px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: '#10b981',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: 13,
+              fontWeight: 700,
+              flexShrink: 0,
+              letterSpacing: '0.5px',
+            }}
+          >
+            {initials}
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p
+              style={{
+                color: 'white',
+                fontSize: 13,
+                fontWeight: 600,
+                margin: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {biz?.business_name || 'My Business'}
+            </p>
+            {biz?.city && (
+              <p
+                style={{
+                  color: 'rgba(255,255,255,0.4)',
+                  fontSize: 11,
+                  margin: '2px 0 0',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {biz.city}
+              </p>
+            )}
+          </div>
+        </div>
+        <button className="sidebar-logout" onClick={() => authService.logout()}>
           Logout →
         </button>
       </div>
@@ -135,28 +204,42 @@ export default function DashboardLayout({ children }) {
         </div>
       </div>
 
-      {/* Mobile sidebar overlay */}
-      {mobileOpen && (
-        <>
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 40,
-              background: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(2px)',
-            }}
-            onClick={() => setMobileOpen(false)}
-          />
-          <div style={{ position: 'fixed', left: 0, top: 0, bottom: 0, zIndex: 50, width: 240 }}>
-            <Sidebar onClose={() => setMobileOpen(false)} />
-          </div>
-        </>
-      )}
+      {/* Mobile drawer — always in DOM, slide via CSS transform */}
+      <div className="md:hidden">
+        {/* Backdrop */}
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 40,
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(2px)',
+            opacity: mobileOpen ? 1 : 0,
+            pointerEvents: mobileOpen ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease',
+          }}
+        />
+        {/* Drawer panel */}
+        <div
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            zIndex: 50,
+            width: 240,
+            transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+            transition: 'transform 0.3s ease',
+          }}
+        >
+          <Sidebar onClose={() => setMobileOpen(false)} />
+        </div>
+      </div>
 
-      {/* Main content */}
+      {/* Main content area */}
       <div style={{ flex: 1, background: '#f8fafc', minWidth: 0 }}>
-        {/* Mobile topbar */}
+        {/* Mobile top bar */}
         <div
           className="md:hidden"
           style={{
@@ -182,7 +265,14 @@ export default function DashboardLayout({ children }) {
           </span>
           <button
             onClick={() => setMobileOpen(true)}
-            style={{ color: 'white', background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', lineHeight: 1 }}
+            style={{
+              color: 'white',
+              background: 'none',
+              border: 'none',
+              fontSize: 22,
+              cursor: 'pointer',
+              lineHeight: 1,
+            }}
             aria-label="Open menu"
           >
             ☰
