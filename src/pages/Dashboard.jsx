@@ -46,12 +46,6 @@ const PAGE_CSS = `
   .review-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
 `
 
-const TRENDS = [
-  { dir: 'up',   pct: 12 },
-  { dir: 'up',   pct:  5 },
-  { dir: 'down', pct:  3 },
-  { dir: 'up',   pct:  8 },
-]
 
 function useCountUp(target, duration = 1000) {
   const [val, setVal] = useState(0)
@@ -261,8 +255,8 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null)
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
+  const [bizName, setBizName] = useState(authService.getBusiness()?.business_name || '')
 
-  const biz = authService.getBusiness()
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
@@ -270,10 +264,16 @@ export default function Dashboard() {
     Promise.all([
       api.get('/api/reviews/stats'),
       api.get('/api/reviews/list?limit=5'),
+      api.get('/api/auth/me'),
     ])
-      .then(([s, r]) => {
+      .then(([s, r, me]) => {
         setStats(s.data)
         setReviews(r.data.reviews || [])
+        const name = me.data?.business?.business_name
+        if (name) {
+          setBizName(name)
+          authService.setBusiness(me.data.business)
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -335,7 +335,7 @@ export default function Dashboard() {
           marginBottom: 24,
         }}
       >
-        {greeting}, {biz?.business_name || 'there'} 👋
+        {greeting}, {bizName || 'there'} 👋
       </h1>
 
       {/* Stat cards — stagger delay 0ms */}
@@ -344,28 +344,28 @@ export default function Dashboard() {
           title="Total Reviews"
           numValue={stats?.total_reviews ?? 0}
           icon="📝" iconBg="#dbeafe" tintColor="#3b82f6"
-          trend={TRENDS[0]} delay={0}
+          delay={0}
         />
         <StatCard
           title="Average Rating"
           numValue={stats?.average_rating ?? 0}
           format="rating" sub="out of 5"
           icon="⭐" iconBg="#fef3c7" tintColor="#f59e0b"
-          trend={TRENDS[1]} delay={50}
+          delay={50}
         />
         <StatCard
           title="Conversion Rate"
           numValue={stats?.conversion_rate ?? 0}
           format="percent" sub="reviews posted"
           icon="📈" iconBg="#d1fae5" tintColor="#10b981"
-          trend={TRENDS[2]} delay={100}
+          delay={100}
         />
         <StatCard
           title="This Month"
           numValue={stats?.monthly_reviews ?? 0}
           sub="new reviews"
           icon="📅" iconBg="#ede9fe" tintColor="#8b5cf6"
-          trend={TRENDS[3]} delay={150}
+          delay={150}
         />
       </div>
 
