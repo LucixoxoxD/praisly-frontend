@@ -21,11 +21,7 @@ function buildFallbacks(name, tags) {
   const t1 = tags[0] || 'service'
   const t2 = tags[1] || 'staff'
   return {
-    hinglish: [
-      `${name} mein ${t1} accha tha aur ${t2} bhi. Overall worth visiting.`,
-      `Went to ${name}, liked the ${t1}. ${t2} was also good. Will come back.`,
-      `${name} ka ${t1} impressive tha. ${t2} bhi theek tha. Recommended.`,
-    ],
+    hinglish: [],
     english: [
       `Good experience at ${name}. The ${t1} and ${t2} were both solid.`,
       `Visited ${name}. Liked the ${t1} especially. ${t2} was good too. Would return.`,
@@ -36,7 +32,7 @@ function buildFallbacks(name, tags) {
 
 function flatDrafts(drafts) {
   if (!drafts) return []
-  return [...(drafts.hinglish || []), ...(drafts.english || [])]
+  return drafts.english || []
 }
 
 const STYLES = `
@@ -196,6 +192,34 @@ const STYLES = `
   }
   .cr-powered b { color: #25D366; }
 
+  .cr-carousel {
+    display: flex;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -24px;
+    gap: 0;
+  }
+  .cr-carousel::-webkit-scrollbar { display: none; }
+  .cr-carousel-item {
+    min-width: 100%;
+    padding: 0 24px;
+    box-sizing: border-box;
+    scroll-snap-align: center;
+  }
+  .cr-nav-btn {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1.5px solid #e0ddd8; background: white;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; color: #555;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .cr-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .cr-nav-btn:not(:disabled):active { background: #eee; }
+
   .cr-spinner {
     width: 34px; height: 34px;
     border: 3px solid #e5e5e5;
@@ -240,18 +264,19 @@ export default function CustomerReview() {
   const [customerName, setCustomerName] = useState('')
 
   // Screen 3
-  const [submitting, setSubmitting]     = useState(false)
-  const [submitResult, setSubmitResult] = useState(null)
-  const [draftsReady, setDraftsReady]   = useState(false)
-  const [showShimmer, setShowShimmer]   = useState(true)
-  const [draftIndex, setDraftIndex]     = useState(0)
-  const [copied, setCopied]             = useState(false)
+  const [submitting, setSubmitting]       = useState(false)
+  const [submitResult, setSubmitResult]   = useState(null)
+  const [draftsReady, setDraftsReady]     = useState(false)
+  const [showShimmer, setShowShimmer]     = useState(true)
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const [copiedIndex, setCopiedIndex]     = useState(-1)
   const [googleClicked, setGoogleClicked] = useState(false)
   const [extraFeedback, setExtraFeedback] = useState('')
   const [sendingFeedback, setSendingFeedback] = useState(false)
 
-  const fallbackTimer = useRef(null)
-  const shimmerTimer  = useRef(null)
+  const fallbackTimer  = useRef(null)
+  const shimmerTimer   = useRef(null)
+  const carouselRef    = useRef(null)
 
   useEffect(() => {
     api
@@ -338,27 +363,33 @@ export default function CustomerReview() {
 
   // ── Draft actions ─────────────────────────────────────────────────────────
   const allDrafts    = flatDrafts(submitResult?.drafts)
-  const currentDraft = allDrafts[draftIndex] || ''
+  const currentDraft = allDrafts[carouselIndex] || ''
 
-  async function handleCopy() {
-    try { await navigator.clipboard.writeText(currentDraft) } catch {}
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2200)
+  function handleCarouselScroll() {
+    if (!carouselRef.current) return
+    const el  = carouselRef.current
+    const idx = Math.round(el.scrollLeft / el.offsetWidth)
+    setCarouselIndex(Math.max(0, Math.min(idx, allDrafts.length - 1)))
+  }
+
+  function scrollToCard(i) {
+    if (!carouselRef.current) return
+    carouselRef.current.scrollTo({ left: i * carouselRef.current.offsetWidth, behavior: 'smooth' })
+    setCarouselIndex(i)
+  }
+
+  async function handleCopyCard(draft, idx) {
+    try { await navigator.clipboard.writeText(draft) } catch {}
+    setCopiedIndex(idx)
+    setTimeout(() => setCopiedIndex(-1), 1500)
     try {
       if (submitResult?.review_id) {
         await api.post(`/api/review/${businessId}/select-draft`, {
           review_id: submitResult.review_id,
-          selected_draft: currentDraft,
+          selected_draft: draft,
         })
       }
     } catch {}
-  }
-
-  function handleRegenerate() {
-    if (allDrafts.length > 1) {
-      setDraftIndex((i) => (i + 1) % allDrafts.length)
-      setCopied(false)
-    }
   }
 
   function handleOpenGoogle() {
@@ -608,65 +639,113 @@ export default function CustomerReview() {
                 {/* ── POSITIVE CONTENT ── */}
                 {!showShimmer && draftsReady && submitResult?.path === 'positive' && (
                   <div style={{ animation: 'cr-fadeUp 0.3s ease' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-                      <span className="cr-ai-badge">✨ AI-generated review — sounds just like you</span>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
+                      <span className="cr-ai-badge">✨ 3 AI-drafted reviews — pick your favourite</span>
                     </div>
 
-                    <div className="cr-card" style={{ position: 'relative' }}>
-                      {/* Copy button */}
-                      <button
-                        onClick={handleCopy}
-                        style={{
-                          position: 'absolute', top: 14, right: 14,
-                          background: copied ? '#f0fdf4' : '#f5f3ef',
-                          border: `1.5px solid ${copied ? '#bbf7d0' : '#e0ddd8'}`,
-                          borderRadius: 8, padding: '5px 11px',
-                          fontSize: 12, fontWeight: 800,
-                          color: copied ? '#16a34a' : '#666',
-                          cursor: 'pointer', fontFamily: 'inherit',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        {copied ? '✓ Copied' : 'Copy'}
-                      </button>
+                    {/* ── Carousel ── */}
+                    <div
+                      className="cr-carousel"
+                      ref={carouselRef}
+                      onScroll={handleCarouselScroll}
+                    >
+                      {allDrafts.map((draft, i) => {
+                        const isCopied = copiedIndex === i
+                        return (
+                          <div key={i} className="cr-carousel-item">
+                            <div
+                              className="cr-card"
+                              onClick={() => handleCopyCard(draft, i)}
+                              style={{
+                                position: 'relative', marginBottom: 0,
+                                cursor: 'pointer',
+                                border: isCopied ? '2px solid #25D366' : '1px solid rgba(0,0,0,0.06)',
+                                transition: 'border-color 0.2s, box-shadow 0.2s',
+                                boxShadow: isCopied ? '0 0 0 4px rgba(37,211,102,0.12)' : '0 2px 14px rgba(0,0,0,0.05)',
+                              }}
+                            >
+                              {/* Option label + copied indicator */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                                <span style={{ fontSize: 11, fontWeight: 800, color: '#25D366', letterSpacing: 0.5 }}>
+                                  OPTION {i + 1}
+                                </span>
+                                {isCopied && (
+                                  <span style={{
+                                    fontSize: 12, fontWeight: 800, color: '#16a34a',
+                                    background: '#f0fdf4', border: '1.5px solid #bbf7d0',
+                                    borderRadius: 8, padding: '4px 10px',
+                                    animation: 'cr-fadeUp 0.15s ease',
+                                  }}>
+                                    ✓ Copied!
+                                  </span>
+                                )}
+                              </div>
 
-                      <p style={{
-                        fontSize: 14, color: '#2d2d2d', lineHeight: 1.75,
-                        marginBottom: 16, paddingRight: 64,
-                      }}>
-                        {currentDraft}
-                      </p>
+                              <p style={{ fontSize: 14, color: '#2d2d2d', lineHeight: 1.75, marginBottom: 16 }}>
+                                {draft}
+                              </p>
 
-                      {/* Reviewer row */}
-                      <div style={{
-                        display: 'flex', alignItems: 'center', gap: 10,
-                        borderTop: '1px solid #f0ede8', paddingTop: 14,
-                      }}>
-                        <div style={{
-                          width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-                          background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 15, color: 'white', fontWeight: 900,
-                        }}>
-                          {customerName ? customerName[0].toUpperCase() : '?'}
-                        </div>
-                        <div>
-                          <p style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
-                            {customerName || 'Anonymous'}
-                          </p>
-                          <div style={{ display: 'flex', gap: 1, marginTop: 3 }}>
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <span key={s} style={{
-                                fontSize: 12,
-                                color: s <= rating ? '#25D366' : '#e0ddd8',
-                              }}>★</span>
-                            ))}
+                              {/* Reviewer row */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderTop: '1px solid #f0ede8', paddingTop: 14 }}>
+                                <div style={{
+                                  width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+                                  background: 'linear-gradient(135deg, #25D366, #128C7E)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  fontSize: 15, color: 'white', fontWeight: 900,
+                                }}>
+                                  {customerName ? customerName[0].toUpperCase() : '?'}
+                                </div>
+                                <div>
+                                  <p style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
+                                    {customerName || 'Anonymous'}
+                                  </p>
+                                  <div style={{ display: 'flex', gap: 1, marginTop: 3 }}>
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                      <span key={s} style={{ fontSize: 12, color: s <= rating ? '#25D366' : '#e0ddd8' }}>★</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
+                        )
+                      })}
                     </div>
 
-                    <div className="cr-hint">📋 Copy → Paste on Google → Submit</div>
+                    {/* Tap hint */}
+                    <p style={{ textAlign: 'center', fontSize: 12, color: '#bbb', fontWeight: 700, margin: '10px 0 2px' }}>
+                      Tap a review to copy it
+                    </p>
+
+                    {/* Dots + arrows */}
+                    {allDrafts.length > 1 && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, margin: '14px 0 4px' }}>
+                        <button
+                          className="cr-nav-btn"
+                          disabled={carouselIndex === 0}
+                          onClick={() => scrollToCard(carouselIndex - 1)}
+                        >‹</button>
+                        {allDrafts.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => scrollToCard(i)}
+                            style={{
+                              width: i === carouselIndex ? 20 : 8, height: 8,
+                              borderRadius: 4, border: 'none', padding: 0,
+                              background: i === carouselIndex ? '#25D366' : '#ddd8d0',
+                              cursor: 'pointer', transition: 'all 0.3s',
+                            }}
+                          />
+                        ))}
+                        <button
+                          className="cr-nav-btn"
+                          disabled={carouselIndex === allDrafts.length - 1}
+                          onClick={() => scrollToCard(carouselIndex + 1)}
+                        >›</button>
+                      </div>
+                    )}
+
+                    <div className="cr-hint" style={{ marginTop: 14 }}>📋 Copy a review → Paste on Google → Submit</div>
 
                     {/* Post on Google */}
                     <button
@@ -696,12 +775,6 @@ export default function CustomerReview() {
                           ✓ I posted it!
                         </button>
                       </div>
-                    )}
-
-                    {allDrafts.length > 1 && (
-                      <button className="cr-ghost" onClick={handleRegenerate}>
-                        ↺ Generate a different version
-                      </button>
                     )}
                   </div>
                 )}
