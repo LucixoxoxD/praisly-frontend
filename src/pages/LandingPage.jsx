@@ -249,7 +249,7 @@ export default function LandingPage() {
         </span>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex" style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+        <div className="desktop-nav-links" style={{ alignItems: 'center', gap: 28 }}>
           {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
             <a key={label} href={href} className={scrolled ? 'nav-link-dark' : 'nav-link'}>{label}</a>
           ))}
@@ -277,7 +277,7 @@ export default function LandingPage() {
         <button
   className="mobile-hamburger"
   onClick={() => setMobileMenuOpen(v => !v)}
-  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: scrolled ? '#0f172a' : 'white', padding: 4, display: 'none' }}
+  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: scrolled ? '#0f172a' : 'white', padding: 4 }}
 >
   {mobileMenuOpen ? '✕' : '☰'}
 </button>
