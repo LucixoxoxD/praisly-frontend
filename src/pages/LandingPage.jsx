@@ -99,6 +99,14 @@ const STYLES = `
     transition: color 0.15s;
   }
   .lp-mobile-link:hover { color: white; }
+  @media (max-width: 767px) {
+  .mobile-hamburger { display: block !important; }
+  .desktop-nav-links { display: none !important; }
+}
+@media (min-width: 768px) {
+  .mobile-hamburger { display: none !important; }
+  .desktop-nav-links { display: flex !important; }
+}
 `
 
 // ─── Phone mockup ─────────────────────────────────────────────────────────────
@@ -267,12 +275,12 @@ export default function LandingPage() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(v => !v)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: scrolled ? '#0f172a' : 'white', padding: 4 }}
-        >
-          {mobileMenuOpen ? '✕' : '☰'}
-        </button>
+  className="mobile-hamburger"
+  onClick={() => setMobileMenuOpen(v => !v)}
+  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: scrolled ? '#0f172a' : 'white', padding: 4, display: 'none' }}
+>
+  {mobileMenuOpen ? '✕' : '☰'}
+</button>
       </nav>
 
       {/* Mobile menu backdrop */}
