@@ -35,16 +35,16 @@ const STEP_CSS = `
   .lang-radio.selected { border-color: #10b981; background: #f0fdf4; }
 `
 
-const LANGUAGES = [
-  { value: 'hindi', label: 'Hindi', sub: 'Reviews in Hindi' },
-  { value: 'english', label: 'English', sub: 'Reviews in English' },
-  { value: 'both', label: 'Both Hindi & English', sub: 'Customer can choose (recommended)' },
-]
+// const LANGUAGES = [
+//   { value: 'hindi', label: 'Hindi', sub: 'Reviews in Hindi' },
+//   { value: 'english', label: 'English', sub: 'Reviews in English' },
+//   { value: 'both', label: 'Both Hindi & English', sub: 'Customer can choose (recommended)' },
+// ]
 
 export default function StepOwnerDetails({ data, onUpdate, onNext, onBack, submitting }) {
   const [name, setName] = useState(data.ownerName || '')
   const [phone, setPhone] = useState(data.phone || '')
-  const [lang, setLang] = useState(data.preferredLanguage || 'both')
+  // const [lang, setLang] = useState(data.preferredLanguage || 'both')
   const [errors, setErrors] = useState({})
 
   function validate() {
@@ -58,7 +58,7 @@ export default function StepOwnerDetails({ data, onUpdate, onNext, onBack, submi
   function handleNext() {
     const e = validate()
     if (Object.keys(e).length) { setErrors(e); return }
-    const patch = { ownerName: name.trim(), phone: phone.replace(/\D/g, ''), preferredLanguage: lang }
+    const patch = { ownerName: name.trim(), phone: phone.replace(/\D/g, ''), preferredLanguage: 'english' }
     onUpdate(patch)      // update parent state for back-navigation
     onNext(patch)        // pass data directly so handleFinish doesn't read stale state
   }
@@ -126,40 +126,6 @@ export default function StepOwnerDetails({ data, onUpdate, onNext, onBack, submi
           />
         </div>
         {errors.phone && <p style={{ color: '#dc2626', fontSize: 12, margin: '4px 0 0' }}>{errors.phone}</p>}
-      </div>
-
-      {/* Language preference */}
-      <div style={{ marginBottom: 28 }}>
-        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>
-          Preferred language for AI-generated reviews
-        </label>
-        {LANGUAGES.map((l) => (
-          <button
-            key={l.value}
-            className={`lang-radio${lang === l.value ? ' selected' : ''}`}
-            onClick={() => setLang(l.value)}
-            style={{ width: '100%', textAlign: 'left', border: `1.5px solid ${lang === l.value ? '#10b981' : '#e2e8f0'}`, background: lang === l.value ? '#f0fdf4' : 'white' }}
-          >
-            <div
-              style={{
-                width: 18, height: 18,
-                borderRadius: '50%',
-                border: `2px solid ${lang === l.value ? '#10b981' : '#cbd5e1'}`,
-                background: lang === l.value ? '#10b981' : 'white',
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {lang === l.value && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'white' }} />}
-            </div>
-            <div>
-              <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{l.label}</p>
-              <p style={{ margin: '1px 0 0', fontSize: 12, color: '#64748b' }}>{l.sub}</p>
-            </div>
-          </button>
-        ))}
       </div>
 
       {/* Buttons */}
