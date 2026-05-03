@@ -149,6 +149,8 @@ export default function Reviews() {
           borderRadius: 10,
           padding: 4,
           width: 'fit-content',
+          maxWidth: '100%',
+          overflowX: 'auto',
         }}
       >
         {TABS.map((t) => (

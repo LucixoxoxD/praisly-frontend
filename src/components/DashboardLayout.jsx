@@ -48,6 +48,8 @@ const SIDEBAR_CSS = `
     font-family: inherit;
   }
   .sidebar-logout:hover { color: rgba(255,255,255,0.8); }
+  .content-area { padding: 28px 24px; }
+  @media (max-width: 767px) { .content-area { padding: 20px 16px; } }
 `
 
 function getInitials(name) {
@@ -253,25 +255,16 @@ export default function DashboardLayout({ children }) {
           className="md:hidden"
           style={{
             background: '#1a1a2e',
-            padding: '14px 20px',
+            padding: '0 16px',
+            height: 56,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
             position: 'sticky',
             top: 0,
             zIndex: 30,
           }}
         >
-          <span
-            style={{
-              color: 'white',
-              fontSize: 18,
-              fontWeight: 800,
-              fontFamily: "'Plus Jakarta Sans', system-ui",
-            }}
-          >
-            Praisly
-          </span>
+          {/* Hamburger — left */}
           <button
             onClick={() => setMobileOpen(true)}
             style={{
@@ -281,14 +274,33 @@ export default function DashboardLayout({ children }) {
               fontSize: 22,
               cursor: 'pointer',
               lineHeight: 1,
+              padding: '4px 8px 4px 0',
+              flexShrink: 0,
             }}
             aria-label="Open menu"
           >
             ☰
           </button>
+
+          {/* Praisly — center */}
+          <span
+            style={{
+              flex: 1,
+              textAlign: 'center',
+              color: 'white',
+              fontSize: 18,
+              fontWeight: 800,
+              fontFamily: "'Plus Jakarta Sans', system-ui",
+            }}
+          >
+            Praisly
+          </span>
+
+          {/* Spacer — right (balances hamburger width) */}
+          <div style={{ width: 38, flexShrink: 0 }} />
         </div>
 
-        <div style={{ padding: '28px 24px', maxWidth: 1100, margin: '0 auto' }}>
+        <div className="content-area" style={{ maxWidth: 1100, margin: '0 auto' }}>
           {children}
         </div>
       </div>

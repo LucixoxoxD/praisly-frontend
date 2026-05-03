@@ -31,6 +31,9 @@ const PAGE_CSS = `
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     opacity: 0;
   }
+  @media (max-width: 640px) {
+    .stat-card { flex: 1 1 100%; min-width: 0; }
+  }
   .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.09);
