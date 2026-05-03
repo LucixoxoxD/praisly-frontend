@@ -6,6 +6,7 @@ import CustomerReview from './pages/CustomerReview'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import Onboarding from './pages/Onboarding'
 import Dashboard from './pages/Dashboard'
 import Reviews from './pages/Reviews'
 import QRCode from './pages/QRCode'
@@ -14,11 +15,23 @@ import Billing from './pages/Billing'
 import SendRequest from './pages/SendRequest'
 
 function Protected({ children }) {
-  return authService.isAuthenticated() ? children : <Navigate to="/login" replace />
+  if (!authService.isAuthenticated()) return <Navigate to="/login" replace />
+  const biz = authService.getBusiness()
+  if (biz && biz.onboarding_completed === false) return <Navigate to="/onboarding" replace />
+  return children
 }
 
 function AuthOnly({ children }) {
-  return authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : children
+  if (!authService.isAuthenticated()) return children
+  const biz = authService.getBusiness()
+  return <Navigate to={biz?.onboarding_completed === false ? '/onboarding' : '/dashboard'} replace />
+}
+
+function OnboardingRoute({ children }) {
+  if (!authService.isAuthenticated()) return <Navigate to="/login" replace />
+  const biz = authService.getBusiness()
+  if (biz?.onboarding_completed === true) return <Navigate to="/dashboard" replace />
+  return children
 }
 
 function WithLayout({ children }) {
@@ -38,8 +51,9 @@ export default function App() {
             path="/"
             element={authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LandingPage />}
           />
-          <Route path="/login"  element={<AuthOnly><Login /></AuthOnly>} />
-          <Route path="/signup" element={<AuthOnly><Signup /></AuthOnly>} />
+          <Route path="/login"      element={<AuthOnly><Login /></AuthOnly>} />
+          <Route path="/signup"     element={<AuthOnly><Signup /></AuthOnly>} />
+          <Route path="/onboarding" element={<OnboardingRoute><Onboarding /></OnboardingRoute>} />
 
           {/* Public customer-facing review page — untouched */}
           <Route path="/review/:businessId" element={<CustomerReview />} />

@@ -35,8 +35,9 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      await authService.login(email, password)
-      navigate('/dashboard', { replace: true })
+      const data = await authService.login(email, password)
+      const dest = data.business?.onboarding_completed === false ? '/onboarding' : '/dashboard'
+      navigate(dest, { replace: true })
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed. Check your credentials.')
     } finally {

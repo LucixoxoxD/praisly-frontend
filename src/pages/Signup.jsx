@@ -56,7 +56,7 @@ export default function Signup() {
     setError('')
     try {
       await authService.signup(form)
-      navigate('/dashboard', { replace: true })
+      navigate('/onboarding', { replace: true })
     } catch (err) {
       setError(err.response?.data?.detail || 'Signup failed. Please try again.')
     } finally {
