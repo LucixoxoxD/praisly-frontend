@@ -273,6 +273,7 @@ export default function CustomerReview() {
   const [googleClicked, setGoogleClicked] = useState(false)
   const [extraFeedback, setExtraFeedback] = useState('')
   const [sendingFeedback, setSendingFeedback] = useState(false)
+  const [limitReached, setLimitReached]       = useState(false)
 
   const fallbackTimer  = useRef(null)
   const shimmerTimer   = useRef(null)
@@ -345,6 +346,13 @@ export default function CustomerReview() {
       setDraftsReady(true)
     } catch (err) {
       clearTimeout(fallbackTimer.current)
+      clearTimeout(shimmerTimer.current)
+      if (err.response?.status === 403) {
+        setLimitReached(true)
+        setScreen('done')
+        setSubmitting(false)
+        return
+      }
       if (isPositive) {
         setSubmitResult({
           path: 'positive',
@@ -827,7 +835,29 @@ export default function CustomerReview() {
           )}
 
           {/* ══ DONE ════════════════════════════════════════════════════════════ */}
-          {screen === 'done' && (
+          {screen === 'done' && limitReached && (
+            <div style={{
+              textAlign: 'center', marginTop: 100, padding: '0 28px',
+              animation: 'cr-fadeUp 0.35s ease',
+            }}>
+              <p style={{ fontSize: 58, marginBottom: 18 }}>🙏</p>
+              <h2 style={{ fontSize: 22, fontWeight: 900, color: '#1a1a1a', marginBottom: 10 }}>
+                Thank you for visiting!
+              </h2>
+              <p style={{ fontSize: 15, color: '#999', lineHeight: 1.65, fontWeight: 600, marginBottom: 28 }}>
+                This business's review collection is currently paused. We appreciate your feedback!
+              </p>
+              <button
+                className="cr-btn"
+                style={{ background: '#374151', maxWidth: 200, margin: '0 auto' }}
+                onClick={() => window.history.back()}
+              >
+                Done
+              </button>
+            </div>
+          )}
+
+          {screen === 'done' && !limitReached && (
             <div style={{
               textAlign: 'center', marginTop: 100, padding: '0 28px',
               animation: 'cr-fadeUp 0.35s ease',
