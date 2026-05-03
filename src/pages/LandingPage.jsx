@@ -90,6 +90,15 @@ const STYLES = `
   .nav-link-dark:hover { color: #10b981; }
   @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
   @keyframes pulse-green { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 70% { box-shadow: 0 0 0 10px rgba(16,185,129,0); } }
+  @keyframes lp-slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  .lp-mobile-menu { animation: lp-slideDown 0.2s ease; }
+  .lp-mobile-link {
+    display: block; padding: 14px 0; font-size: 16px; font-weight: 600;
+    color: rgba(255,255,255,0.85); text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: color 0.15s;
+  }
+  .lp-mobile-link:hover { color: white; }
 `
 
 // ─── Phone mockup ─────────────────────────────────────────────────────────────
@@ -266,27 +275,43 @@ export default function LandingPage() {
         </button>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu backdrop */}
       {mobileMenuOpen && (
         <div
+          onClick={() => setMobileMenuOpen(false)}
+          style={{ position: 'fixed', inset: 0, zIndex: 98 }}
+        />
+      )}
+
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div
+          className="lp-mobile-menu md:hidden"
           style={{
             position: 'fixed', top: 60, left: 0, right: 0, zIndex: 99,
-            background: 'white', padding: '16px 24px 24px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+            background: '#1a1a2e',
+            padding: '8px 24px 24px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
           }}
         >
           {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
-            <a key={label} href={href} onClick={() => setMobileMenuOpen(false)}
-              style={{ display: 'block', padding: '12px 0', fontSize: 16, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f1f5f9' }}>
+            <a key={label} href={href} className="lp-mobile-link" onClick={() => setMobileMenuOpen(false)}>
               {label}
             </a>
           ))}
-          <Link to="/login" onClick={() => setMobileMenuOpen(false)}
-            style={{ display: 'block', padding: '12px 0', fontSize: 16, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f1f5f9' }}>
+          <Link to="/login" className="lp-mobile-link" onClick={() => setMobileMenuOpen(false)}>
             Login
           </Link>
-          <Link to="/signup" onClick={() => setMobileMenuOpen(false)}
-            style={{ display: 'block', marginTop: 16, padding: '13px', background: '#10b981', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', textAlign: 'center' }}>
+          <Link
+            to="/signup"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              display: 'block', marginTop: 16, padding: '13px',
+              background: '#10b981', color: 'white', borderRadius: 10,
+              fontWeight: 700, fontSize: 15, textDecoration: 'none', textAlign: 'center',
+              transition: 'background 0.2s',
+            }}
+          >
             Start Free →
           </Link>
         </div>
