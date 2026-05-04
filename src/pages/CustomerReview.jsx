@@ -280,8 +280,14 @@ export default function CustomerReview() {
     copyTimer.current = setTimeout(() => setCopied(false), 2000)
   }
 
-  function handleOpenGoogle() {
-    if (draft) navigator.clipboard.writeText(draft).catch(() => {})
+  async function handleOpenGoogle() {
+    if (!copied) {
+      try { await navigator.clipboard.writeText(draft) } catch {}
+      setCopied(true)
+      clearTimeout(copyTimer.current)
+      copyTimer.current = setTimeout(() => setCopied(false), 2000)
+      await new Promise((r) => setTimeout(r, 500))
+    }
     if (googleReviewUrl) window.open(googleReviewUrl, '_blank', 'noopener')
     setGoogleClicked(true)
   }
@@ -415,19 +421,67 @@ export default function CustomerReview() {
           {/* ══ SCREEN 2 — AI DRAFT ══════════════════════════════════════════════ */}
           {screen === 'ai_draft' && (
             <div className="cr-body">
-              <div style={{ marginTop: 28, marginBottom: 18, display: 'flex', justifyContent: 'center' }}>
+
+              {/* Badge */}
+              <div style={{ marginTop: 28, marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: 5,
                   background: '#f0fdf4', border: '1px solid #bbf7d0',
                   color: '#15803d', fontSize: 12, fontWeight: 700,
                   padding: '5px 14px', borderRadius: 100,
                 }}>
-                  ✨ AI-drafted for you
+                  ✨ Your review is ready!
                 </span>
               </div>
 
-              {/* Draft card — shimmer while loading */}
-              <div className="cr-card">
+              {/* 3-step instruction bar */}
+              <div style={{
+                background: '#f0fdf4', border: '1.5px solid #bbf7d0',
+                borderRadius: 14, padding: '14px 16px',
+                marginBottom: 16, display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 6, flexWrap: 'wrap',
+              }}>
+                {[
+                  { num: '①', text: 'Tap to copy' },
+                  { num: '②', text: 'Open Google' },
+                  { num: '③', text: 'Paste & submit' },
+                ].map((step, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 5,
+                      fontSize: 13, fontWeight: 700, color: '#15803d',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      <span style={{
+                        width: 24, height: 24, borderRadius: '50%',
+                        background: '#25D366', color: 'white',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, fontWeight: 800, flexShrink: 0,
+                      }}>{i + 1}</span>
+                      {step.text}
+                    </div>
+                    {i < 2 && (
+                      <span style={{ color: '#6ee7b7', fontWeight: 700, fontSize: 16 }}>→</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Draft card — tappable to copy, shimmer while loading */}
+              <div
+                className="cr-card"
+                onClick={!submitting && draft ? handleCopy : undefined}
+                style={{
+                  cursor: !submitting && draft ? 'pointer' : 'default',
+                  border: copied ? '2px solid #10b981' : '1px solid rgba(0,0,0,0.07)',
+                  boxShadow: copied
+                    ? '0 0 0 4px rgba(16,185,129,0.12)'
+                    : '0 2px 12px rgba(0,0,0,0.06)',
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                  position: 'relative',
+                }}
+              >
                 {submitting || !draft ? (
                   <>
                     <div className="cr-shimmer-bar" style={{ height: 13, width: '90%', marginBottom: 10 }} />
@@ -435,60 +489,54 @@ export default function CustomerReview() {
                     <div className="cr-shimmer-bar" style={{ height: 13, width: '55%' }} />
                   </>
                 ) : (
-                  <p style={{
-                    fontSize: 15, color: '#1f2937', lineHeight: 1.75, margin: 0,
-                    animation: 'cr-fadeUp 0.25s ease',
-                  }}>
-                    {draft}
-                  </p>
+                  <>
+                    <p style={{
+                      fontSize: 15, color: '#1f2937', lineHeight: 1.75, margin: '0 0 14px',
+                      animation: 'cr-fadeUp 0.25s ease',
+                    }}>
+                      {draft}
+                    </p>
+
+                    {/* Copied toast inside card */}
+                    {copied ? (
+                      <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        gap: 6, padding: '8px 12px',
+                        background: '#d1fae5', borderRadius: 8,
+                        fontSize: 13, fontWeight: 700, color: '#065f46',
+                        animation: 'cr-fadeUp 0.15s ease',
+                      }}>
+                        ✓ Copied to clipboard!
+                      </div>
+                    ) : (
+                      <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        gap: 5, fontSize: 12, fontWeight: 600, color: '#9ca3af',
+                      }}>
+                        📋 Tap to copy
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
-              {/* Copy + Regenerate */}
+              {/* Try another — small text button */}
               {!submitting && draft && (
-                <div style={{ display: 'flex', gap: 10, marginBottom: 14, animation: 'cr-fadeUp 0.25s ease' }}>
-                  <button
-                    onClick={handleCopy}
-                    style={{
-                      flex: 1, padding: '12px', borderRadius: 12,
-                      border: copied ? '2px solid #10b981' : '1.5px solid #e5e7eb',
-                      background: copied ? '#d1fae5' : 'white',
-                      color: copied ? '#065f46' : '#374151',
-                      fontSize: 14, fontWeight: 700,
-                      cursor: 'pointer', fontFamily: 'inherit',
-                      transition: 'all 0.2s',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    }}
-                  >
-                    {copied ? '✓ Copied!' : '📋 Copy'}
-                  </button>
+                <div style={{ textAlign: 'center', marginBottom: 16 }}>
                   <button
                     onClick={handleRegenerate}
                     disabled={regenerating}
                     style={{
-                      flex: 1, padding: '12px', borderRadius: 12,
-                      border: '1.5px solid #e5e7eb', background: 'white',
-                      color: '#6b7280', fontSize: 14, fontWeight: 700,
-                      cursor: 'pointer', fontFamily: 'inherit',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      opacity: regenerating ? 0.5 : 1,
+                      background: 'none', border: 'none',
+                      color: regenerating ? '#d1d5db' : '#6b7280',
+                      fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                      fontFamily: 'inherit', padding: '8px 16px',
+                      minHeight: 48,
+                      display: 'inline-flex', alignItems: 'center', gap: 5,
                     }}
                   >
-                    {regenerating ? '…' : '🔄 Try another'}
+                    {regenerating ? '…generating' : '🔄 Try another version'}
                   </button>
-                </div>
-              )}
-
-              {/* Hint */}
-              {!submitting && draft && (
-                <div style={{
-                  background: '#fffbeb', border: '1px solid #fde68a',
-                  borderRadius: 12, padding: '11px 15px',
-                  fontSize: 13, color: '#92400e', fontWeight: 600,
-                  textAlign: 'center', marginBottom: 14,
-                  animation: 'cr-fadeUp 0.3s ease',
-                }}>
-                  📋 Copy the review above → paste it on Google
                 </div>
               )}
 
@@ -523,10 +571,6 @@ export default function CustomerReview() {
                   </button>
                 </div>
               )}
-
-              <button className="cr-ghost" onClick={() => setScreen('rate')}>
-                ← Back
-              </button>
 
               <p className="cr-powered">Powered by <b>Praisly</b></p>
             </div>
