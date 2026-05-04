@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, AreaChart, Area,
+  LineChart, Line, Legend,
 } from 'recharts'
 import api, { authService } from '../services/api'
 import { stripMarkdown } from '../utils/helpers'
@@ -30,6 +31,27 @@ function ratingBorder(r) {
   return '#ef4444'
 }
 
+function fmtChartDate(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr + 'T00:00:00')
+  return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+}
+
+function buildGrowthChartData(series) {
+  if (!series?.length) return []
+  const dateMap = {}
+  series.forEach(s => {
+    s.data.forEach(pt => {
+      if (!dateMap[pt.date]) dateMap[pt.date] = { _date: pt.date }
+      dateMap[pt.date][s.name] = pt.count
+    })
+  })
+  return Object.values(dateMap).sort((a, b) => a._date.localeCompare(b._date))
+}
+
+const RANK_MEDALS = ['🥇', '🥈', '🥉']
+const COMP_COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6']
+
 // ---------------------------------------------------------------------------
 // CSS
 // ---------------------------------------------------------------------------
@@ -37,6 +59,10 @@ function ratingBorder(r) {
 const PAGE_CSS = `
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: none; }
   }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
@@ -73,19 +99,25 @@ const PAGE_CSS = `
     padding: 3px 9px; border-radius: 20px;
     font-size: 11px; font-weight: 700;
   }
-  .d-badge-green { background: #d1fae5; color: #065f46; }
-  .d-badge-amber { background: #fef3c7; color: #92400e; }
-  .d-badge-gray  { background: #f1f5f9; color: #475569; }
+  .d-badge-green  { background: #d1fae5; color: #065f46; }
+  .d-badge-amber  { background: #fef3c7; color: #92400e; }
+  .d-badge-gray   { background: #f1f5f9; color: #475569; }
   .d-badge-purple { background: #ede9fe; color: #5b21b6; }
 
-  .comp-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px; border-radius: 10px;
-    margin-bottom: 6px;
+  .lb-row {
+    display: flex; align-items: center; gap: 0;
+    padding: 11px 14px;
+    border-bottom: 1px solid #f1f5f9;
     transition: background 0.15s;
   }
-  .comp-row:hover { background: #f8fafc; }
-  .comp-row.me    { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row:hover { background: #f8fafc; }
+  .lb-row.lb-me {
+    background: #f0fdf4;
+    border-left: 4px solid #10b981;
+    padding-left: 10px;
+  }
+  .lb-row.lb-me:hover { background: #e6faf2; }
 
   .search-result {
     padding: 12px 14px; border-radius: 10px;
@@ -103,9 +135,11 @@ const PAGE_CSS = `
   .review-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
 
   @media (max-width: 640px) {
-    .d-hero-grid { grid-template-columns: 1fr !important; }
-    .d-mini-grid { grid-template-columns: 1fr 1fr !important; }
+    .d-hero-grid  { grid-template-columns: 1fr !important; }
+    .d-mini-grid  { grid-template-columns: 1fr 1fr !important; }
     .d-chart-grid { grid-template-columns: 1fr !important; }
+    .rank-hero-inner { flex-direction: column !important; }
+    .lb-scroll { overflow-x: auto; }
   }
 `
 
@@ -169,6 +203,20 @@ function ChartTooltip({ active, payload, label, unit = 'reviews' }) {
   )
 }
 
+function GrowthTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{ background: 'white', borderRadius: 10, padding: '10px 14px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', border: '1px solid #f1f5f9', fontSize: 13, minWidth: 140 }}>
+      <p style={{ margin: '0 0 6px', color: '#64748b', fontSize: 12 }}>{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} style={{ margin: '2px 0', fontWeight: 600, color: p.color, fontSize: 13 }}>
+          {p.name}: {fmtIN(p.value)}
+        </p>
+      ))}
+    </div>
+  )
+}
+
 function EmptyChart() {
   return (
     <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 13, background: '#f8fafc', borderRadius: 8 }}>
@@ -176,10 +224,6 @@ function EmptyChart() {
     </div>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Tooltip for Estimated Value card
-// ---------------------------------------------------------------------------
 
 function InfoTooltip({ text }) {
   const [show, setShow] = useState(false)
@@ -258,7 +302,71 @@ function MiniCard({ title, value, sub, icon, iconBg, tintColor = '#10b981', dela
 }
 
 // ---------------------------------------------------------------------------
-// Confetti pieces (generated once, pure CSS animation)
+// Rank Hero Card
+// ---------------------------------------------------------------------------
+
+function RankHeroCard({ rank, reviews30, leaderboard, stats, biz }) {
+  const city = biz?.city?.trim()
+  const bizType = biz?.business_type?.trim()
+  const cityOk = city && city.toLowerCase() !== 'string'
+  const typeOk = bizType && bizType.toLowerCase() !== 'string'
+
+  const subtitle = [cityOk ? city : null, typeOk ? bizType : null].filter(Boolean).join(' ')
+
+  const top1Entry = leaderboard?.[0]
+  const isLeading = rank === 1
+  const gap = !isLeading && top1Entry ? top1Entry.review_count - (stats?.google_current_count || 0) : 0
+
+  return (
+    <div
+      className="d-card"
+      style={{
+        padding: '20px 24px',
+        background: 'linear-gradient(135deg, #ecfdf5 0%, white 80%)',
+        marginBottom: 14,
+        animation: 'fadeUp 0.3s ease both',
+        animationDelay: '0ms',
+      }}
+    >
+      <div className="rank-hero-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+        {/* Left — rank number */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+          <div>
+            <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 56, fontWeight: 800, color: '#0f172a', lineHeight: 1, margin: 0 }}>
+              #{rank}
+            </p>
+            {subtitle && (
+              <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 8px' }}>
+                in {subtitle} Rankings
+              </p>
+            )}
+            {reviews30 > 0 && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '3px 10px', borderRadius: 999, background: '#10b981', color: 'white', fontSize: 11, fontWeight: 700 }}>
+                +{reviews30} this month
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Right — message */}
+        <div style={{ textAlign: 'right' }}>
+          {isLeading ? (
+            <p style={{ fontSize: 18, fontWeight: 600, color: '#059669', margin: 0, lineHeight: 1.4 }}>
+              🏆 You're leading your area!
+            </p>
+          ) : (
+            <p style={{ fontSize: 18, fontWeight: 600, color: '#d97706', margin: 0, lineHeight: 1.4 }}>
+              {fmtIN(gap)} reviews to reach #1
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Confetti + milestone overlay
 // ---------------------------------------------------------------------------
 
 const CONF_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899']
@@ -281,26 +389,18 @@ function ConfettiPieces() {
         <div
           key={p.key}
           style={{
-            position: 'fixed',
-            top: -10,
-            left: p.left,
-            width: p.size,
-            height: p.size,
+            position: 'fixed', top: -10, left: p.left,
+            width: p.size, height: p.size,
             borderRadius: p.isCircle ? '50%' : 2,
             background: p.color,
             animation: `confettiFall ${p.duration} ${p.delay} ease-in forwards`,
-            pointerEvents: 'none',
-            zIndex: 101,
+            pointerEvents: 'none', zIndex: 101,
           }}
         />
       ))}
     </>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Milestone celebration overlay
-// ---------------------------------------------------------------------------
 
 function MilestoneOverlay({ notif, onDismiss }) {
   return (
@@ -321,11 +421,7 @@ function MilestoneOverlay({ notif, onDismiss }) {
         <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.6, margin: '0 0 28px' }}>{notif.message}</p>
         <button
           onClick={onDismiss}
-          style={{
-            background: '#10b981', color: 'white', border: 'none',
-            borderRadius: 12, padding: '13px 32px', fontSize: 16, fontWeight: 700,
-            cursor: 'pointer', fontFamily: 'inherit',
-          }}
+          style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 12, padding: '13px 32px', fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           Awesome! 🙌
         </button>
@@ -335,7 +431,7 @@ function MilestoneOverlay({ notif, onDismiss }) {
 }
 
 // ---------------------------------------------------------------------------
-// Competitor modal + leaderboard
+// Competitor modal
 // ---------------------------------------------------------------------------
 
 function CompetitorModal({ bizCity, onClose, onAdd }) {
@@ -382,11 +478,7 @@ function CompetitorModal({ bizCity, onClose, onAdd }) {
           value={query}
           onChange={e => handleSearch(e.target.value)}
           placeholder="Search by business name…"
-          style={{
-            width: '100%', padding: '11px 14px', border: '1.5px solid #e2e8f0',
-            borderRadius: 10, fontSize: 14, fontFamily: 'inherit',
-            outline: 'none', marginBottom: 16, boxSizing: 'border-box',
-          }}
+          style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', marginBottom: 16, boxSizing: 'border-box' }}
         />
         {searching && <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>Searching…</p>}
         {results.map(r => (
@@ -412,9 +504,14 @@ function CompetitorModal({ bizCity, onClose, onAdd }) {
   )
 }
 
-function CompetitorSection({ stats, competitors, onAdd, onDelete, bizName }) {
+// ---------------------------------------------------------------------------
+// Leaderboard section (with AI recommendation)
+// ---------------------------------------------------------------------------
+
+function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, loadingComps }) {
   const [showModal, setShowModal] = useState(false)
   const [showManage, setShowManage] = useState(false)
+  const [dismissRec, setDismissRec] = useState(false)
   const bizCity = authService.getBusiness()?.city || ''
 
   async function handleAdd(place_id, name) {
@@ -422,33 +519,30 @@ function CompetitorSection({ stats, competitors, onAdd, onDelete, bizName }) {
     onAdd(res.data.competitor)
   }
 
-  const allEntries = [
-    {
-      name: bizName || 'Your Business',
-      review_count: stats?.google_current_count || 0,
-      rating: stats?.google_current_rating,
-      isMe: true,
-    },
-    ...competitors.map(c => ({ ...c, isMe: false })),
-  ].sort((a, b) => (b.review_count || 0) - (a.review_count || 0))
-
-  const myRank = allEntries.findIndex(e => e.isMe) + 1
-  const topEntry = allEntries.find(e => !e.isMe && e.review_count > (stats?.google_current_count || 0))
-
   const canAddMore = competitors.length < 3
+  const aiRec = stats?.ai_recommendation
+
+  if (loadingComps) {
+    return (
+      <div className="d-card" style={{ padding: '20px', marginBottom: 20 }}>
+        <Skel style={{ height: 16, width: 140, marginBottom: 16 }} />
+        {[0,1,2].map(i => <Skel key={i} style={{ height: 44, borderRadius: 8, marginBottom: 8 }} />)}
+      </div>
+    )
+  }
 
   if (competitors.length === 0) {
     return (
       <>
-        <div className="d-card" style={{ padding: '28px 24px', textAlign: 'center', animation: 'fadeUp 0.35s ease both', animationDelay: '350ms' }}>
+        <div className="d-card" style={{ padding: '28px 24px', textAlign: 'center', marginBottom: 20, animation: 'fadeUp 0.35s ease both', animationDelay: '350ms' }}>
           <p style={{ fontSize: 28, margin: '0 0 12px' }}>🏆</p>
-          <h3 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>How do you compare?</h3>
-          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>Add up to 3 local competitors to track your Google ranking</p>
+          <h3 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>Start competing</h3>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>Add local competitors to see who's winning the review game in your area</p>
           <button
             onClick={() => setShowModal(true)}
-            style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 10, padding: '10px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 12, padding: '10px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            + Add Competitor
+            Add Competitors
           </button>
         </div>
         {showModal && <CompetitorModal bizCity={bizCity} onClose={() => setShowModal(false)} onAdd={handleAdd} />}
@@ -458,63 +552,119 @@ function CompetitorSection({ stats, competitors, onAdd, onDelete, bizName }) {
 
   return (
     <>
-      <div className="d-card" style={{ padding: '20px 20px 14px', animation: 'fadeUp 0.35s ease both', animationDelay: '350ms' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h3 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 15, fontWeight: 700, color: '#0f172a', margin: 0 }}>Local Ranking</h3>
+      <div className="d-card" style={{ marginBottom: aiRec && !dismissRec ? 0 : 20, borderBottomLeftRadius: aiRec && !dismissRec ? 0 : 16, borderBottomRightRadius: aiRec && !dismissRec ? 0 : 16, animation: 'fadeUp 0.35s ease both', animationDelay: '350ms', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 12px' }}>
+          <h3 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 18, fontWeight: 700, color: '#0f172a', margin: 0 }}>Local Ranking</h3>
           <button
             onClick={() => setShowManage(!showManage)}
-            style={{ fontSize: 12, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
+            style={{ fontSize: 13, color: '#10b981', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
           >
             Manage
           </button>
         </div>
 
-        {/* #1 or gap banner */}
-        {myRank === 1 ? (
-          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, fontWeight: 700, color: '#15803d', textAlign: 'center' }}>
-            🏆 You're #1 in your area!
+        {/* Column headers */}
+        <div className="lb-scroll">
+          <div style={{ display: 'flex', alignItems: 'center', padding: '6px 14px 6px', borderBottom: '1px solid #f1f5f9', minWidth: 460 }}>
+            <span style={{ width: 36, fontSize: 11, fontWeight: 600, color: '#94a3b8', flexShrink: 0 }}>Rank</span>
+            <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: '#94a3b8', minWidth: 0 }}>Business</span>
+            <span style={{ width: 70, fontSize: 11, fontWeight: 600, color: '#94a3b8', textAlign: 'right', flexShrink: 0 }}>Rating</span>
+            <span style={{ width: 90, fontSize: 11, fontWeight: 600, color: '#94a3b8', textAlign: 'right', flexShrink: 0 }}>Reviews</span>
+            <span style={{ width: 88, fontSize: 11, fontWeight: 600, color: '#94a3b8', textAlign: 'right', flexShrink: 0 }}>Last 30 Days</span>
+            {showManage && <span style={{ width: 60, flexShrink: 0 }} />}
           </div>
-        ) : topEntry ? (
-          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, fontWeight: 600, color: '#92400e', textAlign: 'center' }}>
-            You're {fmtIN(topEntry.review_count - (stats?.google_current_count || 0))} reviews behind {topEntry.name}. Keep going! 💪
-          </div>
-        ) : null}
 
-        {/* Leaderboard rows */}
-        {allEntries.map((entry, i) => (
-          <div key={entry.id || 'me'} className={`comp-row${entry.isMe ? ' me' : ''}`}>
-            <span style={{ width: 22, height: 22, borderRadius: '50%', background: i === 0 ? '#fef3c7' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: i === 0 ? '#92400e' : '#475569', flexShrink: 0 }}>
-              {i + 1}
-            </span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 13, fontWeight: entry.isMe ? 700 : 500, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {entry.name} {entry.isMe && <span style={{ fontSize: 11, color: '#10b981' }}>(you)</span>}
-              </p>
-            </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 2px' }}>{fmtIN(entry.review_count)}</p>
-              {entry.rating && <p style={{ fontSize: 11, color: '#f59e0b', margin: 0 }}>⭐ {Number(entry.rating).toFixed(1)}</p>}
-            </div>
-            {showManage && !entry.isMe && (
-              <button
-                onClick={() => onDelete(entry.id)}
-                style={{ marginLeft: 8, color: '#ef4444', background: 'none', border: 'none', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600, flexShrink: 0 }}
-              >
-                Remove
-              </button>
-            )}
-          </div>
-        ))}
+          {leaderboard.map((entry, i) => (
+            <div key={entry.id || 'me'} className={`lb-row${entry.is_self ? ' lb-me' : ''}`} style={{ minWidth: 460 }}>
+              {/* Rank */}
+              <span style={{ width: 36, fontSize: i < 3 ? 18 : 13, fontWeight: 700, color: '#64748b', flexShrink: 0 }}>
+                {i < 3 ? RANK_MEDALS[i] : `#${i + 1}`}
+              </span>
 
+              {/* Business name */}
+              <div style={{ flex: 1, minWidth: 0, paddingRight: 8 }}>
+                <p style={{ fontSize: 13, fontWeight: entry.is_self ? 700 : 500, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {entry.name}
+                  {entry.is_self && <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600, marginLeft: 6 }}>(You)</span>}
+                </p>
+              </div>
+
+              {/* Rating */}
+              <span style={{ width: 70, fontSize: 13, color: '#64748b', textAlign: 'right', flexShrink: 0 }}>
+                {entry.rating ? `${Number(entry.rating).toFixed(1)} ⭐` : '—'}
+              </span>
+
+              {/* Total reviews */}
+              <span style={{ width: 90, fontSize: 13, fontWeight: 700, color: '#0f172a', textAlign: 'right', flexShrink: 0 }}>
+                {fmtIN(entry.review_count)}
+              </span>
+
+              {/* Last 30 days badge */}
+              <span style={{ width: 88, textAlign: 'right', flexShrink: 0 }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center',
+                  padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+                  background: (entry.reviews_last_30_days || 0) > 0 ? '#f0fdf4' : '#f1f5f9',
+                  color: (entry.reviews_last_30_days || 0) > 0 ? '#15803d' : '#94a3b8',
+                }}>
+                  +{entry.reviews_last_30_days || 0}
+                </span>
+              </span>
+
+              {/* Remove button (manage mode) */}
+              {showManage && (
+                <span style={{ width: 60, textAlign: 'right', flexShrink: 0 }}>
+                  {!entry.is_self && (
+                    <button
+                      onClick={() => onDelete(entry.id)}
+                      style={{ color: '#ef4444', background: 'none', border: 'none', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Add more button in manage mode */}
         {showManage && canAddMore && (
-          <button
-            onClick={() => setShowModal(true)}
-            style={{ width: '100%', marginTop: 10, padding: '9px', background: 'none', border: '1.5px dashed #e2e8f0', borderRadius: 10, fontSize: 13, color: '#10b981', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-          >
-            + Add Competitor
-          </button>
+          <div style={{ padding: '10px 14px 14px' }}>
+            <button
+              onClick={() => setShowModal(true)}
+              style={{ width: '100%', padding: '9px', background: 'none', border: '1.5px dashed #e2e8f0', borderRadius: 10, fontSize: 13, color: '#10b981', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              + Add Competitor
+            </button>
+          </div>
         )}
       </div>
+
+      {/* AI Recommendation strip */}
+      {aiRec && !dismissRec && (
+        <div
+          style={{
+            background: '#ecfdf5', borderRadius: '0 0 16px 16px',
+            border: '1px solid #d1fae5', borderTop: 'none',
+            padding: '14px 16px', marginBottom: 20,
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            animation: 'slideIn 0.2s ease both',
+          }}
+        >
+          <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1.3 }}>💡</span>
+          <p style={{ flex: 1, fontSize: 13, fontWeight: 500, color: '#1f2937', margin: 0, lineHeight: 1.55 }}>{aiRec}</p>
+          <button
+            onClick={() => setDismissRec(true)}
+            style={{ background: 'none', border: 'none', fontSize: 16, color: '#6b7280', cursor: 'pointer', lineHeight: 1, flexShrink: 0, padding: '0 0 0 4px' }}
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {showModal && <CompetitorModal bizCity={bizCity} onClose={() => setShowModal(false)} onAdd={handleAdd} />}
     </>
   )
@@ -525,17 +675,20 @@ function CompetitorSection({ stats, competitors, onAdd, onDelete, bizName }) {
 // ---------------------------------------------------------------------------
 
 export default function Dashboard() {
-  const [stats, setStats]           = useState(null)
-  const [reviews, setReviews]       = useState([])
-  const [competitors, setCompetitors] = useState([])
-  const [growthData, setGrowthData] = useState([])
+  const [stats, setStats]               = useState(null)
+  const [reviews, setReviews]           = useState([])
+  const [competitors, setCompetitors]   = useState([])
+  const [growthData, setGrowthData]     = useState([])
+  const [compGrowth, setCompGrowth]     = useState(null)
   const [milestoneNotif, setMilestoneNotif] = useState(null)
   const [milestoneDismissed, setMilestoneDismissed] = useState(false)
-  const [loading, setLoading]       = useState(true)
-  const [bizName, setBizName]       = useState(authService.getBusiness()?.business_name || '')
+  const [loading, setLoading]           = useState(true)
+  const [loadingComps, setLoadingComps] = useState(true)
+  const [bizName, setBizName]           = useState(authService.getBusiness()?.business_name || '')
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const biz = authService.getBusiness()
 
   useEffect(() => {
     Promise.all([
@@ -545,11 +698,13 @@ export default function Dashboard() {
       api.get('/api/competitors').catch(() => ({ data: [] })),
       api.get('/api/reviews/growth-chart').catch(() => ({ data: [] })),
       api.get('/api/notifications').catch(() => ({ data: { notifications: [] } })),
-    ]).then(([s, r, me, c, g, n]) => {
+      api.get('/api/reviews/competitor-growth').catch(() => ({ data: { series: [] } })),
+    ]).then(([s, r, me, c, g, n, cg]) => {
       setStats(s.data)
       setReviews(r.data.reviews || [])
       setCompetitors(Array.isArray(c.data) ? c.data : [])
       setGrowthData(Array.isArray(g.data) ? g.data : [])
+      setCompGrowth(cg.data)
 
       const name = me.data?.business?.business_name
       if (name) { setBizName(name); authService.setBusiness(me.data.business) }
@@ -557,7 +712,7 @@ export default function Dashboard() {
       const notifs = n.data?.notifications || []
       const milestone = notifs.find(x => x.type === 'milestone' && !x.is_read)
       if (milestone) setMilestoneNotif(milestone)
-    }).catch(() => {}).finally(() => setLoading(false))
+    }).catch(() => {}).finally(() => { setLoading(false); setLoadingComps(false) })
   }, [])
 
   async function dismissMilestone() {
@@ -576,6 +731,31 @@ export default function Dashboard() {
     } catch {}
   }
 
+  // Leaderboard data — sorted by review_count desc
+  const leaderboard = useMemo(() => {
+    if (!stats) return []
+    return [
+      {
+        name: bizName || 'Your Business',
+        rating: stats.google_current_rating,
+        review_count: stats.google_current_count || 0,
+        reviews_last_30_days: stats.reviews_last_30_days || 0,
+        is_self: true,
+      },
+      ...competitors.map(c => ({
+        id: c.id,
+        name: c.name,
+        rating: c.rating,
+        review_count: c.review_count || 0,
+        reviews_last_30_days: c.reviews_last_30_days || 0,
+        is_self: false,
+      })),
+    ].sort((a, b) => b.review_count - a.review_count)
+  }, [stats, competitors, bizName])
+
+  const myRank = leaderboard.findIndex(e => e.is_self) + 1
+  const showRankCard = !loading && stats && competitors.length > 0 && (stats.google_reviews_gained || 0) > 0
+
   // Chart data
   const ratingData = stats
     ? [1,2,3,4,5].map(n => ({ star: `${n}★`, count: stats.rating_distribution?.[String(n)] || 0 }))
@@ -585,6 +765,16 @@ export default function Dashboard() {
   const noRatingData = ratingData.every(d => d.count === 0)
   const noTimeData   = timeData.every(d => d.count === 0)
   const noGrowthData = growthChartData.length === 0
+
+  // Competitor growth chart data
+  const cgSeries = compGrowth?.series || []
+  const cgDataRaw = useMemo(() => buildGrowthChartData(cgSeries), [cgSeries])
+  const cgData = cgDataRaw.map(row => {
+    const { _date, ...rest } = row
+    return { ...rest, date: fmtChartDate(_date) }
+  })
+  const cgHasData = cgData.length > 1
+  const showCompGrowthChart = competitors.length > 0
 
   // Animated hero values
   const gainedAnim  = useCountUp(stats?.google_reviews_gained ?? 0)
@@ -605,6 +795,7 @@ export default function Dashboard() {
       <div>
         <style>{PAGE_CSS}</style>
         <Skel style={{ height: 34, width: 260, marginBottom: 28 }} />
+        <Skel style={{ height: 100, borderRadius: 16, marginBottom: 14 }} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 14 }} className="d-hero-grid">
           {[0,1,2].map(i => (
             <div key={i} className="d-card" style={{ padding: 24 }}>
@@ -616,6 +807,10 @@ export default function Dashboard() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }} className="d-mini-grid">
           {[0,1].map(i => <div key={i} className="d-card" style={{ padding: 20 }}><Skel style={{ height: 80 }} /></div>)}
+        </div>
+        <div className="d-card" style={{ padding: 20, marginBottom: 20 }}>
+          <Skel style={{ height: 16, width: 140, marginBottom: 16 }} />
+          {[0,1,2].map(i => <Skel key={i} style={{ height: 44, borderRadius: 8, marginBottom: 8 }} />)}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }} className="d-chart-grid">
           {[0,1,2].map(i => <Skel key={i} style={{ height: 220, borderRadius: 16 }} />)}
@@ -638,6 +833,17 @@ export default function Dashboard() {
       <h1 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 24, fontWeight: 700, color: '#0f172a', marginBottom: 24, animation: 'fadeUp 0.3s ease' }}>
         {greeting}, {bizName || 'there'} 👋
       </h1>
+
+      {/* Rank hero card (only if competitors added and reviews gained) */}
+      {showRankCard && (
+        <RankHeroCard
+          rank={myRank}
+          reviews30={stats.reviews_last_30_days || 0}
+          leaderboard={leaderboard}
+          stats={stats}
+          biz={biz}
+        />
+      )}
 
       {/* ── Hero stat cards (3-col) ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 14 }} className="d-hero-grid">
@@ -707,16 +913,15 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* ── Competitor comparison ── */}
-      <div style={{ marginBottom: 20 }}>
-        <CompetitorSection
-          stats={stats}
-          competitors={competitors}
-          onAdd={handleAddCompetitor}
-          onDelete={handleDeleteCompetitor}
-          bizName={bizName}
-        />
-      </div>
+      {/* ── Leaderboard + AI Recommendation (above charts) ── */}
+      <LeaderboardSection
+        stats={stats}
+        competitors={competitors}
+        leaderboard={leaderboard}
+        onAdd={handleAddCompetitor}
+        onDelete={handleDeleteCompetitor}
+        loadingComps={loadingComps}
+      />
 
       {/* ── Charts (3-col) ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }} className="d-chart-grid">
@@ -763,31 +968,68 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Google Reviews Growth */}
-        <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 16px' }}>Google Review Count</h3>
-          {noGrowthData ? (
-            <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, textAlign: 'center', background: '#f8fafc', borderRadius: 8, padding: 16 }}>
-              <p style={{ margin: '0 0 4px' }}>Data starts accumulating after your first snapshot</p>
-              <p style={{ margin: 0 }}>Check back tomorrow 📈</p>
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={160}>
-              <AreaChart data={growthChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="date" fontSize={11} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
-                <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip unit="total reviews" />} cursor={{ stroke: '#e2e8f0' }} />
-                <Area type="monotone" dataKey="count" stroke="#10b981" fill="url(#growthGrad)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#10b981', strokeWidth: 0 }} isAnimationActive />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </div>
+        {/* 3rd chart: competitor growth or google review count */}
+        {showCompGrowthChart ? (
+          <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 16px' }}>Review Growth vs Competitors</h3>
+            {!cgHasData ? (
+              <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, textAlign: 'center', background: '#f8fafc', borderRadius: 8, padding: 16 }}>
+                <p style={{ margin: '0 0 4px' }}>Growth chart will appear after a few days of tracking</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={cgData} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="date" fontSize={10} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
+                  <YAxis fontSize={10} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
+                  <Tooltip content={<GrowthTooltip />} />
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+                  />
+                  {cgSeries.map((s, i) => (
+                    <Line
+                      key={s.name}
+                      type="monotone"
+                      dataKey={s.name}
+                      stroke={s.is_self ? '#10b981' : COMP_COLORS[i > 0 ? i - 1 : 0]}
+                      strokeWidth={s.is_self ? 3 : 2}
+                      strokeDasharray={s.is_self ? undefined : '5 5'}
+                      dot={false}
+                      activeDot={{ r: 4, strokeWidth: 0 }}
+                      isAnimationActive
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        ) : (
+          <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 16px' }}>Google Review Count</h3>
+            {noGrowthData ? (
+              <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, textAlign: 'center', background: '#f8fafc', borderRadius: 8, padding: 16 }}>
+                <p style={{ margin: '0 0 4px' }}>Data starts accumulating after your first snapshot</p>
+                <p style={{ margin: 0 }}>Check back tomorrow 📈</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={160}>
+                <AreaChart data={growthChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" fontSize={11} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
+                  <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
+                  <Tooltip content={<ChartTooltip unit="total reviews" />} cursor={{ stroke: '#e2e8f0' }} />
+                  <Area type="monotone" dataKey="count" stroke="#10b981" fill="url(#growthGrad)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#10b981', strokeWidth: 0 }} isAnimationActive />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── Recent Reviews ── */}
