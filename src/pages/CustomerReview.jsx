@@ -585,7 +585,7 @@ export default function CustomerReview() {
                   We're sorry to hear that.
                 </h2>
                 <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.65, fontWeight: 500 }}>
-                  Your feedback helps {bizName} improve. It'll stay private.
+                  Your feedback helps us improve our service.
                 </p>
               </div>
 
@@ -642,12 +642,12 @@ export default function CustomerReview() {
                 </>
               ) : rating < 4 ? (
                 <>
-                  <p style={{ fontSize: 52, marginBottom: 16 }}>💙</p>
+                  <p style={{ fontSize: 52, marginBottom: 16 }}>🙏</p>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>
-                    Thank you for sharing
+                    Thank you for your feedback!
                   </h2>
                   <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.65, fontWeight: 500 }}>
-                    Your feedback has been shared privately with the owner.
+                    Your response helps us improve our service.
                   </p>
                 </>
               ) : (
