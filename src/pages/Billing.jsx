@@ -31,7 +31,7 @@ export default function Billing() {
   useEffect(() => {
     api.get('/api/payments/status')
       .then(r => setPlanStatus(r.data))
-      .catch(() => setPlanStatus({ plan: biz?.plan || null, is_trial: true, trial_reviews_remaining: 10 }))
+      .catch(() => setPlanStatus({ plan: biz?.plan || null, is_trial: true, trial_expired: false, trial_days_remaining: 7 }))
       .finally(() => setLoading(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -74,14 +74,31 @@ export default function Billing() {
     }
   }
 
-  const currentPlan = planStatus?.plan || biz?.plan || null
-  const isSubscribed = currentPlan === 'monthly' || currentPlan === 'yearly'
-  const isTrial      = planStatus?.is_trial ?? true
-  const trialLeft    = planStatus?.trial_reviews_remaining ?? 10
+  const currentPlan   = planStatus?.plan || biz?.plan || null
+  const isSubscribed  = currentPlan === 'monthly' || currentPlan === 'yearly'
+  const isTrial       = planStatus?.is_trial ?? true
+  const trialExpired  = planStatus?.trial_expired ?? false
+  const trialDaysLeft = planStatus?.trial_days_remaining ?? 7
 
   return (
     <div style={{ animation: 'fadeUp 0.2s ease', maxWidth: 560, margin: '0 auto' }}>
       <style>{PAGE_STYLE}</style>
+
+      {/* Trial status banner */}
+      {!loading && !isSubscribed && isTrial && (
+        trialExpired ? (
+          <div style={{ marginBottom: 24, padding: '16px 20px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 16, textAlign: 'center' }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: '#991b1b', margin: '0 0 4px' }}>Your free trial has ended</p>
+            <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>Subscribe to keep collecting reviews.</p>
+          </div>
+        ) : (
+          <div style={{ marginBottom: 24, padding: '14px 20px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 16, textAlign: 'center' }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#92400e', margin: 0 }}>
+              You have <strong>{trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}</strong> left in your free trial
+            </p>
+          </div>
+        )
+      )}
 
       {/* Header */}
       <h1 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 24, fontWeight: 700, color: '#0f172a', marginBottom: 6, textAlign: 'center' }}>
@@ -202,7 +219,7 @@ export default function Billing() {
               fontFamily: 'inherit', transition: 'background 0.15s',
             }}
           >
-            {upgrading ? 'Redirecting…' : 'Start Now →'}
+            {upgrading ? 'Redirecting…' : trialExpired ? 'Subscribe Now →' : 'Start Now →'}
           </button>
         )}
 
@@ -211,14 +228,14 @@ export default function Billing() {
         </p>
       </div>
 
-      {/* Trial notice */}
-      {isTrial && !isSubscribed && (
+      {/* Trial notice — only shown when not yet expired */}
+      {isTrial && !isSubscribed && !trialExpired && (
         <div style={{ marginTop: 28, padding: '20px 24px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 16, textAlign: 'center' }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>
             Still not sure?
           </h3>
           <p style={{ fontSize: 14, color: '#64748b', margin: 0, lineHeight: 1.6 }}>
-            Try it free — your first {trialLeft > 0 ? trialLeft : 10} reviews are on us. No card required.
+            Start your 7-day free trial. No card required. Full access to everything.
           </p>
         </div>
       )}

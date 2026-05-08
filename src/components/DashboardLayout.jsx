@@ -245,15 +245,34 @@ function Sidebar({ onClose }) {
         {(() => {
           const plan = biz?.plan
           const isPaid = plan === 'monthly' || plan === 'yearly'
-          const label = plan === 'yearly' ? 'Pro (Yearly)' : plan === 'monthly' ? 'Pro' : 'Trial'
+          if (isPaid) {
+            const label = plan === 'yearly' ? 'Pro (Yearly)' : 'Pro'
+            return (
+              <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginBottom: 10, background: 'rgba(16,185,129,0.18)', color: '#6ee7b7' }}>
+                {label}
+              </span>
+            )
+          }
+          // Time-based trial badge
+          const trialEndsAt = biz?.trial_ends_at
+          let daysLeft = null
+          let expired = false
+          if (trialEndsAt) {
+            const diff = Math.floor((new Date(trialEndsAt) - Date.now()) / 86400000)
+            expired = diff < 0
+            daysLeft = Math.max(0, diff)
+          }
+          if (expired) {
+            return (
+              <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginBottom: 10, background: 'rgba(239,68,68,0.18)', color: '#fca5a5' }}>
+                Trial Expired
+              </span>
+            )
+          }
+          const daysLabel = daysLeft !== null ? `Trial — ${daysLeft}d left` : 'Trial'
           return (
-            <span style={{
-              display: 'inline-block', fontSize: 10, fontWeight: 700,
-              padding: '2px 8px', borderRadius: 20, marginBottom: 10,
-              background: isPaid ? 'rgba(16,185,129,0.18)' : 'rgba(245,158,11,0.18)',
-              color: isPaid ? '#6ee7b7' : '#fcd34d',
-            }}>
-              {label}
+            <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginBottom: 10, background: 'rgba(245,158,11,0.18)', color: '#fcd34d' }}>
+              {daysLabel}
             </span>
           )
         })()}

@@ -270,7 +270,7 @@ export default function LandingPage() {
             onMouseEnter={e => e.currentTarget.style.background = '#059669'}
             onMouseLeave={e => e.currentTarget.style.background = '#10b981'}
           >
-            Start Free →
+            Start Free Trial →
           </Link>
         </div>
 
@@ -321,7 +321,7 @@ export default function LandingPage() {
               transition: 'background 0.2s',
             }}
           >
-            Start Free →
+            Start Free Trial →
           </Link>
         </div>
       )}
@@ -368,7 +368,7 @@ export default function LandingPage() {
 
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
                 <Link to="/signup" className="lp-btn-primary" style={{ fontSize: 16, padding: '15px 32px' }}>
-                  Start Free — 10 Reviews/Month
+                  Start Free Trial →
                 </Link>
                 <a href="#how-it-works" className="lp-btn-outline">
                   See How It Works ↓
@@ -712,7 +712,7 @@ export default function LandingPage() {
                 Start Now →
               </Link>
               <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: '10px 0 0' }}>
-                First 10 reviews free. No card required.
+                7-day free trial. No card required.
               </p>
             </div>
           </Reveal>
@@ -735,7 +735,7 @@ export default function LandingPage() {
             ['Does it work in Hindi?', 'Yes! Our AI generates natural Hinglish and English reviews using the customer\'s own feedback as input. No awkward machine translations.'],
             ['Do I need a Google Business Profile?', 'Yes. You need an existing Google Business Profile. We help you connect the review link during setup — it takes 2 minutes.'],
             ['What happens to negative feedback?', 'It comes directly to your dashboard, privately. You can address the issue before it becomes a public Google review. Only happy customers are directed to Google.'],
-            ['Can I try it for free?', 'Yes. Your first 10 reviews are completely free — no credit card required. After that, plans start at ₹499/month (less than one chai per day).'],
+            ['Can I try it for free?', 'Yes. You get a 7-day free trial — no credit card required. Full access to everything. After that, plans start at ₹499/month (less than one chai per day).'],
             ['How do customers leave a review?', 'They scan your QR code, tap a star rating, select what they enjoyed, and post a ready-made AI review on Google. The whole process takes under 30 seconds.'],
           ].map(([q, a], i) => (
             <Reveal key={i} delay={i * 50}>
@@ -760,7 +760,7 @@ export default function LandingPage() {
             Create Free Account →
           </Link>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 20 }}>
-            No credit card required&nbsp;&nbsp;•&nbsp;&nbsp;First 10 reviews free&nbsp;&nbsp;•&nbsp;&nbsp;Setup in 2 minutes
+            No credit card required&nbsp;&nbsp;•&nbsp;&nbsp;7-day free trial&nbsp;&nbsp;•&nbsp;&nbsp;Setup in 2 minutes
           </p>
         </Reveal>
       </section>

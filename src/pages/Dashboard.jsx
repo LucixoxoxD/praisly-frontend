@@ -834,6 +834,19 @@ export default function Dashboard() {
         {greeting}, {bizName || 'there'} 👋
       </h1>
 
+      {/* Trial expired banner — undismissable */}
+      {stats?.trial_expired && (
+        <div style={{ marginBottom: 20, padding: '16px 20px', background: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#991b1b', margin: '0 0 2px' }}>Your 7-day free trial has ended</p>
+            <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>Subscribe to continue collecting reviews.</p>
+          </div>
+          <Link to="/billing" style={{ display: 'inline-block', padding: '10px 20px', background: '#10b981', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Subscribe Now →
+          </Link>
+        </div>
+      )}
+
       {/* Rank hero card (only if competitors added and reviews gained) */}
       {showRankCard && (
         <RankHeroCard
