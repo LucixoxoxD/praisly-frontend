@@ -13,6 +13,8 @@ import QRCode from './pages/QRCode'
 import Settings from './pages/Settings'
 import Billing from './pages/Billing'
 import SendRequest from './pages/SendRequest'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 
 function Protected({ children }) {
   if (!authService.isAuthenticated()) return <Navigate to="/login" replace />
@@ -54,6 +56,10 @@ export default function App() {
           <Route path="/login"      element={<AuthOnly><Login /></AuthOnly>} />
           <Route path="/signup"     element={<AuthOnly><Signup /></AuthOnly>} />
           <Route path="/onboarding" element={<OnboardingRoute><Onboarding /></OnboardingRoute>} />
+
+          {/* Public legal pages */}
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms"   element={<TermsOfService />} />
 
           {/* Public customer-facing review page — untouched */}
           <Route path="/review/:businessId" element={<CustomerReview />} />

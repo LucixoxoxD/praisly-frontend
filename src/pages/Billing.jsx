@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import { useToast } from '../components/Toast'
 
@@ -227,7 +227,8 @@ export default function Billing() {
         )}
 
         <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: '10px 0 0' }}>
-          Cancel anytime. No lock-in.
+          Cancel anytime. No lock-in.{' '}
+          <Link to="/terms" style={{ color: '#94a3b8', textDecoration: 'underline' }}>Terms of Service</Link>
         </p>
       </div>
 

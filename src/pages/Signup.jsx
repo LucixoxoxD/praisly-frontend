@@ -201,6 +201,13 @@ export default function Signup() {
             >
               {loading ? 'Creating Account…' : 'Create Account'}
             </button>
+
+            <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: '12px 0 0', lineHeight: 1.5 }}>
+              By signing up you agree to our{' '}
+              <Link to="/terms" style={{ color: '#64748b', textDecoration: 'underline' }}>Terms of Service</Link>
+              {' '}and{' '}
+              <Link to="/privacy" style={{ color: '#64748b', textDecoration: 'underline' }}>Privacy Policy</Link>
+            </p>
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: '#64748b' }}>
