@@ -21,7 +21,7 @@ const FEATURES = [
 export default function Billing() {
   const toast = useToast()
   const [searchParams] = useSearchParams()
-  const [yearly, setYearly]           = useState(false)
+  const [yearly, setYearly]           = useState(true)
   const [planStatus, setPlanStatus]   = useState(null)
   const [loading, setLoading]         = useState(true)
   const [upgrading, setUpgrading]     = useState(false)
@@ -108,35 +108,38 @@ export default function Billing() {
         Everything you need to grow your Google reviews.
       </p>
 
-      {/* Monthly / Yearly toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 28 }}>
-        <div style={{ display: 'inline-flex', background: '#f1f5f9', borderRadius: 999, padding: 4, gap: 2 }}>
-          {['Monthly', 'Yearly'].map(opt => {
-            const isYearly = opt === 'Yearly'
-            const active   = isYearly === yearly
-            return (
-              <button
-                key={opt}
-                onClick={() => setYearly(isYearly)}
-                style={{
-                  padding: '8px 22px', borderRadius: 999, border: 'none',
-                  fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                  background: active ? 'white' : 'transparent',
-                  color: active ? '#0f172a' : '#94a3b8',
-                  boxShadow: active ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {opt}
-              </button>
-            )
-          })}
+      {/* Monthly / Yearly pill toggle */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+        <div style={{ display: 'inline-flex', background: '#f1f5f9', borderRadius: 999, padding: 4 }}>
+          <button
+            onClick={() => setYearly(false)}
+            style={{
+              padding: '10px 24px', borderRadius: 999, border: 'none',
+              fontSize: 14, fontWeight: yearly ? 500 : 700, cursor: 'pointer', fontFamily: 'inherit',
+              background: yearly ? 'transparent' : 'white',
+              color: yearly ? '#6b7280' : '#111827',
+              boxShadow: yearly ? 'none' : '0 1px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s',
+            }}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setYearly(true)}
+            style={{
+              padding: '10px 24px', borderRadius: 999, border: 'none',
+              fontSize: 14, fontWeight: yearly ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit',
+              background: yearly ? 'white' : 'transparent',
+              color: yearly ? '#111827' : '#6b7280',
+              boxShadow: yearly ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+              transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}
+          >
+            Yearly
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save 17%</span>
+          </button>
         </div>
-        {yearly && (
-          <span style={{ background: '#d1fae5', color: '#065f46', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 999 }}>
-            Save ₹989
-          </span>
-        )}
       </div>
 
       {/* Single pricing card */}

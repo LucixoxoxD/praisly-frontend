@@ -195,7 +195,7 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [lpYearly, setLpYearly] = useState(false)
+  const [lpYearly, setLpYearly] = useState(true)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -615,36 +615,39 @@ export default function LandingPage() {
             </p>
           </Reveal>
 
-          {/* Monthly / Yearly toggle */}
+          {/* Monthly / Yearly pill toggle */}
           <Reveal>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 28 }}>
-              <div style={{ display: 'inline-flex', background: '#f1f5f9', borderRadius: 999, padding: 4, gap: 2 }}>
-                {['Monthly', 'Yearly'].map(opt => {
-                  const isYearly = opt === 'Yearly'
-                  const active   = isYearly === lpYearly
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => setLpYearly(isYearly)}
-                      style={{
-                        padding: '8px 22px', borderRadius: 999, border: 'none',
-                        fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                        background: active ? 'white' : 'transparent',
-                        color: active ? '#0f172a' : '#94a3b8',
-                        boxShadow: active ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
-                        transition: 'all 0.15s',
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  )
-                })}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+              <div style={{ display: 'inline-flex', background: '#f1f5f9', borderRadius: 999, padding: 4 }}>
+                <button
+                  onClick={() => setLpYearly(false)}
+                  style={{
+                    padding: '10px 24px', borderRadius: 999, border: 'none',
+                    fontSize: 14, fontWeight: lpYearly ? 500 : 700, cursor: 'pointer', fontFamily: 'inherit',
+                    background: lpYearly ? 'transparent' : 'white',
+                    color: lpYearly ? '#6b7280' : '#111827',
+                    boxShadow: lpYearly ? 'none' : '0 1px 4px rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setLpYearly(true)}
+                  style={{
+                    padding: '10px 24px', borderRadius: 999, border: 'none',
+                    fontSize: 14, fontWeight: lpYearly ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit',
+                    background: lpYearly ? 'white' : 'transparent',
+                    color: lpYearly ? '#111827' : '#6b7280',
+                    boxShadow: lpYearly ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                    transition: 'all 0.2s',
+                    display: 'flex', alignItems: 'center', gap: 6,
+                  }}
+                >
+                  Yearly
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save 17%</span>
+                </button>
               </div>
-              {lpYearly && (
-                <span style={{ background: '#d1fae5', color: '#065f46', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 999 }}>
-                  Save ₹989
-                </span>
-              )}
             </div>
           </Reveal>
 
