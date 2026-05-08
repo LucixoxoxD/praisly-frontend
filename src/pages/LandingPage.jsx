@@ -195,6 +195,22 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
+
+  const DEMO_EMAIL    = import.meta.env.VITE_DEMO_EMAIL
+  const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD
+
+  async function handleDemoLogin() {
+    if (!DEMO_EMAIL || !DEMO_PASSWORD) return
+    setDemoLoading(true)
+    try {
+      const { authService } = await import('../services/api')
+      await authService.login(DEMO_EMAIL, DEMO_PASSWORD)
+      navigate('/dashboard')
+    } catch {
+      setDemoLoading(false)
+    }
+  }
   const [lpYearly, setLpYearly] = useState(true)
 
   useEffect(() => {
@@ -370,6 +386,23 @@ export default function LandingPage() {
                 <Link to="/signup" className="lp-btn-primary" style={{ fontSize: 16, padding: '15px 32px' }}>
                   Start Free Trial →
                 </Link>
+                {DEMO_EMAIL && DEMO_PASSWORD && (
+                  <button
+                    onClick={handleDemoLogin}
+                    disabled={demoLoading}
+                    style={{
+                      padding: '15px 28px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.35)',
+                      background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.9)',
+                      fontSize: 15, fontWeight: 600, cursor: demoLoading ? 'wait' : 'pointer',
+                      fontFamily: 'inherit', transition: 'all 0.2s',
+                      backdropFilter: 'blur(4px)',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)' }}
+                  >
+                    {demoLoading ? 'Loading…' : 'See Live Demo →'}
+                  </button>
+                )}
                 <a href="#how-it-works" className="lp-btn-outline">
                   See How It Works ↓
                 </a>
