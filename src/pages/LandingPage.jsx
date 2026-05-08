@@ -195,6 +195,7 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [lpYearly, setLpYearly] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -604,88 +605,117 @@ export default function LandingPage() {
           PRICING
       ══════════════════════════════════════════════════════════════ */}
       <section id="pricing" style={{ background: 'white', padding: '80px 24px' }}>
-        <div style={{ maxWidth: 980, margin: '0 auto' }}>
+        <div style={{ maxWidth: 480, margin: '0 auto' }}>
           <Reveal>
             <h2 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 'clamp(24px, 3.5vw, 38px)', fontWeight: 800, color: '#0f172a', textAlign: 'center', marginBottom: 8, letterSpacing: '-0.5px' }}>
-              Simple Pricing. No Hidden Fees.
+              Simple pricing. No surprises.
             </h2>
-            <p style={{ textAlign: 'center', color: '#64748b', fontSize: 16, marginBottom: 48 }}>
-              Start free. Upgrade when you grow.
+            <p style={{ textAlign: 'center', color: '#64748b', fontSize: 16, marginBottom: 32 }}>
+              Everything you need to grow your Google reviews.
             </p>
           </Reveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
-            {[
-              {
-                name: 'Free', price: '₹0', period: '/month', color: '#64748b',
-                features: ['10 reviews/month', 'QR code generation', 'Basic dashboard', 'AI review drafts'],
-                cta: 'Start Free →', ctaStyle: 'outline',
-              },
-              {
-                name: 'Starter', price: '₹999', period: '/month', color: '#10b981', popular: true,
-                features: ['100 reviews/month', 'AI review drafts (Hindi + English)', 'Review gating', 'Analytics dashboard', 'Niche-specific tags'],
-                cta: 'Start 7-Day Free Trial →', ctaStyle: 'filled',
-              },
-              {
-                name: 'Pro', price: '₹2,499', period: '/month', color: '#8b5cf6',
-                features: ['Unlimited reviews', 'Everything in Starter', 'AI auto-reply to Google reviews', 'Weekly email reports', 'Priority WhatsApp support'],
-                cta: 'Start 7-Day Free Trial →', ctaStyle: 'filled',
-              },
-            ].map((plan, i) => (
-              <Reveal key={i} delay={i * 100}>
-                <div
-                  className="pricing-card"
-                  style={{
-                    background: plan.popular ? '#f0fdf4' : 'white',
-                    borderRadius: 18,
-                    padding: 28,
-                    border: `2px solid ${plan.popular ? '#10b981' : '#e2e8f0'}`,
-                    position: 'relative',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
-                  {plan.popular && (
-                    <div style={{ position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 16px', borderRadius: 20, whiteSpace: 'nowrap' }}>
-                      Most Popular
-                    </div>
-                  )}
-                  <p style={{ fontSize: 12, fontWeight: 700, color: plan.color, textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px' }}>{plan.name}</p>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 16 }}>
-                    <span style={{ fontSize: 36, fontWeight: 800, color: '#0f172a', fontFamily: "'Plus Jakarta Sans', system-ui", lineHeight: 1 }}>{plan.price}</span>
-                    <span style={{ fontSize: 13, color: '#94a3b8' }}>{plan.period}</span>
-                  </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', flex: 1 }}>
-                    {plan.features.map(f => (
-                      <li key={f} style={{ display: 'flex', gap: 8, padding: '5px 0', fontSize: 14, color: '#374151', alignItems: 'flex-start' }}>
-                        <span style={{ color: plan.color, fontWeight: 700, flexShrink: 0 }}>✓</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    to="/signup"
-                    style={{
-                      display: 'block',
-                      textAlign: 'center',
-                      padding: '12px',
-                      borderRadius: 9,
-                      fontWeight: 700,
-                      fontSize: 14,
-                      textDecoration: 'none',
-                      transition: 'all 0.2s',
-                      background: plan.ctaStyle === 'filled' ? plan.color : 'transparent',
-                      color: plan.ctaStyle === 'filled' ? 'white' : plan.color,
-                      border: `2px solid ${plan.color}`,
-                    }}
-                  >
-                    {plan.cta}
-                  </Link>
+          {/* Monthly / Yearly toggle */}
+          <Reveal>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 28 }}>
+              <div style={{ display: 'inline-flex', background: '#f1f5f9', borderRadius: 999, padding: 4, gap: 2 }}>
+                {['Monthly', 'Yearly'].map(opt => {
+                  const isYearly = opt === 'Yearly'
+                  const active   = isYearly === lpYearly
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => setLpYearly(isYearly)}
+                      style={{
+                        padding: '8px 22px', borderRadius: 999, border: 'none',
+                        fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                        background: active ? 'white' : 'transparent',
+                        color: active ? '#0f172a' : '#94a3b8',
+                        boxShadow: active ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  )
+                })}
+              </div>
+              {lpYearly && (
+                <span style={{ background: '#d1fae5', color: '#065f46', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 999 }}>
+                  Save ₹989
+                </span>
+              )}
+            </div>
+          </Reveal>
+
+          {/* Single pricing card */}
+          <Reveal>
+            <div
+              className="pricing-card"
+              style={{
+                background: 'white', borderRadius: 20,
+                border: '2px solid #10b981',
+                boxShadow: '0 8px 32px rgba(16,185,129,0.15)',
+                padding: 32, position: 'relative',
+              }}
+            >
+              <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 18px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+                {lpYearly ? 'Best Value' : 'Full Access'}
+              </div>
+
+              <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 20px', textAlign: 'center' }}>Praisly</p>
+
+              <div style={{ textAlign: 'center', marginBottom: 8 }}>
+                {lpYearly && (
+                  <p style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px' }}>₹499/month</p>
+                )}
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
+                  <span style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                    {lpYearly ? '₹416' : '₹499'}
+                  </span>
+                  <span style={{ fontSize: 16, color: '#94a3b8' }}>/month</span>
                 </div>
-              </Reveal>
-            ))}
-          </div>
+                {lpYearly && <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹4,999 billed yearly</p>}
+              </div>
+
+              <p style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', margin: '8px 0 0' }}>
+                {lpYearly ? "Less than ₹14/day — cheaper than a chai ☕" : "Less than ₹17/day — that's one chai ☕"}
+              </p>
+
+              {lpYearly && (
+                <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
+                  <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
+                    You save ₹989/year 🎉
+                  </span>
+                </div>
+              )}
+
+              <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {['Unlimited review requests', 'AI-powered review drafts', 'Smart review gating', 'QR code for your counter', 'Competitor tracking & ranking', 'Real-time dashboard & analytics', 'Notification alerts', 'Google rating tracker'].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#374151' }}>
+                    <span style={{ color: '#10b981', fontWeight: 700, flexShrink: 0 }}>✅</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                to="/signup"
+                style={{
+                  display: 'block', textAlign: 'center',
+                  padding: '14px', borderRadius: 12,
+                  background: '#10b981', color: 'white',
+                  fontWeight: 700, fontSize: 16,
+                  textDecoration: 'none', transition: 'opacity 0.15s',
+                }}
+              >
+                Start Now →
+              </Link>
+              <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: '10px 0 0' }}>
+                First 10 reviews free. No card required.
+              </p>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -705,7 +735,7 @@ export default function LandingPage() {
             ['Does it work in Hindi?', 'Yes! Our AI generates natural Hinglish and English reviews using the customer\'s own feedback as input. No awkward machine translations.'],
             ['Do I need a Google Business Profile?', 'Yes. You need an existing Google Business Profile. We help you connect the review link during setup — it takes 2 minutes.'],
             ['What happens to negative feedback?', 'It comes directly to your dashboard, privately. You can address the issue before it becomes a public Google review. Only happy customers are directed to Google.'],
-            ['Can I try it for free?', 'Yes. The Free plan gives you 10 review requests per month, forever. No credit card required to start.'],
+            ['Can I try it for free?', 'Yes. Your first 10 reviews are completely free — no credit card required. After that, plans start at ₹499/month (less than one chai per day).'],
             ['How do customers leave a review?', 'They scan your QR code, tap a star rating, select what they enjoyed, and post a ready-made AI review on Google. The whole process takes under 30 seconds.'],
           ].map(([q, a], i) => (
             <Reveal key={i} delay={i * 50}>
@@ -730,7 +760,7 @@ export default function LandingPage() {
             Create Free Account →
           </Link>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 20 }}>
-            No credit card required&nbsp;&nbsp;•&nbsp;&nbsp;Free forever plan&nbsp;&nbsp;•&nbsp;&nbsp;Setup in 2 minutes
+            No credit card required&nbsp;&nbsp;•&nbsp;&nbsp;First 10 reviews free&nbsp;&nbsp;•&nbsp;&nbsp;Setup in 2 minutes
           </p>
         </Reveal>
       </section>

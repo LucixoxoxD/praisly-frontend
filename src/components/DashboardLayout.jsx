@@ -242,6 +242,21 @@ function Sidebar({ onClose }) {
             )}
           </div>
         </div>
+        {(() => {
+          const plan = biz?.plan
+          const isPaid = plan === 'monthly' || plan === 'yearly'
+          const label = plan === 'yearly' ? 'Pro (Yearly)' : plan === 'monthly' ? 'Pro' : 'Trial'
+          return (
+            <span style={{
+              display: 'inline-block', fontSize: 10, fontWeight: 700,
+              padding: '2px 8px', borderRadius: 20, marginBottom: 10,
+              background: isPaid ? 'rgba(16,185,129,0.18)' : 'rgba(245,158,11,0.18)',
+              color: isPaid ? '#6ee7b7' : '#fcd34d',
+            }}>
+              {label}
+            </span>
+          )
+        })()}
         <button className="sidebar-logout" onClick={() => authService.logout()}>Logout →</button>
       </div>
     </div>
