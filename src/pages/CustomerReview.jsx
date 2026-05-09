@@ -266,6 +266,7 @@ export default function CustomerReview() {
         review_id: reviewId,
         rating,
         selected_tags: selectedTags,
+        previous_draft: draft,
       })
       setDraft(res.data.draft || draft)
       setCopied(false)
