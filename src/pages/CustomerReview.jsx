@@ -282,13 +282,10 @@ export default function CustomerReview() {
   }
 
   async function handleOpenGoogle() {
-    if (!copied) {
-      try { await navigator.clipboard.writeText(draft) } catch {}
-      setCopied(true)
-      clearTimeout(copyTimer.current)
-      copyTimer.current = setTimeout(() => setCopied(false), 2000)
-      await new Promise((r) => setTimeout(r, 500))
-    }
+    try { await navigator.clipboard.writeText(draft) } catch {}
+    setCopied(true)
+    clearTimeout(copyTimer.current)
+    copyTimer.current = setTimeout(() => setCopied(false), 1500)
     if (googleReviewUrl) window.open(googleReviewUrl, '_blank', 'noopener')
     setGoogleClicked(true)
   }
@@ -435,7 +432,7 @@ export default function CustomerReview() {
                 </span>
               </div>
 
-              {/* 3-step instruction bar */}
+              {/* 2-step instruction bar */}
               <div style={{
                 background: '#f0fdf4', border: '1.5px solid #bbf7d0',
                 borderRadius: 14, padding: '14px 16px',
@@ -444,9 +441,8 @@ export default function CustomerReview() {
                 gap: 6, flexWrap: 'wrap',
               }}>
                 {[
-                  { num: '①', text: 'Tap to copy' },
-                  { num: '②', text: 'Open Google' },
-                  { num: '③', text: 'Paste & submit' },
+                  { text: 'Tap the button below' },
+                  { text: 'Paste & submit on Google' },
                 ].map((step, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{
@@ -462,7 +458,7 @@ export default function CustomerReview() {
                       }}>{i + 1}</span>
                       {step.text}
                     </div>
-                    {i < 2 && (
+                    {i < 1 && (
                       <span style={{ color: '#6ee7b7', fontWeight: 700, fontSize: 16 }}>→</span>
                     )}
                   </div>
@@ -507,14 +503,14 @@ export default function CustomerReview() {
                         fontSize: 13, fontWeight: 700, color: '#065f46',
                         animation: 'cr-fadeUp 0.15s ease',
                       }}>
-                        ✓ Copied to clipboard!
+                        ✓ Review copied!
                       </div>
                     ) : (
                       <div style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        gap: 5, fontSize: 12, fontWeight: 600, color: '#9ca3af',
+                        gap: 5, fontSize: 11, color: '#d1d5db',
                       }}>
-                        📋 Tap to copy
+                        tap to copy
                       </div>
                     )}
                   </>
