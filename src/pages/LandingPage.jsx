@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import WhatsAppButton from '../components/WhatsAppButton'
 
 // ─── Intersection Observer hook for scroll animations ────────────────────────
 function useInView(options = {}) {
@@ -860,6 +861,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      <WhatsAppButton message="Hi I want to know more about Praisly" />
     </div>
   )
 }

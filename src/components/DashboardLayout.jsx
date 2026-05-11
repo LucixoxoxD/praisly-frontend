@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import api, { authService } from '../services/api'
+import WhatsAppButton from './WhatsAppButton'
 
 const NAV = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
@@ -351,6 +352,8 @@ export default function DashboardLayout({ children }) {
           {children}
         </div>
       </div>
+
+      <WhatsAppButton message="Hi Praisly team, I need help with my account" />
     </div>
   )
 }
