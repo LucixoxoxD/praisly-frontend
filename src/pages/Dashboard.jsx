@@ -185,9 +185,9 @@ function Stars({ rating }) {
 
 function StatusBadge({ status }) {
   const map = {
-    posted:  { bg: '#d1fae5', color: '#065f46', label: 'Posted' },
-    pending: { bg: '#fef3c7', color: '#92400e', label: 'Pending' },
-    private: { bg: '#f1f5f9', color: '#475569', label: 'Private' },
+    posted:  { bg: '#d1fae5', color: '#065f46', label: 'Posted on Google ✓' },
+    pending: { bg: '#fef3c7', color: '#92400e', label: 'Sent to customer' },
+    private: { bg: '#f1f5f9', color: '#475569', label: 'Private feedback' },
   }
   const s = map[status] || map.private
   return <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: s.bg, color: s.color }}>{s.label}</span>
@@ -313,9 +313,11 @@ function RankHeroCard({ rank, reviews30, leaderboard, stats, biz }) {
 
   const subtitle = [cityOk ? city : null, typeOk ? bizType : null].filter(Boolean).join(' ')
 
-  const top1Entry = leaderboard?.[0]
   const isLeading = rank === 1
-  const gap = !isLeading && top1Entry ? top1Entry.review_count - (stats?.google_current_count || 0) : 0
+  const selfCount = stats?.google_current_count || 0
+  const nextEntry = !isLeading ? leaderboard?.[rank - 2] : null
+  const gap = nextEntry ? Math.max(0, nextEntry.review_count - selfCount) : 0
+  const nextRank = rank - 1
 
   return (
     <div
@@ -356,7 +358,7 @@ function RankHeroCard({ rank, reviews30, leaderboard, stats, biz }) {
             </p>
           ) : (
             <p style={{ fontSize: 18, fontWeight: 600, color: '#d97706', margin: 0, lineHeight: 1.4 }}>
-              {fmtIN(gap)} reviews to reach #1
+              {fmtIN(gap)} reviews to reach #{nextRank}
             </p>
           )}
         </div>
@@ -779,8 +781,6 @@ export default function Dashboard() {
   // Animated hero values
   const gainedAnim  = useCountUp(stats?.google_reviews_gained ?? 0)
   const ratingAnim  = useCountUp(stats?.google_current_rating ?? 0)
-  const valMinAnim  = useCountUp(stats?.estimated_value_min ?? 0)
-  const valMaxAnim  = useCountUp(stats?.estimated_value_max ?? 0)
   const baselineRating = stats?.google_baseline_rating
   const ratingDiff     = stats?.google_current_rating && baselineRating
     ? (Number(stats.google_current_rating) - Number(baselineRating)).toFixed(1)
@@ -895,12 +895,12 @@ export default function Dashboard() {
         {/* Card 3 — Estimated Value */}
         <HeroCard title="Estimated Value" icon="💰" tintColor="#8b5cf6" delay={160}>
           <p className="d-hero-num" style={{ fontSize: 26, color: '#7c3aed', marginBottom: 4 }}>
-            ₹{fmtIN(valMinAnim)}–{fmtIN(valMaxAnim)}
+            ₹{fmtIN(Math.floor(gainedAnim) * 1000)}
           </p>
           <p className="d-sub">value of reviews earned</p>
           <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>per review: ₹500–2,000</span>
-            <InfoTooltip text="Each Google review brings ₹500-2,000 in customer value through increased trust and visibility" />
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>based on ₹1,000 per review</span>
+            <InfoTooltip text="Each Google review is worth approximately ₹1,000 in new customer value through increased trust and visibility" />
           </div>
         </HeroCard>
       </div>
@@ -908,16 +908,16 @@ export default function Dashboard() {
       {/* ── Mini cards (2-col) ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }} className="d-mini-grid">
         <MiniCard
-          title="Drafts Sent"
+          title="Reviews Collected"
           value={stats?.drafts_sent ?? 0}
-          sub="AI review drafts generated"
+          sub="customers submitted reviews through your QR"
           icon="✨" iconBg="#dbeafe" tintColor="#3b82f6"
           delay={240}
         />
         <MiniCard
-          title="Bad Reviews Saved"
+          title="Negative Reviews Blocked"
           value={stats?.negative_saved ?? 0}
-          sub="caught privately before Google"
+          sub="went to you privately instead of Google"
           icon="🛡️" iconBg="#fee2e2" tintColor="#ef4444"
           delay={300}
           extra={stats?.negative_saved > 0 ? (
@@ -1071,10 +1071,25 @@ export default function Dashboard() {
                 </span>
               </div>
               <div style={{ marginBottom: 6 }}><Stars rating={r.rating} /></div>
-              {(r.review_text || r.private_feedback) && (
-                <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.5, margin: '0 0 8px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {cleanText(r.review_text || r.private_feedback)}
+              {/* Actual review text */}
+              {(r.customer_edited_text || r.review_text) && (
+                <p style={{ color: '#374151', fontSize: 13, lineHeight: 1.55, margin: '0 0 8px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  {cleanText(r.customer_edited_text || r.review_text)}
                 </p>
+              )}
+              {/* Private feedback */}
+              {r.status === 'private' && r.private_feedback && (
+                <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.5, margin: '0 0 8px', fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  {cleanText(r.private_feedback)}
+                </p>
+              )}
+              {/* Tags fallback — shown only when no review text and not private */}
+              {!r.customer_edited_text && !r.review_text && r.status !== 'private' && r.private_feedback && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+                  {cleanText(r.private_feedback).split(',').map(t => t.trim()).filter(Boolean).map((tag, i) => (
+                    <span key={i} style={{ padding: '2px 8px', borderRadius: 20, background: '#f1f5f9', color: '#475569', fontSize: 11, fontWeight: 500 }}>{tag}</span>
+                  ))}
+                </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}><StatusBadge status={r.status} /></div>
             </div>
