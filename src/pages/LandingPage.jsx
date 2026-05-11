@@ -678,7 +678,7 @@ export default function LandingPage() {
                   }}
                 >
                   Yearly
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save 17%</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save ₹4,000</span>
                 </button>
               </div>
             </div>
@@ -699,29 +699,36 @@ export default function LandingPage() {
                 {lpYearly ? 'Best Value' : 'Full Access'}
               </div>
 
-              <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 20px', textAlign: 'center' }}>Praisly</p>
+              <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 16px', textAlign: 'center' }}>Praisly</p>
+
+              {/* Early adopter badge */}
+              <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                <span style={{ display: 'inline-block', background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
+                  🚀 Early Adopter Pricing
+                </span>
+              </div>
 
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
                 {lpYearly && (
-                  <p style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px' }}>₹499/month</p>
+                  <p style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px' }}>₹999/month</p>
                 )}
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
                   <span style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
-                    {lpYearly ? '₹416' : '₹499'}
+                    {lpYearly ? '₹666' : '₹999'}
                   </span>
                   <span style={{ fontSize: 16, color: '#94a3b8' }}>/month</span>
                 </div>
-                {lpYearly && <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹4,999 billed yearly</p>}
+                {lpYearly && <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹7,999 billed yearly</p>}
               </div>
 
               <p style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', margin: '8px 0 0' }}>
-                {lpYearly ? "Less than ₹14/day — cheaper than a chai ☕" : "Less than ₹17/day — that's one chai ☕"}
+                {lpYearly ? "Less than ₹23/day — cheaper than auto fare 🛺" : "Less than ₹34/day — that's one samosa plate 🥟"}
               </p>
 
               {lpYearly && (
                 <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
                   <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
-                    You save ₹989/year 🎉
+                    You save ₹4,000/year 🎉
                   </span>
                 </div>
               )}
@@ -771,7 +778,7 @@ export default function LandingPage() {
             ['Does it work in Hindi?', 'Yes! Our AI generates natural Hinglish and English reviews using the customer\'s own feedback as input. No awkward machine translations.'],
             ['Do I need a Google Business Profile?', 'Yes. You need an existing Google Business Profile. We help you connect the review link during setup — it takes 2 minutes.'],
             ['What happens to negative feedback?', 'It comes directly to your dashboard, privately. You can address the issue before it becomes a public Google review. Only happy customers are directed to Google.'],
-            ['Can I try it for free?', 'Yes. You get a 7-day free trial — no credit card required. Full access to everything. After that, plans start at ₹499/month (less than one chai per day).'],
+            ['Can I try it for free?', 'Yes. You get a 7-day free trial — no credit card required. Full access to everything. After that, plans start at ₹999/month (early adopter pricing).'],
             ['How do customers leave a review?', 'They scan your QR code, tap a star rating, select what they enjoyed, and post a ready-made AI review on Google. The whole process takes under 30 seconds.'],
           ].map(([q, a], i) => (
             <Reveal key={i} delay={i * 50}>

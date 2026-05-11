@@ -89,7 +89,7 @@ export default function TermsOfService() {
 
         <h2 className="legal-h2">Payments and subscriptions</h2>
         <ul className="legal-ul">
-          <li>Subscriptions are billed monthly (₹499/month) or yearly (₹4,999/year).</li>
+          <li>Subscriptions are billed monthly (₹999/month) or yearly (₹7,999/year).</li>
           <li>Payments are processed by Razorpay. By subscribing you also agree to Razorpay's terms.</li>
           <li>You can cancel your subscription at any time. You will retain access until the end of your current billing period.</li>
           <li>We do not offer refunds for partial billing periods, but you may request one by emailing us and we will review it case by case.</li>

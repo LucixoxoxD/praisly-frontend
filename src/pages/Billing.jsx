@@ -137,7 +137,7 @@ export default function Billing() {
             }}
           >
             Yearly
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save 17%</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save ₹4,000</span>
           </button>
         </div>
       </div>
@@ -155,40 +155,47 @@ export default function Billing() {
         </div>
 
         {/* Plan name */}
-        <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 20px', textAlign: 'center' }}>
+        <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 16px', textAlign: 'center' }}>
           Praisly
         </p>
+
+        {/* Early adopter badge */}
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <span style={{ display: 'inline-block', background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
+            🚀 Early Adopter Pricing
+          </span>
+        </div>
 
         {/* Price */}
         <div style={{ textAlign: 'center', marginBottom: 8 }}>
           {yearly && (
             <p style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px' }}>
-              ₹499/month
+              ₹999/month
             </p>
           )}
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
             <span style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
-              {yearly ? '₹416' : '₹499'}
+              {yearly ? '₹666' : '₹999'}
             </span>
             <span style={{ fontSize: 16, color: '#94a3b8' }}>/month</span>
           </div>
           {yearly && (
-            <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹4,999 billed yearly</p>
+            <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹7,999 billed yearly</p>
           )}
         </div>
 
         {/* Comparison line */}
         <p style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', margin: '8px 0 0' }}>
           {yearly
-            ? 'Less than ₹14/day — cheaper than a chai ☕'
-            : 'Less than ₹17/day — that\'s one chai ☕'}
+            ? 'Less than ₹23/day — cheaper than auto fare 🛺'
+            : "Less than ₹34/day — that's one samosa plate 🥟"}
         </p>
 
         {/* Yearly savings badge */}
         {yearly && (
           <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
             <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
-              You save ₹989/year 🎉
+              You save ₹4,000/year 🎉
             </span>
           </div>
         )}
@@ -231,6 +238,10 @@ export default function Billing() {
           <Link to="/terms" style={{ color: '#94a3b8', textDecoration: 'underline' }}>Terms of Service</Link>
         </p>
       </div>
+
+      <p style={{ fontSize: 14, color: '#4b5563', fontStyle: 'italic', textAlign: 'center', marginTop: 16 }}>
+        Early adopter pricing won't last forever. Lock in this rate now.
+      </p>
 
       {/* Trial notice — only shown when not yet expired */}
       {isTrial && !isSubscribed && !trialExpired && (
