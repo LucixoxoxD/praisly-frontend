@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /review/
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /billing
+Allow: /

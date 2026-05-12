@@ -285,6 +285,7 @@ function Sidebar({ onClose }) {
 
 export default function DashboardLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  useEffect(() => { document.title = 'Praisly Dashboard' }, [])
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>

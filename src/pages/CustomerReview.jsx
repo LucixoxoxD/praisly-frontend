@@ -211,6 +211,7 @@ export default function CustomerReview() {
       })
   }, [businessId])
 
+  useEffect(() => { document.title = 'Leave a Review' }, [])
   useEffect(() => () => clearTimeout(copyTimer.current), [])
 
   const isPositive   = rating >= 4
@@ -233,10 +234,6 @@ export default function CustomerReview() {
     if (!rating) return
     setSubmitting(true)
 
-    if (isPositive) {
-      setScreen('ai_draft')
-    }
-
     try {
       const res = await api.post(`/api/review/${businessId}/submit`, {
         rating,
@@ -250,6 +247,7 @@ export default function CustomerReview() {
         setDraft(res.data.draft || '')
         setReviewId(res.data.review_id || null)
         if (res.data.google_review_url) setGoogleReviewUrl(res.data.google_review_url)
+        setScreen('ai_draft')
       } else {
         setReviewId(res.data.review_id || null)
         setScreen('neg_feedback')
@@ -260,10 +258,8 @@ export default function CustomerReview() {
       } else if (err.response?.status === 403) {
         setLimitReached(true)
         setScreen('done')
-      } else if (isPositive) {
-        setDraft(`Really liked the experience at ${bizName}. Would definitely recommend.`)
       } else {
-        setScreen('neg_feedback')
+        setScreen('submit_error')
       }
     } finally {
       setSubmitting(false)
@@ -632,6 +628,24 @@ export default function CustomerReview() {
             </div>
           )}
 
+          {/* ══ SUBMIT ERROR ════════════════════════════════════════════════════════ */}
+          {screen === 'submit_error' && (
+            <div style={{ textAlign: 'center', marginTop: 100, padding: '0 28px', animation: 'cr-fadeUp 0.3s ease' }}>
+              <p style={{ fontSize: 40, marginBottom: 16 }}>😕</p>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>
+                Something went wrong.
+              </h2>
+              <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 28 }}>Please try again.</p>
+              <button
+                className="cr-btn"
+                style={{ background: '#374151', maxWidth: 200, margin: '0 auto' }}
+                onClick={() => setScreen('rate')}
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
           {/* ══ ALREADY DONE ═══════════════════════════════════════════════════════ */}
           {screen === 'already_done' && (
             <div style={{
@@ -646,6 +660,7 @@ export default function CustomerReview() {
                 Thank you! 🙏
                 {bizName ? <><br />Your review helps {bizName} grow.</> : ''}
               </p>
+              <p style={{ fontSize: 12, color: '#d1d5db', marginTop: 32 }}>You can close this tab now.</p>
             </div>
           )}
 
@@ -686,6 +701,7 @@ export default function CustomerReview() {
                   </p>
                 </>
               )}
+              <p style={{ fontSize: 12, color: '#d1d5db', marginTop: 32 }}>You can close this tab now.</p>
             </div>
           )}
 

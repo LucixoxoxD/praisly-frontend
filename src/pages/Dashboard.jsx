@@ -671,6 +671,7 @@ export default function Dashboard() {
   const [milestoneDismissed, setMilestoneDismissed] = useState(false)
   const [loading, setLoading]           = useState(true)
   const [loadingComps, setLoadingComps] = useState(true)
+  const [fetchError, setFetchError]     = useState(null)
   const [bizName, setBizName]           = useState(authService.getBusiness()?.business_name || '')
 
   const hour = new Date().getHours()
@@ -699,7 +700,9 @@ export default function Dashboard() {
       const notifs = n.data?.notifications || []
       const milestone = notifs.find(x => x.type === 'milestone' && !x.is_read)
       if (milestone) setMilestoneNotif(milestone)
-    }).catch(() => {}).finally(() => { setLoading(false); setLoadingComps(false) })
+    }).catch(err => {
+      setFetchError(err?.response?.status || 'network')
+    }).finally(() => { setLoading(false); setLoadingComps(false) })
   }, [])
 
   async function dismissMilestone() {
@@ -840,6 +843,25 @@ export default function Dashboard() {
         </div>
         {[0,1,2].map(i => <Skel key={i} style={{ height: 72, borderRadius: 12, marginBottom: 10 }} />)}
       </div>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <>
+        <style>{PAGE_CSS}</style>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center', padding: '0 24px' }}>
+          <p style={{ fontSize: 48, marginBottom: 16 }}>😕</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Something went wrong</h2>
+          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 24 }}>Please refresh the page to try again.</p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ padding: '10px 24px', background: '#10b981', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            Refresh
+          </button>
+        </div>
+      </>
     )
   }
 
