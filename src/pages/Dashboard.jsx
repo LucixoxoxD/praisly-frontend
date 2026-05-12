@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip,
+  BarChart, Bar, XAxis, YAxis, Tooltip, Cell,
   ResponsiveContainer, AreaChart, Area,
-  LineChart, Line, Legend,
 } from 'recharts'
 import api, { authService } from '../services/api'
 import { stripMarkdown } from '../utils/helpers'
@@ -50,7 +49,6 @@ function buildGrowthChartData(series) {
 }
 
 const RANK_MEDALS = ['🥇', '🥈', '🥉']
-const COMP_COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6']
 
 // ---------------------------------------------------------------------------
 // CSS
@@ -203,19 +201,6 @@ function ChartTooltip({ active, payload, label, unit = 'reviews' }) {
   )
 }
 
-function GrowthTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div style={{ background: 'white', borderRadius: 10, padding: '10px 14px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', border: '1px solid #f1f5f9', fontSize: 13, minWidth: 140 }}>
-      <p style={{ margin: '0 0 6px', color: '#64748b', fontSize: 12 }}>{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} style={{ margin: '2px 0', fontWeight: 600, color: p.color, fontSize: 13 }}>
-          {p.name}: {fmtIN(p.value)}
-        </p>
-      ))}
-    </div>
-  )
-}
 
 function EmptyChart() {
   return (
@@ -982,18 +967,16 @@ export default function Dashboard() {
           <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>Your Star Ratings</h3>
           <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{ratingChartSummary}</p>
           {noRatingData ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={ratingData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#34d399" />
-                    <stop offset="100%" stopColor="#059669" />
-                  </linearGradient>
-                </defs>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={ratingData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
                 <XAxis dataKey="star" fontSize={11} tick={{ fill: '#9ca3af', fontFamily: 'system-ui' }} axisLine={false} tickLine={false} />
                 <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f8fafc' }} />
-                <Bar dataKey="count" fill="url(#barGrad)" radius={[5,5,0,0]} isAnimationActive />
+                <Bar dataKey="count" radius={[5,5,0,0]} isAnimationActive label={{ position: 'top', fill: '#6b7280', fontSize: 12 }}>
+                  {ratingData.map((_, i) => (
+                    <Cell key={i} fill={['#ef4444','#f97316','#facc15','#10b981','#fbbf24'][i]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -1021,42 +1004,32 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* 3rd chart: competitor growth or google review count */}
+        {/* 3rd card: competitor comparison text or google review count */}
         {showCompGrowthChart ? (
           <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
             <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>You vs Competitors</h3>
-            <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{compChartSummary}</p>
-            {!cgHasData ? (
-              <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, textAlign: 'center', background: '#f8fafc', borderRadius: 8, padding: 16 }}>
-                <p style={{ margin: '0 0 4px' }}>Growth chart will appear after a few days of tracking</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={cgData} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="date" fontSize={10} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
-                  <YAxis fontSize={10} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
-                  <Tooltip content={<GrowthTooltip />} />
-                  <Legend
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
-                  />
-                  {cgSeries.map((s, i) => (
-                    <Line
-                      key={s.name}
-                      type="monotone"
-                      dataKey={s.name}
-                      stroke={s.is_self ? '#10b981' : COMP_COLORS[i > 0 ? i - 1 : 0]}
-                      strokeWidth={s.is_self ? 3 : 2}
-                      strokeDasharray={s.is_self ? undefined : '5 5'}
-                      dot={false}
-                      activeDot={{ r: 4, strokeWidth: 0 }}
-                      isAnimationActive
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+            <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 16px', lineHeight: 1.5 }}>{compChartSummary}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {leaderboard.map(entry => {
+                const myGrowth = leaderboard.find(e => e.is_self)?.reviews_last_30_days ?? 0
+                if (entry.is_self) {
+                  return (
+                    <div key="self" style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>
+                      You: +{entry.reviews_last_30_days ?? 0} this month
+                    </div>
+                  )
+                }
+                const theirGrowth = entry.reviews_last_30_days ?? 0
+                const winning = myGrowth > theirGrowth
+                return (
+                  <div key={entry.id} style={{ fontSize: 13, color: winning ? '#059669' : '#d97706' }}>
+                    {winning
+                      ? `✓ Growing faster than ${entry.name}`
+                      : `⚡ ${entry.name} gained +${theirGrowth} this month`}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         ) : (
           <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
