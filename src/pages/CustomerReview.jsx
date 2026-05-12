@@ -197,7 +197,13 @@ export default function CustomerReview() {
         setBusiness(res.data)
         setQuickTags(res.data.quick_tags || [])
         setGoogleReviewUrl(res.data.google_review_url || null)
-        setScreen('rate')
+        // Device-level cooldown: one submission per business per 24 h
+        const stored = localStorage.getItem(`praisly_done_${businessId}`)
+        if (stored && Date.now() - parseInt(stored, 10) < 86_400_000) {
+          setScreen('already_done')
+        } else {
+          setScreen('rate')
+        }
       })
       .catch(() => {
         setError('This review link is not valid or has expired.')
@@ -238,6 +244,8 @@ export default function CustomerReview() {
         custom_tag: null,
         customer_phone: '',
       })
+      // Record submission in localStorage so the device cooldown kicks in on reload
+      localStorage.setItem(`praisly_done_${businessId}`, String(Date.now()))
       if (isPositive) {
         setDraft(res.data.draft || '')
         setReviewId(res.data.review_id || null)
@@ -247,7 +255,9 @@ export default function CustomerReview() {
         setScreen('neg_feedback')
       }
     } catch (err) {
-      if (err.response?.status === 403) {
+      if (err.response?.status === 429) {
+        setScreen('already_done')
+      } else if (err.response?.status === 403) {
         setLimitReached(true)
         setScreen('done')
       } else if (isPositive) {
@@ -619,6 +629,23 @@ export default function CustomerReview() {
               </button>
 
               <p className="cr-powered">Powered by <b>Praisly</b></p>
+            </div>
+          )}
+
+          {/* ══ ALREADY DONE ═══════════════════════════════════════════════════════ */}
+          {screen === 'already_done' && (
+            <div style={{
+              textAlign: 'center', marginTop: 120, padding: '0 28px',
+              animation: 'cr-fadeUp 0.35s ease',
+            }}>
+              <p style={{ fontSize: 52, marginBottom: 16 }}>🙏</p>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>
+                You've already shared your feedback.
+              </h2>
+              <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.65, fontWeight: 500 }}>
+                Thank you! 🙏
+                {bizName ? <><br />Your review helps {bizName} grow.</> : ''}
+              </p>
             </div>
           )}
 
