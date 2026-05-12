@@ -768,36 +768,6 @@ export default function Dashboard() {
   const noTimeData   = timeData.every(d => d.count === 0)
   const noGrowthData = growthChartData.length === 0
 
-  // Chart summaries
-  const ratingChartSummary = (() => {
-    if (noRatingData) return 'Collect more reviews to see your ratings'
-    const total = ratingData.reduce((s, d) => s + d.count, 0)
-    const topEntry = ratingData.reduce((a, b) => b.count > a.count ? b : a, ratingData[0])
-    const pct45 = total > 0 ? Math.round(((ratingData[3].count + ratingData[4].count) / total) * 100) : 0
-    if (topEntry.star === '5★' && topEntry.count > 0) return "Most of your customers gave you 5 stars! 🎉"
-    if (topEntry.star === '4★' && topEntry.count > 0) return "Most customers rated you 4 stars ⭐"
-    if (pct45 > 80) return `Your customers love you — ${pct45}% gave 4–5 stars 🎉`
-    return 'Collect more reviews to see your ratings'
-  })()
-
-  const activityTotal = timeData.reduce((s, d) => s + d.count, 0)
-  const activitySummary = activityTotal > 0
-    ? `You got ${activityTotal} new review${activityTotal !== 1 ? 's' : ''} this month 📈`
-    : 'No reviews yet this month. Share your QR code!'
-
-  const compChartSummary = (() => {
-    if (!showCompGrowthChart) return 'Add competitors to see how you compare'
-    if (!cgHasData) return 'Keep going — growth trends will show up in a few days'
-    const myEntry = leaderboard.find(e => e.is_self)
-    const myGrowth = myEntry?.reviews_last_30_days ?? 0
-    const others = leaderboard.filter(e => !e.is_self)
-    const slower = others.find(e => (e.reviews_last_30_days ?? 0) < myGrowth)
-    if (slower) return `You're growing faster than ${slower.name} 💪`
-    const fastest = others.reduce((a, b) => (b.reviews_last_30_days ?? 0) > (a.reviews_last_30_days ?? 0) ? b : a, others[0])
-    if (fastest) return `${fastest.name} gained ${fastest.reviews_last_30_days ?? 0} reviews. Time to push harder!`
-    return 'Keep going — growth trends will show up in a few days'
-  })()
-
   // Competitor growth chart data
   const cgSeries = compGrowth?.series || []
   const cgDataRaw = useMemo(() => buildGrowthChartData(cgSeries), [cgSeries])
@@ -807,6 +777,44 @@ export default function Dashboard() {
   })
   const cgHasData = cgData.length > 1
   const showCompGrowthChart = competitors.length > 0
+
+  // Chart summaries — declared after all dependencies are defined
+  const ratingChartSummary = (() => {
+    try {
+      if (!stats || !stats.rating_distribution || noRatingData) return 'Collect more reviews to see your ratings'
+      const total = ratingData.reduce((s, d) => s + d.count, 0)
+      const topEntry = ratingData.reduce((a, b) => b.count > a.count ? b : a, ratingData[0])
+      const pct45 = total > 0 ? Math.round(((ratingData[3].count + ratingData[4].count) / total) * 100) : 0
+      if (topEntry.star === '5★' && topEntry.count > 0) return "Most of your customers gave you 5 stars! 🎉"
+      if (topEntry.star === '4★' && topEntry.count > 0) return "Most customers rated you 4 stars ⭐"
+      if (pct45 > 80) return `Your customers love you — ${pct45}% gave 4–5 stars 🎉`
+      return 'Collect more reviews to see your ratings'
+    } catch { return '' }
+  })()
+
+  const activitySummary = (() => {
+    try {
+      const total = timeData.reduce((s, d) => s + d.count, 0)
+      return total > 0
+        ? `You got ${total} new review${total !== 1 ? 's' : ''} this month 📈`
+        : 'No reviews yet this month. Share your QR code!'
+    } catch { return '' }
+  })()
+
+  const compChartSummary = (() => {
+    try {
+      if (!showCompGrowthChart) return 'Add competitors to see how you compare'
+      if (!cgHasData) return 'Keep going — growth trends will show up in a few days'
+      const myEntry = leaderboard.find(e => e.is_self)
+      const myGrowth = myEntry?.reviews_last_30_days ?? 0
+      const others = leaderboard.filter(e => !e.is_self)
+      const slower = others.find(e => (e.reviews_last_30_days ?? 0) < myGrowth)
+      if (slower) return `You're growing faster than ${slower.name} 💪`
+      const fastest = others.reduce((a, b) => (b.reviews_last_30_days ?? 0) > (a.reviews_last_30_days ?? 0) ? b : a, others[0])
+      if (fastest) return `${fastest.name} gained ${fastest.reviews_last_30_days ?? 0} reviews. Time to push harder!`
+      return 'Keep going — growth trends will show up in a few days'
+    } catch { return '' }
+  })()
 
   // Animated hero values
   const gainedAnim  = useCountUp(stats?.google_reviews_gained ?? 0)
