@@ -7,7 +7,7 @@ const NAV = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
   { to: '/reviews',   icon: '⭐', label: 'Reviews' },
   { to: '/qr',        icon: '📱', label: 'QR Code' },
-  { to: '/send',      icon: '📤', label: 'Send Request' },
+  { to: '/send',      icon: '💬', label: 'Send via WhatsApp' },
   { to: '/settings',  icon: '⚙️', label: 'Settings' },
   { to: '/billing',   icon: '💳', label: 'Billing' },
 ]
