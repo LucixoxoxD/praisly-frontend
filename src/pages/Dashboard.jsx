@@ -768,6 +768,36 @@ export default function Dashboard() {
   const noTimeData   = timeData.every(d => d.count === 0)
   const noGrowthData = growthChartData.length === 0
 
+  // Chart summaries
+  const ratingChartSummary = (() => {
+    if (noRatingData) return 'Collect more reviews to see your ratings'
+    const total = ratingData.reduce((s, d) => s + d.count, 0)
+    const topEntry = ratingData.reduce((a, b) => b.count > a.count ? b : a, ratingData[0])
+    const pct45 = total > 0 ? Math.round(((ratingData[3].count + ratingData[4].count) / total) * 100) : 0
+    if (topEntry.star === '5★' && topEntry.count > 0) return "Most of your customers gave you 5 stars! 🎉"
+    if (topEntry.star === '4★' && topEntry.count > 0) return "Most customers rated you 4 stars ⭐"
+    if (pct45 > 80) return `Your customers love you — ${pct45}% gave 4–5 stars 🎉`
+    return 'Collect more reviews to see your ratings'
+  })()
+
+  const activityTotal = timeData.reduce((s, d) => s + d.count, 0)
+  const activitySummary = activityTotal > 0
+    ? `You got ${activityTotal} new review${activityTotal !== 1 ? 's' : ''} this month 📈`
+    : 'No reviews yet this month. Share your QR code!'
+
+  const compChartSummary = (() => {
+    if (!showCompGrowthChart) return 'Add competitors to see how you compare'
+    if (!cgHasData) return 'Keep going — growth trends will show up in a few days'
+    const myEntry = leaderboard.find(e => e.is_self)
+    const myGrowth = myEntry?.reviews_last_30_days ?? 0
+    const others = leaderboard.filter(e => !e.is_self)
+    const slower = others.find(e => (e.reviews_last_30_days ?? 0) < myGrowth)
+    if (slower) return `You're growing faster than ${slower.name} 💪`
+    const fastest = others.reduce((a, b) => (b.reviews_last_30_days ?? 0) > (a.reviews_last_30_days ?? 0) ? b : a, others[0])
+    if (fastest) return `${fastest.name} gained ${fastest.reviews_last_30_days ?? 0} reviews. Time to push harder!`
+    return 'Keep going — growth trends will show up in a few days'
+  })()
+
   // Competitor growth chart data
   const cgSeries = compGrowth?.series || []
   const cgDataRaw = useMemo(() => buildGrowthChartData(cgSeries), [cgSeries])
@@ -941,7 +971,8 @@ export default function Dashboard() {
 
         {/* Rating distribution */}
         <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '400ms' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 16px' }}>Rating Distribution</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>Your Star Ratings</h3>
+          <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{ratingChartSummary}</p>
           {noRatingData ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={ratingData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -962,7 +993,8 @@ export default function Dashboard() {
 
         {/* Reviews over time */}
         <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '460ms' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 16px' }}>Reviews (Last 30 Days)</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>Your Review Activity</h3>
+          <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{activitySummary}</p>
           {noTimeData ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={timeData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -984,7 +1016,8 @@ export default function Dashboard() {
         {/* 3rd chart: competitor growth or google review count */}
         {showCompGrowthChart ? (
           <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 16px' }}>Review Growth vs Competitors</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>You vs Competitors</h3>
+            <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{compChartSummary}</p>
             {!cgHasData ? (
               <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, textAlign: 'center', background: '#f8fafc', borderRadius: 8, padding: 16 }}>
                 <p style={{ margin: '0 0 4px' }}>Growth chart will appear after a few days of tracking</p>
