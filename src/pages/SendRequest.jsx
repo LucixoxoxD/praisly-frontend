@@ -16,7 +16,28 @@ const PAGE_CSS = `
     box-sizing: border-box;
   }
   .send-input:focus { border-color: #25D366; }
+  .send-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    background: white;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 96px;
+    line-height: 1.55;
+  }
+  .send-textarea:focus { border-color: #25D366; }
 `
+
+function defaultTemplate(bizName) {
+  return `Hi! Thank you for visiting ${bizName} 🙏\nWe'd love your feedback. It takes just 30 seconds:\n\nYour review helps us improve!`
+}
 
 const WA_ICON = (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="18" height="18" aria-hidden="true" style={{ flexShrink: 0 }}>
@@ -25,22 +46,23 @@ const WA_ICON = (
 )
 
 export default function SendRequest() {
-  const [phone, setPhone]   = useState('')
-  const [copied, setCopied] = useState(false)
-
   const biz        = authService.getBusiness()
   const bizName    = biz?.business_name || 'our business'
   const bizId      = biz?.id || ''
   const base       = import.meta.env.VITE_APP_URL || window.location.origin
   const reviewLink = bizId ? `${base}/review/${bizId}` : ''
 
-  const cleanPhone  = phone.trim().replace(/\D/g, '')
-  const canOpen     = cleanPhone.length === 10 && reviewLink
+  const [phone,   setPhone]   = useState('')
+  const [message, setMessage] = useState(() => defaultTemplate(bizName))
+  const [copied,  setCopied]  = useState(false)
+
+  const cleanPhone = phone.trim().replace(/\D/g, '')
+  const canOpen    = cleanPhone.length === 10 && reviewLink
 
   function handleOpenWhatsApp() {
     if (!canOpen) return
     const waPhone = `91${cleanPhone}`
-    const text = `Hi! Thank you for visiting ${bizName} 🙏\n\nWe'd love your feedback. It takes just 30 seconds:\n👉 ${reviewLink}\n\nYour review helps us improve!`
+    const text = `${message.trim()}\n👉 ${reviewLink}`
     window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -89,18 +111,29 @@ export default function SendRequest() {
             </div>
           </div>
 
-          {/* Preview of message */}
-          {reviewLink && (
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '12px 14px', marginBottom: 20, fontSize: 13, color: '#166534', lineHeight: 1.55 }}>
-              <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: 12, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Message preview</p>
-              <p style={{ margin: 0 }}>
-                Hi! Thank you for visiting <strong>{bizName}</strong> 🙏<br />
-                We'd love your feedback. It takes just 30 seconds:<br />
-                👉 <span style={{ wordBreak: 'break-all', color: '#047857' }}>{reviewLink}</span><br />
-                Your review helps us improve!
-              </p>
+          {/* Editable message */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>Message</label>
+              <button
+                onClick={() => setMessage(defaultTemplate(bizName))}
+                style={{ fontSize: 12, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+              >
+                Reset to default
+              </button>
             </div>
-          )}
+            <textarea
+              className="send-textarea"
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            {reviewLink && (
+              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0', wordBreak: 'break-all' }}>
+                🔗 Review link will be added automatically: <span style={{ color: '#64748b' }}>{reviewLink}</span>
+              </p>
+            )}
+          </div>
 
           {/* Open WhatsApp button */}
           <button
