@@ -1008,28 +1008,45 @@ export default function Dashboard() {
         {showCompGrowthChart ? (
           <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
             <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>You vs Competitors</h3>
-            <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 16px', lineHeight: 1.5 }}>{compChartSummary}</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {leaderboard.map(entry => {
-                const myGrowth = leaderboard.find(e => e.is_self)?.reviews_last_30_days ?? 0
-                if (entry.is_self) {
-                  return (
-                    <div key="self" style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>
-                      You: +{entry.reviews_last_30_days ?? 0} this month
-                    </div>
-                  )
-                }
-                const theirGrowth = entry.reviews_last_30_days ?? 0
-                const winning = myGrowth > theirGrowth
-                return (
-                  <div key={entry.id} style={{ fontSize: 13, color: winning ? '#059669' : '#d97706' }}>
-                    {winning
-                      ? `✓ Growing faster than ${entry.name}`
-                      : `⚡ ${entry.name} gained +${theirGrowth} this month`}
+            <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{compChartSummary}</p>
+            {(() => {
+              const myEntry = leaderboard.find(e => e.is_self)
+              const myGrowth = myEntry?.reviews_last_30_days ?? 0
+              const comps = leaderboard.filter(e => !e.is_self)
+              const behind = comps.filter(e => myGrowth <= (e.reviews_last_30_days ?? 0))
+              const ahead  = comps.filter(e => myGrowth >  (e.reviews_last_30_days ?? 0))
+              const sorted = [...behind, ...ahead]
+              return (
+                <>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: '#059669', margin: '0 0 12px' }}>
+                    📊 Your growth: +{myGrowth} this month
+                  </p>
+                  <div style={{ height: 1, background: '#e5e7eb', margin: '0 0 12px' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {sorted.map(entry => {
+                      const theirs = entry.reviews_last_30_days ?? 0
+                      const isAhead = myGrowth > theirs
+                      return (
+                        <div
+                          key={entry.id}
+                          style={{
+                            fontSize: 14,
+                            fontWeight: isAhead ? 400 : 600,
+                            color: isAhead ? '#374151' : '#92400e',
+                            padding: '8px 0',
+                            borderBottom: '1px solid #f3f4f6',
+                          }}
+                        >
+                          {isAhead
+                            ? `✅ Ahead of ${entry.name} (+${theirs})`
+                            : `⚠️ Behind ${entry.name} (+${theirs})`}
+                        </div>
+                      )
+                    })}
                   </div>
-                )
-              })}
-            </div>
+                </>
+              )
+            })()}
           </div>
         ) : (
           <div className="d-card" style={{ padding: '20px 16px', animation: 'fadeUp 0.35s ease both', animationDelay: '520ms' }}>
