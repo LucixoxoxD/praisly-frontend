@@ -4,14 +4,29 @@ import api, { authService } from '../services/api'
 import { useToast } from '../components/Toast'
 
 const BIZ_TYPES = [
-  { value: 'dentist',    label: 'Dentist' },
-  { value: 'salon',      label: 'Salon / Beauty Parlour' },
-  { value: 'gym',        label: 'Gym / Fitness Center' },
-  { value: 'restaurant', label: 'Restaurant / Cafe' },
-  { value: 'coaching',   label: 'Coaching / Tuition' },
-  { value: 'ca_firm',    label: 'CA / Accountant Firm' },
-  { value: 'other',      label: 'Other' },
+  { value: 'healthcare / clinic',   label: 'Healthcare / Clinic' },
+  { value: 'salon / beauty parlour', label: 'Salon / Beauty Parlour' },
+  { value: 'gym / fitness / yoga',  label: 'Gym / Fitness / Yoga' },
+  { value: 'restaurant / cafe',     label: 'Restaurant / Cafe' },
+  { value: 'coaching / tuition',    label: 'Coaching / Tuition' },
+  { value: 'ca / law firm',         label: 'CA / Law Firm' },
+  { value: 'auto / repair service', label: 'Auto / Repair Service' },
+  { value: 'real estate',           label: 'Real Estate' },
+  { value: 'other',                 label: 'Other' },
 ]
+
+const LEGACY_TYPE_MAP = {
+  'dentist':    'healthcare / clinic',
+  'ca_firm':    'ca / law firm',
+  'salon':      'salon / beauty parlour',
+  'gym':        'gym / fitness / yoga',
+  'restaurant': 'restaurant / cafe',
+  'coaching':   'coaching / tuition',
+}
+
+function normalizeType(raw) {
+  return LEGACY_TYPE_MAP[raw] || raw || 'other'
+}
 
 
 const PAGE_STYLE = `@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }`
@@ -44,7 +59,7 @@ export default function Settings() {
 
   const [form, setForm] = useState({
     business_name: stored?.business_name || '',
-    business_type: stored?.business_type || 'other',
+    business_type: normalizeType(stored?.business_type),
     city:          stored?.city          || '',
     phone:         stored?.phone         || '',
     email:         stored?.email         || '',

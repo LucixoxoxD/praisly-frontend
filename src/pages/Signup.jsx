@@ -3,13 +3,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { authService } from '../services/api'
 
 const BIZ_TYPES = [
-  { value: 'dentist',    label: 'Dentist' },
-  { value: 'salon',      label: 'Salon / Beauty Parlour' },
-  { value: 'gym',        label: 'Gym / Fitness Center' },
-  { value: 'restaurant', label: 'Restaurant / Cafe' },
-  { value: 'coaching',   label: 'Coaching / Tuition' },
-  { value: 'ca_firm',    label: 'CA / Accountant Firm' },
-  { value: 'other',      label: 'Other' },
+  { value: 'healthcare / clinic',   label: 'Healthcare / Clinic' },
+  { value: 'salon / beauty parlour', label: 'Salon / Beauty Parlour' },
+  { value: 'gym / fitness / yoga',  label: 'Gym / Fitness / Yoga' },
+  { value: 'restaurant / cafe',     label: 'Restaurant / Cafe' },
+  { value: 'coaching / tuition',    label: 'Coaching / Tuition' },
+  { value: 'ca / law firm',         label: 'CA / Law Firm' },
+  { value: 'auto / repair service', label: 'Auto / Repair Service' },
+  { value: 'real estate',           label: 'Real Estate' },
+  { value: 'other',                 label: 'Other' },
 ]
 
 const inputStyle = {
