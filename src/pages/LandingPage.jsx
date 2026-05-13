@@ -19,23 +19,6 @@ function useInView(options = {}) {
   return [ref, inView]
 }
 
-// ─── Count-up hook ────────────────────────────────────────────────────────────
-function useCountUp(target, duration = 1400, active = false) {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    if (!active) return
-    let start = 0
-    const step = Math.ceil(target / (duration / 16))
-    const timer = setInterval(() => {
-      start += step
-      if (start >= target) { setCount(target); clearInterval(timer) }
-      else setCount(start)
-    }, 16)
-    return () => clearInterval(timer)
-  }, [active, target, duration])
-  return count
-}
-
 // ─── Animated section wrapper ─────────────────────────────────────────────────
 function Reveal({ children, delay = 0, style = {} }) {
   const [ref, inView] = useInView()
@@ -151,7 +134,7 @@ function PhoneMockup() {
           {/* Draft preview */}
           <div style={{ background: '#f0fdf4', borderRadius: 10, padding: '8px 10px', border: '1.5px solid #6ee7b7', marginBottom: 10 }}>
             <p style={{ fontSize: 8.5, color: '#374151', lineHeight: 1.5, margin: 0 }}>
-              "Looks Salon mein styling acchi thi aur staff bhi friendly tha. Overall worth visiting! ⭐"
+              "Great styling at Looks Salon. Staff was friendly and the place was clean. Will come back for sure."
             </p>
           </div>
           {/* CTA */}
@@ -219,12 +202,6 @@ export default function LandingPage() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
-  // ── Stat counters ──
-  const [statsRef, statsInView] = useInView()
-  const r1 = useCountUp(47, 1600, statsInView)
-  const r2 = useCountUp(30, 1200, statsInView)
-  const r3 = useCountUp(4.7, 1000, statsInView)
 
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", overflowX: 'hidden' }}>
@@ -359,11 +336,6 @@ export default function LandingPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 48, alignItems: 'center' }}>
             {/* Left: text */}
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 20, padding: '6px 14px', marginBottom: 20 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', animation: 'pulse-green 2s infinite' }} />
-                <span style={{ color: '#6ee7b7', fontSize: 13, fontWeight: 600 }}>Now live in India</span>
-              </div>
-
               <h1
                 style={{
                   fontFamily: "'Plus Jakarta Sans', system-ui",
@@ -380,7 +352,7 @@ export default function LandingPage() {
               </h1>
 
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 18, lineHeight: 1.7, marginBottom: 32, maxWidth: 480 }}>
-                AI-powered review collection for Indian local businesses. Customers scan, tap, and post — in under 30 seconds.
+                Dentists, salons, gyms &amp; restaurants — get 5x more Google reviews without asking twice. Customers scan your QR, tap, and post in 30 seconds.
               </p>
 
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
@@ -404,9 +376,6 @@ export default function LandingPage() {
                     {demoLoading ? 'Loading…' : 'See Live Demo →'}
                   </button>
                 )}
-                <a href="#how-it-works" className="lp-btn-outline">
-                  See How It Works ↓
-                </a>
               </div>
 
               {/* Trust line */}
@@ -417,7 +386,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13 }}>
-                  Trusted by dentists, salons, gyms &amp; restaurants across India
+                  Built for Indian local businesses
                 </span>
               </div>
             </div>
@@ -426,32 +395,20 @@ export default function LandingPage() {
             <PhoneMockup />
           </div>
 
-          {/* Stat strip */}
+          {/* Banner */}
           <div
-            ref={statsRef}
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-              gap: 1,
+              marginTop: 56,
+              textAlign: 'center',
+              padding: '28px 24px',
               background: 'rgba(255,255,255,0.06)',
               borderRadius: 16,
-              marginTop: 56,
-              overflow: 'hidden',
               border: '1px solid rgba(255,255,255,0.08)',
             }}
           >
-            {[
-              { value: r1, suffix: '+', label: 'Average reviews after 60 days' },
-              { value: r2, suffix: 's', label: 'Time to submit a review' },
-              { value: r3, suffix: '★', label: 'Average rating achieved', float: true },
-            ].map((s, i) => (
-              <div key={i} style={{ padding: '24px 28px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
-                <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 36, fontWeight: 800, color: 'white', margin: '0 0 4px' }}>
-                  {s.float ? s.value.toFixed(1) : s.value}{s.suffix}
-                </p>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: 0 }}>{s.label}</p>
-              </div>
-            ))}
+            <p style={{ fontSize: 18, color: '#94a3b8', fontStyle: 'italic', margin: 0 }}>
+              One QR code. Unlimited reviews. Zero awkward asking.
+            </p>
           </div>
         </div>
       </section>
@@ -549,12 +506,13 @@ export default function LandingPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
             {[
-              { icon: '🤖', color: '#dbeafe', title: 'AI Review Drafts', desc: 'Natural Hindi + English reviews generated from customer feedback. Not copy-paste templates — each one is unique.' },
-              { icon: '🛡️', color: '#d1fae5', title: 'Smart Review Gating', desc: 'Happy customers go to Google. Unhappy feedback comes to you privately. Protect your rating automatically.' },
-              { icon: '📱', color: '#fce7f3', title: 'QR Code Generator', desc: 'Print and place at your counter. Works with any phone camera, no app download needed.' },
-              { icon: '📊', color: '#ede9fe', title: 'Business Dashboard', desc: 'Track reviews, ratings, and conversion rates. See which tags customers choose most.' },
-              { icon: '🏷️', color: '#fef3c7', title: 'Niche-Specific Tags', desc: 'Custom tags for dentists, salons, gyms, restaurants, coaching centers. Tap, not type.' },
-              { icon: '💬', color: '#f0fdf4', title: 'WhatsApp Alerts', desc: 'Get notified instantly when you receive feedback. Never miss a review request.', soon: true },
+              { icon: '🤖', color: '#dbeafe', title: 'Customers write reviews in 10 seconds', desc: 'AI generates a ready-made review based on what they liked. They just copy paste and post.' },
+              { icon: '🛡️', color: '#d1fae5', title: 'Bad reviews never reach Google', desc: 'Unhappy customers send feedback privately to you. Only happy customers see the Google review link.' },
+              { icon: '📱', color: '#fce7f3', title: 'One QR code at your counter. That\'s it.', desc: 'Print it. Place it. Customers scan after their visit and reviews come automatically.' },
+              { icon: '📊', color: '#ede9fe', title: 'See how you rank against nearby competitors', desc: 'Track how many reviews your competitors got this month. Know exactly where you stand.' },
+              { icon: '📈', color: '#fef3c7', title: 'Watch your Google reviews grow', desc: 'See reviews gained, rating changes, and estimated business value — all in one simple dashboard.' },
+              { icon: '🔔', color: '#f0fdf4', title: 'Get alerted the moment a customer rates you', desc: 'Know instantly when someone gives you 5 stars or sends private feedback.' },
+              { icon: '⭐', color: '#fff7ed', title: 'Your Google rating tracked automatically', desc: 'We check your Google profile twice a day and show you how your rating is changing over time.' },
             ].map((f, i) => (
               <Reveal key={i} delay={i * 60}>
                 <div className="feature-card" style={{ background: 'white', borderRadius: 14, padding: '24px 22px', border: '1px solid #e2e8f0', height: '100%' }}>
@@ -781,6 +739,11 @@ export default function LandingPage() {
             ['What happens to negative feedback?', 'It comes directly to your dashboard, privately. You can address the issue before it becomes a public Google review. Only happy customers are directed to Google.'],
             ['Can I try it for free?', 'Yes. You get a 7-day free trial — no credit card required. Full access to everything. After that, plans start at ₹999/month (early adopter pricing).'],
             ['How do customers leave a review?', 'They scan your QR code, tap a star rating, select what they enjoyed, and post a ready-made AI review on Google. The whole process takes under 30 seconds.'],
+            ['Will Google detect these reviews are AI-written?', 'No. Our AI writes unique reviews every time in natural casual English. Each review is different — no two reviews sound the same. The customer also has the option to edit before posting.'],
+            ['How is this different from just asking customers to review?', 'When you ask verbally most customers forget or don\'t bother. Praisly makes it effortless — they scan a QR, tap a few buttons, and a ready-made review is on their clipboard in seconds.'],
+            ['What happens after the 7-day free trial?', 'You can subscribe to continue at ₹999/month or ₹7,999/year (early adopter pricing). If you don\'t subscribe your account stays but you won\'t be able to collect new reviews.'],
+            ['Can I cancel anytime?', 'Yes. Cancel anytime from your dashboard. No lock-in. No cancellation fees.'],
+            ['Do I need any technical knowledge?', 'Not at all. Sign up, print your QR code, place it at your counter. That\'s it. Everything else is automatic.'],
           ].map(([q, a], i) => (
             <Reveal key={i} delay={i * 50}>
               <FAQItem q={q} a={a} />
@@ -795,13 +758,13 @@ export default function LandingPage() {
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)', padding: '80px 24px', textAlign: 'center' }}>
         <Reveal>
           <h2 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 'clamp(26px, 4vw, 44px)', fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.5px' }}>
-            Start Getting More Google Reviews Today
+            Your competitors are collecting reviews. Are you?
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 17, marginBottom: 36 }}>
-            Join 100+ Indian businesses already using Praisly
+            Start your 7-day free trial. No card required.
           </p>
           <Link to="/signup" className="lp-btn-primary" style={{ fontSize: 17, padding: '16px 40px' }}>
-            Create Free Account →
+            Start Free Trial →
           </Link>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 20 }}>
             No credit card required&nbsp;&nbsp;•&nbsp;&nbsp;7-day free trial&nbsp;&nbsp;•&nbsp;&nbsp;Setup in 2 minutes
