@@ -59,7 +59,7 @@ export default function QRCode() {
       const url = canvas.toDataURL('image/png')
       const a = document.createElement('a')
       a.href = url
-      a.download = `${(bizName || 'business').replace(/\s+/g, '_')}_qr.png`
+      a.download = `${(bizName || 'business').replace(/\s+/g, '-')}-QR.png`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -133,49 +133,74 @@ export default function QRCode() {
             ref={cardRef}
             style={{
               background: 'white',
-              borderRadius: 20,
-              padding: 32,
-              border: '1px solid #e2e8f0',
+              borderRadius: 16,
+              border: '2px solid #e5e7eb',
               boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
               textAlign: 'center',
+              maxWidth: 400,
+              overflow: 'hidden',
             }}
           >
-            <p
-              style={{
+            {/* Content area */}
+            <div style={{ padding: '32px 32px 24px' }}>
+              <p style={{
                 fontFamily: "'Plus Jakarta Sans', system-ui",
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: 800,
                 color: '#0f172a',
-                margin: '0 0 20px',
+                margin: '0 0 8px',
                 letterSpacing: '-0.3px',
-              }}
-            >
-              {bizName}
-            </p>
+              }}>
+                {bizName}
+              </p>
 
-            <img
-              src={qrObjectUrl}
-              alt="Review QR Code"
-              style={{
-                width: 220,
-                height: 220,
-                display: 'block',
-                margin: '0 auto',
-                borderRadius: 8,
-                border: '1px solid #f1f5f9',
-              }}
-            />
+              <p style={{ fontSize: 16, color: '#4b5563', margin: '0 0 24px', fontWeight: 500 }}>
+                We'd love your feedback! ⭐
+              </p>
 
-            <p
-              style={{
-                color: '#94a3b8',
+              <img
+                src={qrObjectUrl}
+                alt="Review QR Code"
+                style={{
+                  width: 220,
+                  height: 220,
+                  display: 'block',
+                  margin: '0 auto',
+                  borderRadius: 8,
+                }}
+              />
+
+              <p style={{ color: '#9ca3af', fontSize: 14, margin: '14px 0 0' }}>
+                Scan with your phone camera
+              </p>
+            </div>
+
+            {/* Praisly branding strip — included in downloaded image */}
+            <div style={{
+              background: '#f9fafb',
+              borderTop: '1px solid #e5e7eb',
+              padding: '10px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <span style={{ fontSize: 12, color: '#9ca3af' }}>Powered by</span>
+              <span style={{
+                fontFamily: "'Plus Jakarta Sans', system-ui",
                 fontSize: 13,
-                margin: '16px 0 0',
-              }}
-            >
-              Scan to share your experience
-            </p>
+                fontWeight: 800,
+                color: '#10b981',
+                letterSpacing: '-0.2px',
+              }}>
+                Praisly ⭐
+              </span>
+            </div>
           </div>
+
+          {/* Print instruction — outside captured card */}
+          <p style={{ fontSize: 13, color: '#64748b', margin: '12px 0 4px', lineHeight: 1.5 }}>
+            💡 Print this and place it at your checkout counter, reception desk, or dining table
+          </p>
 
           {/* URL row (outside captured card) */}
           <div
