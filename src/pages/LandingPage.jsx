@@ -191,8 +191,10 @@ export default function LandingPage() {
       const { authService } = await import('../services/api')
       await authService.login(DEMO_EMAIL, DEMO_PASSWORD)
       navigate('/dashboard')
-    } catch {
+    } catch (err) {
+      console.error('Demo login failed:', err)
       setDemoLoading(false)
+      alert('Demo is temporarily unavailable. Please try again in a moment.')
     }
   }
   const [lpYearly, setLpYearly] = useState(true)
