@@ -59,7 +59,7 @@ export default function QRCode() {
       const url = canvas.toDataURL('image/png')
       const a = document.createElement('a')
       a.href = url
-      a.download = `${(bizName || 'business').replace(/\s+/g, '-')}-QR.png`
+      a.download = `${(bizName || 'business').replace(/\s+/g, '-')}-QR-Praisly.png`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -72,7 +72,7 @@ export default function QRCode() {
   }
 
   function handleWhatsApp() {
-    const text = encodeURIComponent(`Hi! Please share your review here: ${reviewUrl}`)
+    const text = encodeURIComponent(`Check out ${bizName}! Leave a review here: ${reviewUrl}`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -127,82 +127,106 @@ export default function QRCode() {
           alignItems: 'start',
         }}
       >
-        {/* Branded QR card — captured by html2canvas */}
+        {/* Left column: card + controls */}
         <div>
+
+          {/* White margin wrapper — captured by html2canvas for print-ready PNG */}
           <div
             ref={cardRef}
             style={{
               background: 'white',
-              borderRadius: 16,
-              border: '2px solid #e5e7eb',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-              textAlign: 'center',
-              maxWidth: 400,
-              overflow: 'hidden',
+              padding: 20,
+              display: 'inline-block',
+              width: '100%',
+              maxWidth: 380,
+              boxSizing: 'border-box',
             }}
           >
-            {/* Content area */}
-            <div style={{ padding: '32px 32px 24px' }}>
-              <p style={{
-                fontFamily: "'Plus Jakarta Sans', system-ui",
-                fontSize: 20,
-                fontWeight: 800,
-                color: '#0f172a',
-                margin: '0 0 8px',
-                letterSpacing: '-0.3px',
-              }}>
-                {bizName}
-              </p>
-
-              <p style={{ fontSize: 16, color: '#4b5563', margin: '0 0 24px', fontWeight: 500 }}>
-                We'd love your feedback! ⭐
-              </p>
-
-              <img
-                src={qrObjectUrl}
-                alt="Review QR Code"
+            {/* Branded card */}
+            <div
+              style={{
+                border: '2px solid #e5e7eb',
+                borderRadius: 16,
+                overflow: 'hidden',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
+                textAlign: 'center',
+              }}
+            >
+              {/* Navy header */}
+              <div
                 style={{
-                  width: 220,
-                  height: 220,
-                  display: 'block',
-                  margin: '0 auto',
-                  borderRadius: 8,
+                  background: '#1a1a2e',
+                  padding: '20px 24px',
                 }}
-              />
+              >
+                <p
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', system-ui",
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: 'white',
+                    margin: '0 0 6px',
+                    letterSpacing: '-0.3px',
+                  }}
+                >
+                  {bizName}
+                </p>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+                  Share your experience with us
+                </p>
+              </div>
 
-              <p style={{ color: '#9ca3af', fontSize: 14, margin: '14px 0 0' }}>
-                Scan with your phone camera
-              </p>
-            </div>
+              {/* QR area */}
+              <div style={{ background: 'white', padding: '32px 32px 24px' }}>
+                <img
+                  src={qrObjectUrl}
+                  alt="Review QR Code"
+                  style={{
+                    width: 220,
+                    height: 220,
+                    display: 'block',
+                    margin: '0 auto',
+                  }}
+                />
+                <div style={{ borderTop: '1.5px dashed #d1d5db', margin: '20px 0 16px' }} />
+                <p style={{ color: '#9ca3af', fontSize: 13, margin: 0 }}>
+                  📱 Scan with your phone camera
+                </p>
+              </div>
 
-            {/* Praisly branding strip — included in downloaded image */}
-            <div style={{
-              background: '#f9fafb',
-              borderTop: '1px solid #e5e7eb',
-              padding: '10px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-              <span style={{ fontSize: 12, color: '#9ca3af' }}>Powered by</span>
-              <span style={{
-                fontFamily: "'Plus Jakarta Sans', system-ui",
-                fontSize: 13,
-                fontWeight: 800,
-                color: '#10b981',
-                letterSpacing: '-0.2px',
-              }}>
-                Praisly ⭐
-              </span>
+              {/* Branding footer */}
+              <div
+                style={{
+                  background: '#f8fafc',
+                  borderTop: '1px solid #e5e7eb',
+                  padding: '14px 20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span style={{ fontSize: 11, color: '#9ca3af' }}>Powered by</span>
+                <span
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', system-ui",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: '#10b981',
+                    letterSpacing: '-0.2px',
+                  }}
+                >
+                  Praisly ⭐
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Print instruction — outside captured card */}
+          {/* Print instruction */}
           <p style={{ fontSize: 13, color: '#64748b', margin: '12px 0 4px', lineHeight: 1.5 }}>
             💡 Print this and place it at your checkout counter, reception desk, or dining table
           </p>
 
-          {/* URL row (outside captured card) */}
+          {/* URL row */}
           <div
             style={{
               background: '#f8fafc',
