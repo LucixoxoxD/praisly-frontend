@@ -198,6 +198,10 @@ export default function LandingPage() {
   const [lpYearly, setLpYearly] = useState(true)
 
   useEffect(() => {
+    document.title = 'Praisly — Get More Google Reviews on Autopilot'
+  }, [])
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -487,6 +491,15 @@ export default function LandingPage() {
               </Reveal>
             ))}
           </div>
+
+          <Reveal>
+            <div style={{ textAlign: 'center', marginTop: 48 }}>
+              <Link to="/signup" className="lp-btn-primary" style={{ fontSize: 16, padding: '14px 32px' }}>
+                Start Free Trial →
+              </Link>
+              <p style={{ color: '#64748b', fontSize: 14, margin: '12px 0 0' }}>7-day free trial. No card required.</p>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -527,6 +540,57 @@ export default function LandingPage() {
                 </div>
               </Reveal>
             ))}
+          </div>
+
+          <Reveal>
+            <div style={{ textAlign: 'center', marginTop: 48 }}>
+              <Link to="/signup" className="lp-btn-primary" style={{ fontSize: 16, padding: '14px 32px' }}>
+                Start Free Trial →
+              </Link>
+              <p style={{ color: '#64748b', fontSize: 14, margin: '12px 0 0' }}>7-day free trial. No card required.</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          WHY PRAISLY — COMPARISON
+      ══════════════════════════════════════════════════════════════ */}
+      <section style={{ background: '#f8fafc', padding: '80px 24px' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+          <Reveal>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 800, color: '#0f172a', textAlign: 'center', marginBottom: 40, letterSpacing: '-0.5px' }}>
+              Why Praisly?
+            </h2>
+          </Reveal>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            <Reveal delay={0}>
+              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid #e2e8f0', height: '100%' }}>
+                <p style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 16 }}>Asking manually</p>
+                {['😩 Most customers forget', 'Maybe 1-2 reviews per month', 'No control over what they write', 'Free but ineffective'].map(item => (
+                  <p key={item} style={{ fontSize: 14, color: '#64748b', margin: '0 0 10px', lineHeight: 1.5 }}>{item}</p>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={100}>
+              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid #e2e8f0', height: '100%' }}>
+                <p style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 16 }}>Foreign tools (Podium, Birdeye)</p>
+                {['💰 $250–400/month (₹20,000+)', 'No Hindi/Indian context', 'No UPI payments', 'Built for US businesses'].map(item => (
+                  <p key={item} style={{ fontSize: 14, color: '#64748b', margin: '0 0 10px', lineHeight: 1.5 }}>{item}</p>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={200}>
+              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '2px solid #10b981', boxShadow: '0 0 0 4px rgba(16,185,129,0.08)', height: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <p style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', margin: 0 }}>Praisly</p>
+                  <span style={{ background: '#d1fae5', color: '#065f46', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>Best choice</span>
+                </div>
+                {['🚀 AI writes the review for them', '40+ reviews in 2 months', 'Built for Indian businesses', '₹999/month — early adopter pricing'].map(item => (
+                  <p key={item} style={{ fontSize: 14, color: '#374151', fontWeight: 500, margin: '0 0 10px', lineHeight: 1.5 }}>{item}</p>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -569,27 +633,33 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          {/* Testimonials */}
+          {/* Sample AI-generated reviews */}
+          <Reveal>
+            <p style={{ textAlign: 'center', fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 20 }}>
+              Here's what a review collected through Praisly looks like:
+            </p>
+          </Reveal>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
             {[
-              { name: 'Dr. Amit Sharma', biz: 'Dental Clinic, Noida', quote: 'Patients actually leave reviews now. We went from 8 to 45 reviews in 6 weeks. Our new patient inquiries have doubled.' },
-              { name: 'Priya Mehta', biz: 'Glam Hair Studio, Delhi', quote: 'The QR code at our counter is a game-changer. Clients scan it while waiting for payment. So easy.' },
-              { name: 'Raj Singh', biz: 'Fitness Zone, Gurgaon', quote: 'Finally a tool priced for Indian businesses. Not ₹10,000/month like the foreign ones. Worth every rupee.' },
+              { stars: 5, review: 'Great experience at this dental clinic. The doctor was thorough and explained everything clearly. Staff was friendly and the wait time was minimal. Will definitely come back.' },
+              { stars: 5, review: 'Love this salon! Got a haircut and they did exactly what I asked. Very clean and hygienic place. Pricing is reasonable too. Highly recommend to anyone looking for a good stylist.' },
+              { stars: 4, review: 'Good gym with all the equipment you need. Trainers are knowledgeable and the place is well maintained. The morning slots can get a bit crowded but overall a solid choice.' },
             ].map((t, i) => (
               <Reveal key={i} delay={i * 100}>
                 <div className="feature-card" style={{ background: 'white', borderRadius: 14, padding: 24, border: '1px solid #e2e8f0' }}>
                   <div style={{ display: 'flex', gap: 2, marginBottom: 14 }}>
-                    {[1,2,3,4,5].map(s => <span key={s} style={{ color: '#f59e0b', fontSize: 14 }}>★</span>)}
+                    {[1,2,3,4,5].map(s => <span key={s} style={{ color: s <= t.stars ? '#f59e0b' : '#e2e8f0', fontSize: 14 }}>★</span>)}
                   </div>
-                  <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.7, marginBottom: 16, fontStyle: 'italic' }}>"{t.quote}"</p>
-                  <div>
-                    <p style={{ fontWeight: 700, fontSize: 14, color: '#0f172a', margin: '0 0 2px' }}>{t.name}</p>
-                    <p style={{ color: '#94a3b8', fontSize: 12, margin: 0 }}>{t.biz}</p>
-                  </div>
+                  <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>"{t.review}"</p>
                 </div>
               </Reveal>
             ))}
           </div>
+          <Reveal>
+            <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
+              Sample reviews — AI-generated from customer feedback. Customers read, edit if they want, and post.
+            </p>
+          </Reveal>
         </div>
       </section>
 
@@ -661,11 +731,14 @@ export default function LandingPage() {
               <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 16px', textAlign: 'center' }}>Praisly</p>
 
               {/* Early adopter badge */}
-              <div style={{ textAlign: 'center', marginBottom: 16 }}>
+              <div style={{ textAlign: 'center', marginBottom: 6 }}>
                 <span style={{ display: 'inline-block', background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
                   🚀 Early Adopter Pricing
                 </span>
               </div>
+              <p style={{ fontSize: 12, color: '#c2410c', textAlign: 'center', margin: '0 0 16px', fontWeight: 600 }}>
+                Early adopter pricing — only for the first 200 businesses. Lock in this rate now.
+              </p>
 
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
                 {lpYearly && (
@@ -716,6 +789,15 @@ export default function LandingPage() {
               <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: '10px 0 0' }}>
                 7-day free trial. No card required.
               </p>
+            </div>
+          </Reveal>
+
+          {/* Trust badges */}
+          <Reveal>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 24, marginTop: 24 }}>
+              {['🔒 Payments via Razorpay', '🛡️ Your data is encrypted', '❌ Cancel anytime'].map(item => (
+                <span key={item} style={{ fontSize: 13, color: '#6b7280' }}>{item}</span>
+              ))}
             </div>
           </Reveal>
         </div>
@@ -781,9 +863,22 @@ export default function LandingPage() {
             {/* Left */}
             <div style={{ maxWidth: 280 }}>
               <p style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontWeight: 800, fontSize: 20, color: 'white', marginBottom: 8 }}>Praisly</p>
-              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, lineHeight: 1.6 }}>
+              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
                 AI-powered Google review collection for Indian local businesses.
               </p>
+              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, margin: '0 0 8px' }}>Made with ❤️ in India</p>
+              {import.meta.env.VITE_SUPPORT_PHONE && (
+                <a
+                  href={`https://wa.me/${import.meta.env.VITE_SUPPORT_PHONE}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#6ee7b7', fontSize: 13, textDecoration: 'none', transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#a7f3d0'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#6ee7b7'}
+                >
+                  💬 Questions? WhatsApp us
+                </a>
+              )}
             </div>
             {/* Links */}
             <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap' }}>
@@ -811,7 +906,7 @@ export default function LandingPage() {
           </div>
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 20, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>© 2026 Praisly · Made in India 🇮🇳</p>
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>© 2026 Praisly · Made with ❤️ in India 🇮🇳</p>
             <div style={{ display: 'flex', gap: 20 }}>
               {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms']].map(([label, to]) => (
                 <Link key={label} to={to} style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, textDecoration: 'none', transition: 'color 0.15s' }}
