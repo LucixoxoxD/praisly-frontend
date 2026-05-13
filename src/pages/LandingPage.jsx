@@ -679,7 +679,7 @@ export default function LandingPage() {
                   }}
                 >
                   Yearly
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save ₹4,000</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save ₹4,000 (33% off)</span>
                 </button>
               </div>
             </div>
@@ -729,7 +729,7 @@ export default function LandingPage() {
               {lpYearly && (
                 <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
                   <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
-                    You save ₹4,000/year 🎉
+                    You save ₹4,000/year — 33% off 🎉
                   </span>
                 </div>
               )}
