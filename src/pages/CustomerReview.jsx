@@ -4,8 +4,22 @@ import api from '../services/api'
 import WhatsAppButton from '../components/WhatsAppButton'
 
 const BIZ_EMOJI = {
-  dentist: '🦷', salon: '💇', gym: '💪', restaurant: '🍽️',
-  coaching: '📚', ca_firm: '📊', other: '⭐',
+  'healthcare / clinic':    '🏥',
+  'salon / beauty parlour': '💇',
+  'gym / fitness / yoga':   '💪',
+  'restaurant / cafe':      '🍽️',
+  'coaching / tuition':     '📚',
+  'ca / law firm':          '⚖️',
+  'auto / repair service':  '🔧',
+  'real estate':            '🏠',
+  'other':                  '⭐',
+  // Legacy DB values
+  dentist:    '🏥',
+  salon:      '💇',
+  gym:        '💪',
+  restaurant: '🍽️',
+  coaching:   '📚',
+  ca_firm:    '⚖️',
 }
 
 const STAR_REACTIONS = {

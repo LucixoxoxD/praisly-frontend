@@ -12,26 +12,81 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// On 401, clear session and redirect to login (skip on customer review pages)
+// Token refresh queue — prevents multiple simultaneous refresh calls
+let isRefreshing = false
+let failedQueue = []
+
+function processQueue(error, token = null) {
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token)))
+  failedQueue = []
+}
+
+// On 401: attempt token refresh first; only redirect to login if refresh fails
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
-    if (
-      err.response?.status === 401 &&
-      !window.location.pathname.startsWith('/review')
-    ) {
-      localStorage.removeItem('praisly_token')
-      localStorage.removeItem('praisly_business')
-      window.location.href = '/login'
+  async (err) => {
+    const original = err.config
+
+    // Skip refresh for customer review pages and for the refresh endpoint itself
+    const isReviewPage = window.location.pathname.startsWith('/review')
+    const isRefreshCall = original?.url?.includes('/api/auth/refresh')
+
+    if (err.response?.status === 401 && !original._retry && !isReviewPage && !isRefreshCall) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then((token) => {
+          original.headers['Authorization'] = `Bearer ${token}`
+          return api(original)
+        })
+      }
+
+      original._retry = true
+      isRefreshing = true
+
+      try {
+        const refreshToken = localStorage.getItem('praisly_refresh_token')
+        if (!refreshToken) throw new Error('No refresh token')
+
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/refresh`,
+          { refresh_token: refreshToken },
+        )
+
+        const newToken = res.data.access_token
+        const newRefresh = res.data.refresh_token
+
+        localStorage.setItem('praisly_token', newToken)
+        if (newRefresh) localStorage.setItem('praisly_refresh_token', newRefresh)
+
+        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+        processQueue(null, newToken)
+
+        original.headers['Authorization'] = `Bearer ${newToken}`
+        return api(original)
+      } catch (refreshErr) {
+        processQueue(refreshErr, null)
+        localStorage.removeItem('praisly_token')
+        localStorage.removeItem('praisly_refresh_token')
+        localStorage.removeItem('praisly_business')
+        window.location.href = '/login'
+        return Promise.reject(refreshErr)
+      } finally {
+        isRefreshing = false
+      }
     }
+
     return Promise.reject(err)
-  }
+  },
 )
 
 export const authService = {
   login: async (email, password) => {
     const res = await api.post('/api/auth/login', { email, password })
     localStorage.setItem('praisly_token', res.data.access_token)
+    if (res.data.refresh_token) {
+      localStorage.setItem('praisly_refresh_token', res.data.refresh_token)
+    }
     if (res.data.business) {
       localStorage.setItem('praisly_business', JSON.stringify(res.data.business))
     }
@@ -41,6 +96,9 @@ export const authService = {
   signup: async (data) => {
     const res = await api.post('/api/auth/signup', data)
     localStorage.setItem('praisly_token', res.data.access_token)
+    if (res.data.refresh_token) {
+      localStorage.setItem('praisly_refresh_token', res.data.refresh_token)
+    }
     if (res.data.business) {
       localStorage.setItem('praisly_business', JSON.stringify(res.data.business))
     }
@@ -51,6 +109,7 @@ export const authService = {
     const token = localStorage.getItem('praisly_token')
     if (token) api.post('/api/auth/logout').catch(() => {})
     localStorage.removeItem('praisly_token')
+    localStorage.removeItem('praisly_refresh_token')
     localStorage.removeItem('praisly_business')
     window.location.href = '/login'
   },
