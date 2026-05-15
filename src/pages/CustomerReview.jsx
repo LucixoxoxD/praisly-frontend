@@ -197,7 +197,6 @@ export default function CustomerReview() {
   const [regenerating, setRegenerating] = useState(false)
   const [copied, setCopied]           = useState(false)
   const [googleClicked, setGoogleClicked] = useState(false)
-  const [limitReached, setLimitReached] = useState(false)
 
   // Negative feedback screen
   const [negFeedback, setNegFeedback] = useState('')
@@ -269,9 +268,11 @@ export default function CustomerReview() {
     } catch (err) {
       if (err.response?.status === 429) {
         setScreen('already_done')
-      } else if (err.response?.status === 403) {
-        setLimitReached(true)
-        setScreen('done')
+      } else if (
+        err.response?.status === 403 &&
+        err.response?.data?.detail?.code === 'trial_expired'
+      ) {
+        setScreen('reviews_paused')
       } else {
         setScreen('submit_error')
       }
@@ -678,23 +679,29 @@ export default function CustomerReview() {
             </div>
           )}
 
+          {/* REVIEWS PAUSED */}
+          {screen === 'reviews_paused' && (
+            <div style={{
+              textAlign: 'center', marginTop: 120, padding: '0 28px',
+              animation: 'cr-fadeUp 0.35s ease',
+            }}>
+              <p style={{ fontSize: 52, marginBottom: 16 }}>🔒</p>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>
+                Reviews paused
+              </h2>
+              <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.65, fontWeight: 500 }}>
+                This business is not currently accepting reviews.
+              </p>
+            </div>
+          )}
+
           {/* ══ DONE ══════════════════════════════════════════════════════════════ */}
           {screen === 'done' && (
             <div style={{
               textAlign: 'center', marginTop: 120, padding: '0 28px',
               animation: 'cr-fadeUp 0.35s ease',
             }}>
-              {limitReached ? (
-                <>
-                  <p style={{ fontSize: 52, marginBottom: 16 }}>🙏</p>
-                  <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>
-                    Thank you for visiting!
-                  </h2>
-                  <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.65, fontWeight: 500 }}>
-                    This business's review collection is currently paused.
-                  </p>
-                </>
-              ) : rating < 4 ? (
+              {rating < 4 ? (
                 <>
                   <p style={{ fontSize: 52, marginBottom: 16 }}>🙏</p>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>
