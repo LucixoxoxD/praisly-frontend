@@ -62,6 +62,16 @@ const LAYOUT_CSS = `
   .notif-item:hover { background: #f8fafc; }
   .notif-item.unread { background: #f0fdf4; }
   .notif-item.unread:hover { background: #e6faf2; }
+
+  .pwa-banner-wrap {
+    max-width: 1100px; margin: 12px auto 0; padding: 0 16px;
+  }
+  @media (min-width: 768px) {
+    .pwa-banner-wrap {
+      position: fixed; right: 20px; bottom: 20px; z-index: 60;
+      width: min(360px, calc(100vw - 40px)); margin: 0; padding: 0;
+    }
+  }
 `
 
 const PWA_DISMISSED_KEY = 'pwa_dismissed'
@@ -72,126 +82,103 @@ function getStoredFlag(key) {
   return localStorage.getItem(key)
 }
 
-function shouldShowIosHint() {
-  if (typeof window === 'undefined') return false
+function setStoredFlag(key) {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(key, 'true')
+  }
+}
 
-  const isMobile = window.innerWidth < 768
-  const isIos = /(iPad|iPhone|iPod)/.test(window.navigator.userAgent)
-  const isStandalone = (
-    window.navigator.standalone === true ||
-    window.matchMedia?.('(display-mode: standalone)').matches
-  )
+function isIosDevice() {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent || ''
+  const platform = navigator.platform || ''
+  return /(iPad|iPhone|iPod)/.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+}
 
-  return (
-    isMobile &&
-    isIos &&
-    !isStandalone &&
-    getStoredFlag(IOS_HINT_DISMISSED_KEY) !== 'true'
-  )
+function isStandaloneApp() {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false
+  return navigator.standalone === true || window.matchMedia?.('(display-mode: standalone)').matches === true
+}
+
+function getInstallMode(promptEvent) {
+  if (isStandaloneApp()) return null
+  if (isIosDevice()) {
+    return getStoredFlag(IOS_HINT_DISMISSED_KEY) === 'true' ? null : 'ios'
+  }
+  if (promptEvent && getStoredFlag(PWA_DISMISSED_KEY) !== 'true') return 'install'
+  return null
 }
 
 function PwaInstallBanner() {
-  const [installPrompt, setInstallPrompt] = useState(null)
   const installPromptRef = useRef(null)
-  const [showInstallBanner, setShowInstallBanner] = useState(false)
-  const [showIosHint, setShowIosHint] = useState(false)
+  const [installMode, setInstallMode] = useState(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const initialIosHintTimer = window.setTimeout(() => {
-      if (shouldShowIosHint()) setShowIosHint(true)
-    }, 0)
-    const isMobile = () => window.innerWidth < 768
-    const isStandalone = () => (
-      window.navigator.standalone === true ||
-      window.matchMedia?.('(display-mode: standalone)').matches
-    )
-    const isIos = /(iPad|iPhone|iPod)/.test(window.navigator.userAgent)
+    function refreshInstallMode() {
+      setInstallMode(getInstallMode(installPromptRef.current))
+    }
+
+    const initialInstallModeTimer = window.setTimeout(refreshInstallMode, 0)
 
     function handleBeforeInstallPrompt(event) {
       event.preventDefault()
+      if (isIosDevice() || isStandaloneApp()) return
       installPromptRef.current = event
-      setInstallPrompt(event)
-      if (isMobile() && getStoredFlag(PWA_DISMISSED_KEY) !== 'true') {
-        setShowInstallBanner(true)
-      }
-    }
-
-    function handleResize() {
-      if (!isMobile()) {
-        setShowInstallBanner(false)
-        setShowIosHint(false)
-        return
-      }
-      if (installPromptRef.current && getStoredFlag(PWA_DISMISSED_KEY) !== 'true') {
-        setShowInstallBanner(true)
-      }
-      if (
-        isIos &&
-        !isStandalone() &&
-        getStoredFlag(IOS_HINT_DISMISSED_KEY) !== 'true'
-      ) {
-        setShowIosHint(true)
-      }
+      refreshInstallMode()
     }
 
     function handleAppInstalled() {
-      setShowInstallBanner(false)
       installPromptRef.current = null
-      setInstallPrompt(null)
+      setInstallMode(null)
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', refreshInstallMode)
     window.addEventListener('appinstalled', handleAppInstalled)
 
     return () => {
-      window.clearTimeout(initialIosHintTimer)
+      window.clearTimeout(initialInstallModeTimer)
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', refreshInstallMode)
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [])
 
   async function handleAdd() {
-    const prompt = installPrompt || installPromptRef.current
+    const prompt = installPromptRef.current
     if (!prompt) return
     await prompt.prompt()
-    setShowInstallBanner(false)
     installPromptRef.current = null
-    setInstallPrompt(null)
+    setInstallMode(null)
   }
 
   function dismissInstallBanner() {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PWA_DISMISSED_KEY, 'true')
-    }
-    setShowInstallBanner(false)
+    setStoredFlag(PWA_DISMISSED_KEY)
+    setInstallMode(null)
   }
 
   function dismissIosHint() {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(IOS_HINT_DISMISSED_KEY, 'true')
-    }
-    setShowIosHint(false)
+    setStoredFlag(IOS_HINT_DISMISSED_KEY)
+    setInstallMode(null)
   }
 
-  if (!showInstallBanner && !showIosHint) return null
+  if (!installMode) return null
 
   return (
-    <div className="md:hidden" style={{ maxWidth: 1100, margin: '12px auto 0', padding: '0 16px' }}>
-      {showInstallBanner && (
+    <div className="pwa-banner-wrap">
+      {installMode === 'install' && (
         <div style={{ background: '#ecfdf5', border: '1px solid #bbf7d0', borderRadius: 12, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 18, flexShrink: 0 }}>📱</span>
           <span style={{ flex: 1, color: '#064e3b', fontSize: 13, fontWeight: 600, lineHeight: 1.35 }}>Add Praisly to your home screen</span>
-          <button onClick={handleAdd} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', flexShrink: 0 }}>Add</button>
+          <button onClick={handleAdd} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', flexShrink: 0 }}>Install</button>
           <button onClick={dismissInstallBanner} style={{ background: 'transparent', color: '#047857', border: 'none', fontSize: 18, lineHeight: 1, padding: 2, cursor: 'pointer', flexShrink: 0 }} aria-label="Dismiss install prompt">×</button>
         </div>
       )}
 
-      {showIosHint && (
-        <div style={{ background: '#ecfdf5', border: '1px solid #bbf7d0', borderRadius: 12, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10, marginTop: showInstallBanner ? 8 : 0 }}>
+      {installMode === 'ios' && (
+        <div style={{ background: '#ecfdf5', border: '1px solid #bbf7d0', borderRadius: 12, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 18, flexShrink: 0 }}>📱</span>
           <span style={{ flex: 1, color: '#064e3b', fontSize: 13, fontWeight: 600, lineHeight: 1.35 }}>To add Praisly to your home screen: tap Share → Add to Home Screen</span>
           <button onClick={dismissIosHint} style={{ background: 'transparent', color: '#047857', border: 'none', fontSize: 18, lineHeight: 1, padding: 2, cursor: 'pointer', flexShrink: 0 }} aria-label="Dismiss iOS install hint">×</button>
