@@ -53,7 +53,7 @@ function Stars({ rating }) {
 function StatusBadge({ status }) {
   const map = {
     posted:  { bg: '#d1fae5', color: '#065f46', label: 'Posted on Google ✓' },
-    pending: { bg: '#fef3c7', color: '#92400e', label: 'Sent to customer' },
+    pending: { bg: '#fef3c7', color: '#92400e', label: 'Pending' },
     private: { bg: '#f1f5f9', color: '#475569', label: 'Private feedback' },
   }
   const s = map[status] || map.private
