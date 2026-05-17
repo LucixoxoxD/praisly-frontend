@@ -10,7 +10,7 @@ const PAGE_STYLE = `
 const FEATURES = [
   'Unlimited review requests',
   'AI-powered review drafts',
-  'Smart review gating',
+  'Smart review routing',
   'QR code for your counter',
   'Competitor tracking & ranking',
   'Real-time dashboard & analytics',

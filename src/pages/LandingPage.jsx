@@ -522,7 +522,7 @@ export default function LandingPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
             {[
               { icon: '🤖', color: '#dbeafe', title: 'Customers write reviews in 10 seconds', desc: 'AI generates a ready-made review based on what they liked. They just copy paste and post.' },
-              { icon: '🛡️', color: '#d1fae5', title: 'Bad reviews never reach Google', desc: 'Unhappy customers send feedback privately to you. Only happy customers see the Google review link.' },
+              { icon: '🛡️', color: '#d1fae5', title: 'Customer feedback routing', desc: 'Customers can share private feedback with your team, and every customer stays in control of whether they continue to Google.' },
               { icon: '📱', color: '#fce7f3', title: 'One QR code at your counter. That\'s it.', desc: 'Print it. Place it. Customers scan after their visit and reviews come automatically.' },
               { icon: '📊', color: '#ede9fe', title: 'See how you rank against nearby competitors', desc: 'Track how many reviews your competitors got this month. Know exactly where you stand.' },
               { icon: '📈', color: '#fef3c7', title: 'Watch your Google reviews grow', desc: 'See reviews gained, rating changes, and estimated business value — all in one simple dashboard.' },
@@ -768,7 +768,7 @@ export default function LandingPage() {
               )}
 
               <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {['Unlimited review requests', 'AI-powered review drafts', 'Smart review gating', 'QR code for your counter', 'Competitor tracking & ranking', 'Real-time dashboard & analytics', 'Notification alerts', 'Google rating tracker'].map(f => (
+                {['Unlimited review requests', 'AI-powered review drafts', 'Smart review routing', 'QR code for your counter', 'Competitor tracking & ranking', 'Real-time dashboard & analytics', 'Notification alerts', 'Google rating tracker'].map(f => (
                   <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#374151' }}>
                     <span style={{ color: '#10b981', fontWeight: 700, flexShrink: 0 }}>✅</span>
                     {f}
@@ -820,7 +820,7 @@ export default function LandingPage() {
             ['Is this allowed by Google?', 'Yes. Customers write and post reviews themselves. We just make it easy with AI-drafted suggestions. The customer always reads, edits, and posts — giving full control.'],
             ['Does it work in Hindi?', 'Yes! Our AI generates natural Hinglish and English reviews using the customer\'s own feedback as input. No awkward machine translations.'],
             ['Do I need a Google Business Profile?', 'Yes. You need an existing Google Business Profile. We help you connect the review link during setup — it takes 2 minutes.'],
-            ['What happens to negative feedback?', 'It comes directly to your dashboard, privately. You can address the issue before it becomes a public Google review. Only happy customers are directed to Google.'],
+            ['What happens to critical feedback?', 'Customers can share private feedback with your team so you can respond and improve. Praisly does not block customers from writing public reviews; customers decide whether to continue to Google.'],
             ['Can I try it for free?', 'Yes. You get a 7-day free trial — no credit card required. Full access to everything. After that, plans start at ₹999/month (early adopter pricing).'],
             ['How do customers leave a review?', 'They scan your QR code, tap a star rating, select what they enjoyed, and post a ready-made AI review on Google. The whole process takes under 30 seconds.'],
             ['Will Google detect these reviews are AI-written?', 'No. Our AI writes unique reviews every time in natural casual English. Each review is different — no two reviews sound the same. The customer also has the option to edit before posting.'],

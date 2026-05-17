@@ -1,6 +1,12 @@
 User-agent: *
 Disallow: /review/
 Disallow: /dashboard
+Disallow: /reviews
+Disallow: /qr
+Disallow: /send
 Disallow: /settings
 Disallow: /billing
+Disallow: /onboarding
 Allow: /
+
+Sitemap: https://praisly.in/sitemap.xml
