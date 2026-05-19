@@ -49,7 +49,8 @@ export default function SendRequest() {
   const biz        = authService.getBusiness()
   const bizName    = biz?.business_name || 'our business'
   const bizId      = biz?.id || ''
-  const base       = import.meta.env.VITE_APP_URL || window.location.origin
+  const base       = import.meta.env.VITE_APP_URL || 'https://praisly.in'
+  console.log('[SendRequest] VITE_APP_URL:', import.meta.env.VITE_APP_URL, '| base:', base)
   const reviewLink = bizId ? `${base}/review/${bizId}` : ''
 
   const [phone,   setPhone]   = useState('')

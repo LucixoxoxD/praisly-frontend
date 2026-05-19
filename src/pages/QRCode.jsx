@@ -1,10 +1,37 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import html2canvas from 'html2canvas'
 import api from '../services/api'
 import { useToast } from '../components/Toast'
 
 const PAGE_CSS = `
   @keyframes spin { to { transform: rotate(360deg); } }
+  .qr-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .qr-stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .qr-stat-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center; font-size: 18px;
+    margin-bottom: 12px; flex-shrink: 0;
+  }
+  .qr-stat-label { font-size: 13px; font-weight: 600; color: var(--ink); margin: 0 0 2px; }
+  .qr-stat-sub { font-size: 11px; color: var(--ink-4); margin: 0 0 10px; line-height: 1.4; }
+  .qr-stat-val { font-size: 32px; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 12px; }
+  .qr-stat-trend { font-size: 12px; color: var(--ink-4); margin: 0; }
+  .qr-stat-trend.positive { color: var(--win); }
+  .qr-bar-track { width: 100%; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .qr-bar-fill { height: 4px; border-radius: 2px; background: var(--primary); }
+  @media (max-width: 768px) {
+    .qr-stats-grid { grid-template-columns: 1fr; }
+  }
 `
 
 export default function QRCode() {
@@ -17,6 +44,8 @@ export default function QRCode() {
   const [error, setError]             = useState('')
   const [copied, setCopied]           = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [stats, setStats]             = useState(null)
+  const [scanCount, setScanCount]     = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -27,14 +56,36 @@ export default function QRCode() {
         setQrObjectUrl(URL.createObjectURL(imgRes.data))
         setReviewUrl(infoRes.data.review_url)
         setBizName(infoRes.data.business_name)
+        // Use scan_count if the endpoint returns it, otherwise falls back to reviews count
+        if (typeof infoRes.data.scan_count === 'number') {
+          setScanCount(infoRes.data.scan_count)
+        }
       })
       .catch(() => setError('Failed to load QR code. Please try again.'))
       .finally(() => setLoading(false))
+
+    api.get('/api/reviews/stats')
+      .then(r => setStats(r.data))
+      .catch(() => {})
 
     return () => {
       if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const qrMetrics = useMemo(() => {
+    const dist = stats?.rating_distribution || {}
+    const positive = (Number(dist['4'] || 0) + Number(dist['5'] || 0))
+    const totalReviews = stats?.google_current_count || 0
+    const privateCount = Math.max(0, totalReviews - positive)
+    // If QR info doesn't return scan_count, use totalReviews as fallback
+    const scans = scanCount !== null ? scanCount : totalReviews
+    const convPct = scans > 0 ? Math.round(totalReviews / scans * 100) : 0
+    const scansThisWeek = stats?.reviews_last_30_days
+      ? Math.round(stats.reviews_last_30_days / 4)
+      : null
+    return { scans, totalReviews, positive, privateCount, convPct, scansThisWeek }
+  }, [stats, scanCount])
 
   async function handleCopy() {
     try {
@@ -107,18 +158,54 @@ export default function QRCode() {
     <div className="fade-up">
       <style>{PAGE_CSS}</style>
 
-      <h1
-        style={{
-          fontFamily: "'Plus Jakarta Sans', system-ui",
-          fontSize: 22,
-          fontWeight: 700,
-          color: '#0f172a',
-          marginBottom: 24,
-        }}
-      >
+      {/* Page title */}
+      <h1 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 22, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>
         QR Code
       </h1>
+      <p style={{ fontSize: 13, color: 'var(--ink-3)', margin: '0 0 24px' }}>
+        Track and manage your review collection touchpoint.
+      </p>
 
+      {/* ── Performance stats ── */}
+      <div className="qr-stats-grid">
+
+        {/* Card 1: Total scans */}
+        <div className="qr-stat-card">
+          <div className="qr-stat-icon" style={{ background: '#EFF6FF' }}>📷</div>
+          <div className="qr-stat-label">Total scans</div>
+          <div className="qr-stat-sub">Customers who scanned your QR</div>
+          <div className="qr-stat-val">{qrMetrics.scans.toLocaleString('en-IN')}</div>
+          {qrMetrics.scansThisWeek !== null && qrMetrics.scansThisWeek > 0
+            ? <p className="qr-stat-trend positive">↑ {qrMetrics.scansThisWeek} this week</p>
+            : <p className="qr-stat-trend">No scans this week</p>
+          }
+        </div>
+
+        {/* Card 2: Reviews collected */}
+        <div className="qr-stat-card">
+          <div className="qr-stat-icon" style={{ background: 'var(--gold-soft)' }}>⭐</div>
+          <div className="qr-stat-label">Reviews collected</div>
+          <div className="qr-stat-sub">Completed the review flow</div>
+          <div className="qr-stat-val">{qrMetrics.totalReviews.toLocaleString('en-IN')}</div>
+          <p className="qr-stat-trend">
+            {qrMetrics.positive} positive &middot; {qrMetrics.privateCount} private
+          </p>
+        </div>
+
+        {/* Card 3: Conversion rate */}
+        <div className="qr-stat-card">
+          <div className="qr-stat-icon" style={{ background: 'var(--win-soft)' }}>📈</div>
+          <div className="qr-stat-label">Scan → Review rate</div>
+          <div className="qr-stat-sub">How many scans become reviews</div>
+          <div className="qr-stat-val">{qrMetrics.convPct}%</div>
+          <div className="qr-bar-track">
+            <div className="qr-bar-fill" style={{ width: `${Math.min(qrMetrics.convPct, 100)}%` }} />
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── QR card (unchanged) ── */}
       <div
         style={{
           display: 'grid',
