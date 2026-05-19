@@ -1,9 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, Cell,
-  ResponsiveContainer, AreaChart, Area,
-} from 'recharts'
 import api, { authService } from '../services/api'
 import { stripMarkdown } from '../utils/helpers'
 
@@ -232,8 +228,8 @@ const PAGE_CSS = `
     position: relative; flex-shrink: 0;
   }
   .d-pod-1 .d-pod-block { background: linear-gradient(180deg,#EFC659,#C9971F); height: 90px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
-  .d-pod-2 .d-pod-block { background: linear-gradient(180deg,#C8CDD3,#9098A3); height: 62px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
-  .d-pod-3 .d-pod-block { background: linear-gradient(180deg,#DA9263,#B26A3C); height: 44px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
+  .d-pod-2 .d-pod-block { background: linear-gradient(180deg,#C8CDD3,#9098A3); height: 60px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
+  .d-pod-3 .d-pod-block { background: linear-gradient(180deg,#DA9263,#B26A3C); height: 42px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
   .d-you .d-pod-name { color: var(--ink); font-weight: 700; }
 
   .d-chase-line {
@@ -258,18 +254,16 @@ const PAGE_CSS = `
   .d-stat {
     background: var(--surface); border: 1px solid var(--line);
     border-radius: 14px; padding: 18px 20px;
-    display: grid; grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto 1fr;
-    column-gap: 8px; row-gap: 6px;
+    display: flex; flex-direction: column; gap: 6px;
     min-height: 148px; position: relative; overflow: hidden;
     transition: transform .18s, box-shadow .18s;
   }
   .d-stat:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.07); }
-  .d-stat-head { grid-column: 1/-1; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .d-stat-row  { grid-column: 1/-1; display: flex; align-items: baseline; gap: 10px; }
-  .d-stat-foot { grid-column: 1; align-self: end; font-size: 11.5px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .d-stat-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .d-stat-row  { display: flex; align-items: baseline; gap: 10px; }
+  .d-stat-foot { margin-top: auto; font-size: 11.5px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .d-stat-foot strong { color: var(--ink-2); font-weight: 600; }
-  .d-stat-spark { grid-column: 2; align-self: end; }
+  .d-stat-spark { position: absolute; bottom: 8px; right: 12px; max-width: 96px; pointer-events: none; }
   .d-stat-label { font-size: 12.5px; color: var(--ink-3); font-weight: 600; }
   .d-stat-icon { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; font-size: 15px; }
   .d-stat-icon.coral { background: var(--primary-soft); }
@@ -287,7 +281,7 @@ const PAGE_CSS = `
     font-size: 11.5px; font-weight: 700;
   }
   .d-stars-row { display: flex; gap: 2px; align-items: center; }
-  .d-spark { width: 84px; height: 34px; display: block; opacity: .9; }
+  .d-spark { width: 84px; height: 34px; display: block; opacity: .9; max-width: 96px; }
 
   /* ── AI strip ── */
   .d-ai-strip {
@@ -599,7 +593,7 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
               You're{' '}
               <span style={{ color: 'var(--bronze)', fontWeight: 700 }}>#{myRank} of {total}</span>
               <span style={{ color: 'var(--ink-3)', fontWeight: 500 }}> in </span>
-              {bizCity || 'your area'}
+              {bizCity ? bizCity.charAt(0).toUpperCase() + bizCity.slice(1) : 'your area'}
             </div>
             <div className="d-rank-sub">Tracked weekly · Updates every few days</div>
           </div>
@@ -1109,7 +1103,6 @@ export default function Dashboard() {
   const navigate = useNavigate()
 
   const [stats, setStats]                   = useState(null)
-  const [reviews, setReviews]               = useState([])
   const [competitors, setCompetitors]       = useState([])
   const [growthData, setGrowthData]         = useState([])
   const [compGrowth, setCompGrowth]         = useState(null)
@@ -1132,15 +1125,13 @@ export default function Dashboard() {
   useEffect(() => {
     Promise.all([
       api.get('/api/reviews/stats'),
-      api.get('/api/reviews/list?limit=5'),
       api.get('/api/auth/me'),
       api.get('/api/competitors').catch(() => ({ data: [] })),
       api.get('/api/reviews/growth-chart').catch(() => ({ data: [] })),
       api.get('/api/notifications').catch(() => ({ data: { notifications: [] } })),
       api.get('/api/reviews/competitor-growth').catch(() => ({ data: { series: [] } })),
-    ]).then(([s, r, me, c, g, n, cg]) => {
+    ]).then(([s, me, c, g, n, cg]) => {
       setStats(s.data)
-      setReviews(r.data.reviews || [])
       setCompetitors(Array.isArray(c.data) ? c.data : [])
       setGrowthData(Array.isArray(g.data) ? g.data : [])
       setCompGrowth(cg.data)
@@ -1197,22 +1188,10 @@ export default function Dashboard() {
 
   const myRank = leaderboard.findIndex(e => e.is_self) + 1
 
-  // Chart data
-  const ratingData      = stats
-    ? [1,2,3,4,5].map(n => ({ star: `${n}★`, count: stats.rating_distribution?.[String(n)] || 0 }))
-    : []
+  // Derived data for sparklines + leaderboard mini-bars
   const timeData        = (stats?.reviews_over_time || []).map(d => ({ date: d.date.slice(5), count: d.count }))
   const growthChartData = growthData.map(d => ({ date: d.date.slice(5), count: d.review_count }))
-  const noRatingData    = ratingData.every(d => d.count === 0)
-  const noTimeData      = timeData.every(d => d.count === 0)
-  const noGrowthData    = growthChartData.length === 0
-
-  // Competitor growth chart
-  const cgSeries   = compGrowth?.series || []
-  const cgDataRaw  = useMemo(() => buildGrowthChartData(cgSeries), [cgSeries])
-  const cgData     = cgDataRaw.map(row => { const { _date, ...rest } = row; return { ...rest, date: fmtChartDate(_date) } })
-  const cgHasData  = cgData.length > 1
-  const showCompGrowthChart = competitors.length > 0
+  const cgSeries        = compGrowth?.series || []
 
   // Spark arrays for stat cards
   const sparkGained    = growthChartData.map(d => d.count)
@@ -1247,48 +1226,6 @@ export default function Dashboard() {
       : "You're making progress. Keep collecting reviews to climb the rankings!"
   }, [competitors.length, myRank, leaderboard])
 
-  // Chart summaries
-  const ratingChartSummary = (() => {
-    try {
-      if (!stats || noRatingData) return 'Collect more reviews to see your ratings'
-      const total   = ratingData.reduce((s, d) => s + d.count, 0)
-      const topEntry = ratingData.reduce((a, b) => b.count > a.count ? b : a, ratingData[0])
-      const pct45   = total > 0 ? Math.round(((ratingData[3].count + ratingData[4].count) / total) * 100) : 0
-      if (topEntry.star === '5★' && topEntry.count > 0) return "Most customers gave you 5 stars! 🎉"
-      if (topEntry.star === '4★' && topEntry.count > 0) return "Most customers rated you 4 stars ⭐"
-      if (pct45 > 80) return `${pct45}% of customers gave 4–5 stars 🎉`
-      return 'Collect more reviews to see your ratings'
-    } catch { return '' }
-  })()
-
-  const activitySummary = (() => {
-    try {
-      const total = timeData.reduce((s, d) => s + d.count, 0)
-      return total > 0
-        ? `You got ${total} new review${total !== 1 ? 's' : ''} this month 📈`
-        : 'No reviews yet this month. Share your QR code!'
-    } catch { return '' }
-  })()
-
-  const compChartSummary = (() => {
-    try {
-      if (!showCompGrowthChart) return 'Add competitors to see how you compare'
-      if (!cgHasData) return 'Keep going — growth trends will show up in a few days'
-      const myEntry  = leaderboard.find(e => e.is_self)
-      const myGrowth = myEntry?.reviews_last_30_days ?? 0
-      const others   = leaderboard.filter(e => !e.is_self)
-      const slower   = others.find(e => (e.reviews_last_30_days ?? 0) < myGrowth)
-      if (slower) return `You're growing faster than ${slower.name} 💪`
-      const fastest = others.reduce((a, b) => (b.reviews_last_30_days ?? 0) > (a.reviews_last_30_days ?? 0) ? b : a, others[0])
-      if (fastest) return `${fastest.name} gained ${fastest.reviews_last_30_days ?? 0} reviews. Time to push harder!`
-      return 'Keep going — growth trends will show up in a few days'
-    } catch { return '' }
-  })()
-
-  // Animated counters
-  const gainedAnim      = useCountUp(stats?.google_reviews_gained ?? 0)
-  const baselineRating  = stats?.google_baseline_rating
-
   const showHero = !loading && stats && competitors.length > 0
 
   // ── Skeleton ──
@@ -1304,10 +1241,6 @@ export default function Dashboard() {
         </div>
         <Skel style={{ height: 68, borderRadius: 14, marginBottom: 14 }} />
         <Skel style={{ height: 260, borderRadius: 14, marginBottom: 20 }} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }} className="d-chart-grid">
-          {[0,1,2].map(i => <Skel key={i} style={{ height: 220, borderRadius: 16 }} />)}
-        </div>
-        {[0,1,2].map(i => <Skel key={i} style={{ height: 72, borderRadius: 12, marginBottom: 10 }} />)}
       </div>
     )
   }
@@ -1414,159 +1347,6 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* ── Charts ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24, animation: 'fadeUp 0.35s ease both', animationDelay: '160ms' }} className="d-chart-grid">
-
-        {/* Star ratings */}
-        <div className="d-card" style={{ padding: '20px 16px' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>Your Star Ratings</h3>
-          <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{ratingChartSummary}</p>
-          {noRatingData ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={ratingData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
-                <XAxis dataKey="star" fontSize={11} tick={{ fill: '#9ca3af', fontFamily: 'system-ui' }} axisLine={false} tickLine={false} />
-                <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f8fafc' }} />
-                <Bar dataKey="count" radius={[5,5,0,0]} isAnimationActive label={{ position: 'top', fill: '#6b7280', fontSize: 12 }}>
-                  {ratingData.map((_, i) => (
-                    <Cell key={i} fill={['#ef4444','#f97316','#facc15','#D89020','#F5B945'][i]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        {/* Review activity */}
-        <div className="d-card" style={{ padding: '20px 16px' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>Your Review Activity</h3>
-          <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{activitySummary}</p>
-          {noTimeData ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={160}>
-              <AreaChart data={timeData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#D89020" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#D89020" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="date" fontSize={11} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
-                <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#e2e8f0' }} />
-                <Area type="monotone" dataKey="count" stroke="#D89020" fill="url(#areaGrad)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#D89020', strokeWidth: 0 }} isAnimationActive />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        {/* Competitor comparison / Google count */}
-        {showCompGrowthChart ? (
-          <div className="d-card" style={{ padding: '20px 16px' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 6px' }}>You vs Competitors</h3>
-            <p style={{ fontSize: 13, color: '#4b5563', margin: '0 0 14px', lineHeight: 1.5 }}>{compChartSummary}</p>
-            {(() => {
-              const myEntry  = leaderboard.find(e => e.is_self)
-              const myGrowth = myEntry?.reviews_last_30_days ?? 0
-              const comps    = leaderboard.filter(e => !e.is_self)
-              const behind   = comps.filter(e => myGrowth <= (e.reviews_last_30_days ?? 0))
-              const ahead    = comps.filter(e => myGrowth >  (e.reviews_last_30_days ?? 0))
-              return (
-                <>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--win)', margin: '0 0 12px' }}>
-                    📊 Your growth: +{myGrowth} this month
-                  </p>
-                  <div style={{ height: 1, background: '#e5e7eb', margin: '0 0 12px' }} />
-                  <div>
-                    {[...behind, ...ahead].map(entry => {
-                      const theirs  = entry.reviews_last_30_days ?? 0
-                      const isAhead = myGrowth > theirs
-                      return (
-                        <div key={entry.id} style={{ fontSize: 13, fontWeight: isAhead ? 400 : 600, color: isAhead ? '#374151' : '#92400e', padding: '7px 0', borderBottom: '1px solid #f3f4f6' }}>
-                          {isAhead ? `✅ Ahead of ${entry.name} (+${theirs})` : `⚠️ Behind ${entry.name} (+${theirs})`}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </>
-              )
-            })()}
-          </div>
-        ) : (
-          <div className="d-card" style={{ padding: '20px 16px' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: '0 0 16px' }}>Google Review Count</h3>
-            {noGrowthData ? (
-              <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, textAlign: 'center', background: '#f8fafc', borderRadius: 8, padding: 16 }}>
-                <p style={{ margin: '0 0 4px' }}>Data starts accumulating after your first snapshot</p>
-                <p style={{ margin: 0 }}>Check back tomorrow 📈</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={160}>
-                <AreaChart data={growthChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#D89020" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#D89020" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="date" fontSize={11} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
-                  <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
-                  <Tooltip content={<ChartTooltip unit="total reviews" />} cursor={{ stroke: '#e2e8f0' }} />
-                  <Area type="monotone" dataKey="count" stroke="#D89020" fill="url(#growthGrad)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#D89020', strokeWidth: 0 }} isAnimationActive />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* ── Recent Reviews ── */}
-      <div style={{ animation: 'fadeUp 0.35s ease both', animationDelay: '200ms' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: 0 }}>Recent Reviews</h3>
-          <Link to="/reviews" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
-        </div>
-
-        {reviews.length === 0 ? (
-          <div className="d-card" style={{ padding: '48px 24px', textAlign: 'center' }}>
-            <p style={{ fontSize: 36, marginBottom: 12 }}>🌟</p>
-            <p style={{ color: '#374151', fontSize: 15, fontWeight: 600, margin: 0 }}>No reviews yet</p>
-            <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 4, marginBottom: 16 }}>Share your QR code to start collecting reviews</p>
-            <Link to="/qr" style={{ display: 'inline-block', padding: '9px 20px', background: 'var(--primary)', color: 'white', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
-              View QR Code →
-            </Link>
-          </div>
-        ) : (
-          reviews.map(r => (
-            <div key={r.id} className="review-card" style={{ borderLeft: `4px solid ${ratingBorder(r.rating)}` }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
-                <span style={{ color: '#0f172a', fontSize: 14, fontWeight: 600 }}>{r.customer_name || 'Anonymous'}</span>
-                <span style={{ color: '#94a3b8', fontSize: 12, flexShrink: 0 }}>
-                  {r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''}
-                </span>
-              </div>
-              <div style={{ marginBottom: 6 }}><Stars rating={r.rating} /></div>
-              {(r.customer_edited_text || r.review_text) && (
-                <p style={{ color: '#374151', fontSize: 13, lineHeight: 1.55, margin: '0 0 8px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {cleanText(r.customer_edited_text || r.review_text)}
-                </p>
-              )}
-              {r.status === 'private' && r.private_feedback && (
-                <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.5, margin: '0 0 8px', fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {cleanText(r.private_feedback)}
-                </p>
-              )}
-              {!r.customer_edited_text && !r.review_text && r.status !== 'private' && r.private_feedback && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-                  {cleanText(r.private_feedback).split(',').map(t => t.trim()).filter(Boolean).map((tag, i) => (
-                    <span key={i} style={{ padding: '2px 8px', borderRadius: 20, background: '#f1f5f9', color: '#475569', fontSize: 11, fontWeight: 500 }}>{tag}</span>
-                  ))}
-                </div>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}><StatusBadge status={r.status} /></div>
-            </div>
-          ))
-        )}
-      </div>
     </>
   )
 }
