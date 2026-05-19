@@ -17,6 +17,16 @@ function cleanText(text) {
   return t
 }
 
+function decodeEntities(str) {
+  if (!str) return ''
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+}
+
 const TABS = [
   { key: '',        label: 'All' },
   { key: 'posted',  label: 'Posted' },
@@ -192,18 +202,25 @@ export default function Reviews() {
   const [data, setData] = useState({ reviews: [], total: 0, pages: 1 })
   const [loading, setLoading] = useState(true)
 
-  const [stats, setStats]         = useState(null)
+  const [stats, setStats]           = useState(null)
   const [allReviews, setAllReviews] = useState([])
 
-  // Fetch stats + all reviews for funnel metrics (once on mount)
+  // Fetch stats and all reviews independently so one failure doesn't block the other
   useEffect(() => {
-    Promise.all([
-      api.get('/api/reviews/stats'),
-      api.get('/api/reviews/list?limit=500'),
-    ]).then(([s, r]) => {
-      setStats(s.data)
-      setAllReviews(r.data.reviews || [])
-    }).catch(() => {})
+    api.get('/api/reviews/stats')
+      .then(r => {
+        console.log('[Reviews] stats:', r.data)
+        setStats(r.data)
+      })
+      .catch(err => console.warn('[Reviews] stats fetch failed:', err))
+
+    api.get('/api/reviews/list?limit=500&page=1')
+      .then(r => {
+        const reviews = r.data?.reviews || r.data || []
+        console.log('[Reviews] allReviews sample:', reviews[0], 'total:', reviews.length)
+        setAllReviews(reviews)
+      })
+      .catch(err => console.warn('[Reviews] allReviews fetch failed:', err))
   }, [])
 
   // Fetch paginated list for the review list section
@@ -225,17 +242,32 @@ export default function Reviews() {
   // ── Funnel metrics ──────────────────────────────────────────────────────────
 
   const metrics = useMemo(() => {
-    const pageViews   = stats?.reviews_over_time?.reduce((s, d) => s + d.count, 0) || allReviews.length || 0
-    const highRatings = allReviews.filter(r => r.rating >= 4).length
-    const aiDrafts    = typeof stats?.drafts_sent === 'number'
+    // Page views: use total from paginated fetch (most reliable), fall back to allReviews count
+    const pageViews = data.total || allReviews.length || 0
+
+    // High ratings: use rating_distribution from stats if available (avoids pagination issues)
+    const dist = stats?.rating_distribution || {}
+    const highRatings = (stats && Object.keys(dist).length > 0)
+      ? (Number(dist['4'] || 0) + Number(dist['5'] || 0))
+      : allReviews.filter(r => Number(r.rating) >= 4).length
+
+    // AI drafts: server-side count is authoritative
+    const aiDrafts = typeof stats?.drafts_sent === 'number' && stats.drafts_sent > 0
       ? stats.drafts_sent
-      : allReviews.filter(r => r.is_positive).length
-    const googleClicks = allReviews.filter(r => r.status === 'posted').length
-    const convPct      = pageViews > 0 ? (googleClicks / pageViews * 100) : 0
-    const viewsToHigh  = pageViews > 0 ? (highRatings / pageViews * 100) : 0
-    const highToClick  = highRatings > 0 ? (googleClicks / highRatings * 100) : 0
+      : allReviews.filter(r => r.is_positive === true).length
+
+    // Google clicks: filter allReviews by posted status or is_posted_to_google flag
+    const googleClicks = allReviews.length > 0
+      ? allReviews.filter(r => r.status === 'posted' || r.is_posted_to_google === true).length
+      : (stats?.google_reviews_gained || 0)
+
+    const convPct     = pageViews > 0 ? (googleClicks / pageViews * 100) : 0
+    const viewsToHigh = pageViews > 0 ? (highRatings / pageViews * 100) : 0
+    const highToClick = highRatings > 0 ? (googleClicks / highRatings * 100) : 0
+
+    console.log('[Reviews] metrics:', { pageViews, highRatings, aiDrafts, googleClicks, convPct })
     return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick }
-  }, [stats, allReviews])
+  }, [stats, allReviews, data.total])
 
   const chartData = useMemo(() => {
     const days = []
@@ -443,7 +475,7 @@ export default function Reviews() {
             )}
             {r.status !== 'private' && r.private_feedback && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-                {cleanText(r.private_feedback).split(',').map((t) => t.trim()).filter(Boolean).map((tag, i) => (
+                {decodeEntities(cleanText(r.private_feedback)).split(',').map((t) => t.trim()).filter(Boolean).map((tag, i) => (
                   <span key={i} style={{ padding: '2px 8px', borderRadius: 20, background: 'var(--surface-tint)', color: 'var(--ink-3)', fontSize: 11, fontWeight: 500 }}>
                     {tag}
                   </span>
