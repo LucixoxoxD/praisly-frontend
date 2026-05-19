@@ -206,14 +206,14 @@ const PAGE_CSS = `
     border-radius: 999px; font-size: 11px; letter-spacing: 0; text-transform: none;
   }
   .d-podium {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    align-items: end; gap: 8px; height: 148px;
+    display: flex; width: 100%;
+    align-items: flex-end; gap: 8px; height: 148px;
   }
-  .d-pod { display: flex; flex-direction: column; align-items: center; gap: 0; text-align: center; }
+  .d-pod { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0; text-align: center; }
   .d-pod-name {
     font-size: 10.5px; font-weight: 600; color: var(--ink-2); line-height: 1.2;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    max-width: 140px; width: 100%; margin-bottom: 3px;
+    max-width: 100%; width: 100%; margin-bottom: 3px;
   }
   .d-pod-you-pill {
     display: inline-block; background: var(--primary); color: white;
@@ -407,17 +407,28 @@ const PAGE_CSS = `
 
   /* ── Responsive ── */
   @media (max-width: 960px) {
-    .d-hero { grid-template-columns: 1fr; padding: 24px; gap: 20px; }
     .d-rank-num { font-size: 76px; }
     .d-stats { gap: 12px; }
+  }
+  @media (max-width: 768px) {
+    /* Hero card stacks vertically */
+    .d-hero { grid-template-columns: 1fr; padding: 24px; gap: 20px; }
+
+    /* AI strip goes column layout */
+    .d-ai-strip {
+      flex-direction: column; align-items: flex-start;
+      gap: 12px; padding: 16px;
+    }
+    .d-ai-content { width: 100%; }
+    .d-ai-title { font-size: 13px; line-height: 1.5; }
+    .d-ai-cta { width: 100%; text-align: center; padding: 10px 15px; }
+    .d-ai-dismiss {
+      position: absolute; top: 10px; right: 10px;
+    }
   }
   @media (max-width: 700px) {
     .d-stats { grid-template-columns: 1fr; }
     .d-greeting { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .d-ai-strip { flex-wrap: wrap; }
-  }
-  @media (max-width: 640px) {
-    .d-chart-grid { grid-template-columns: 1fr !important; }
   }
 `
 
