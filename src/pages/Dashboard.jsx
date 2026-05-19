@@ -393,7 +393,10 @@ const PAGE_CSS = `
     display: grid; place-items: center; font-weight: 700; font-size: 12px;
     color: white; flex-shrink: 0;
   }
-  .d-biz-name { font-weight: 600; color: var(--ink); white-space: nowrap; }
+  .d-biz-name {
+    font-weight: 600; color: var(--ink); white-space: nowrap;
+    max-width: 280px; overflow: hidden; text-overflow: ellipsis;
+  }
   .d-biz-sub  { font-size: 11px; color: var(--ink-4); margin-top: 1px; }
   .d-you-pill {
     margin-left: 6px; background: var(--primary); color: white;
@@ -403,10 +406,10 @@ const PAGE_CSS = `
   .d-rating-cell { display: inline-flex; align-items: center; gap: 5px; justify-content: flex-end; font-weight: 700; }
   .d-num-cell { text-align: right; font-weight: 700; }
   .d-trend-cell { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
-  .d-delta-pill { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  .d-delta-pill { display: inline-flex; align-items: center; gap: 3px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 700; }
   .d-delta-pill.up   { background: var(--win-soft);     color: var(--win); }
   .d-delta-pill.hot  { background: var(--primary-soft); color: var(--primary-ink); }
-  .d-delta-pill.flat { background: var(--surface-tint); color: var(--ink-3); }
+  .d-delta-pill.flat { background: var(--surface-tint); color: var(--ink-4); }
 
   /* ── Responsive ── */
   @media (max-width: 960px) {
@@ -543,13 +546,18 @@ function Spark({ points, color }) {
 
 // ─── Mini bar chart (30-day activity) ────────────────────────────────────────
 
-function MiniBars({ deltas, color }) {
-  const max = Math.max(...deltas, 1)
+function MiniBars({ deltas, color, opacity = 1 }) {
+  const max     = Math.max(...deltas, 1)
+  const allZero = deltas.every(v => v === 0)
+  const barW    = 2.5
+  const gap     = 1
+  const step    = barW + gap
+  const svgW    = deltas.length * step
   return (
-    <svg viewBox={`0 0 ${deltas.length * 3} 24`} width={deltas.length * 3} height={24} style={{ display: 'block' }}>
+    <svg viewBox={`0 0 ${svgW} 24`} width={svgW} height={24} style={{ display: 'block', opacity }}>
       {deltas.map((v, i) => {
-        const h = Math.max(1.5, (v / max) * 22)
-        return <rect key={i} x={i * 3} y={24 - h} width="2" height={h} rx="1" fill={color} />
+        const h = allZero ? 1.5 : Math.max(1.5, (v / max) * 22)
+        return <rect key={i} x={i * step} y={24 - h} width={barW} height={h} rx="1" fill={color} />
       })}
     </svg>
   )
@@ -993,14 +1001,13 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
             {whereLabel && <span className="d-lb-where">{whereLabel}</span>}
           </div>
           <div className="d-lb-actions">
-            {canAddMore && (
-              <button className="d-btn-ghost" onClick={() => setShowModal(true)}>+ Add</button>
-            )}
+            <button className="d-btn-ghost">Filter</button>
+            <button className="d-btn-ghost">Refresh</button>
             <button
-              className="d-btn-ghost"
+              className="d-btn-primary"
               onClick={() => setShowManage(v => !v)}
             >
-              {showManage ? 'Done' : 'Manage ›'}
+              {showManage ? 'Done' : 'Manage competitors ›'}
             </button>
           </div>
         </div>
@@ -1063,7 +1070,8 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
                       <div className="d-trend-cell">
                         <MiniBars
                           deltas={spark30}
-                          color={r.is_self ? '#D89020' : '#B8AFA4'}
+                          color={r.is_self ? '#D89020' : '#9E9189'}
+                          opacity={r.is_self ? 1 : 0.55}
                         />
                         <span className={`d-delta-pill ${deltaClass}`}>
                           ↑ +{r.reviews_last_30_days ?? 0}
@@ -1181,6 +1189,7 @@ export default function Dashboard() {
         rating: c.rating,
         review_count: c.review_count || 0,
         reviews_last_30_days: c.reviews_last_30_days || 0,
+        area: c.area || c.formatted_address || c.vicinity || '',
         is_self: false,
       })),
     ].sort((a, b) => b.review_count - a.review_count)
