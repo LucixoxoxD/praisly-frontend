@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -8,6 +8,7 @@
   --bg: #FAF6EC;
   --surface: #FFFFFF;
   --surface-tint: #F8EFD8;
+  --surface-2: #FBF6E8;
   --ink: #1A1610;
   --ink-2: #4A3F36;
   --ink-3: #8A7E72;
@@ -22,6 +23,11 @@
   --gold-soft: #FBF1D6;
   --accent: #E13B3B;
   --bronze: #C17F24;
+  --font-display: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --shadow-sm: 0 1px 2px rgba(26,22,16,0.04), 0 1px 3px rgba(26,22,16,0.04);
+  --shadow-md: 0 2px 4px rgba(26,22,16,0.04), 0 10px 30px rgba(26,22,16,0.06);
+  --shadow-gold: 0 1px 2px rgba(26,22,16,0.05), 0 24px 50px -20px rgba(216,144,32,0.45);
 }
 
 * {
