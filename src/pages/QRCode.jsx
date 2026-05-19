@@ -69,15 +69,16 @@ export default function QRCode() {
     // TODO: separate scan tracking from review tracking — scan_count should come from review_requests table
     api.get('/api/reviews/list?limit=500&page=1')
       .then(r => {
+        console.log('[QRCode] reviews/list raw response:', r.data)
         const reviews = r.data?.reviews || r.data || []
-        console.log('[QRCode] praisly reviews sample:', reviews[0], 'total:', reviews.length)
+        console.log('[QRCode] praisly reviews parsed:', reviews.length, 'sample:', reviews[0])
         setPraislyReviews(reviews)
         // Use total field from response if available (authoritative count)
         if (typeof r.data?.total === 'number') {
           setScanCount(prev => prev !== null ? prev : r.data.total)
         }
       })
-      .catch(() => {})
+      .catch(err => console.warn('[QRCode] reviews/list fetch failed:', err?.response?.status, err?.message))
 
     return () => {
       if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl)
