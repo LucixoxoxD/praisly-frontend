@@ -213,27 +213,27 @@ const PAGE_CSS = `
     display: grid; grid-template-columns: 1fr 1fr 1fr;
     align-items: end; gap: 8px; height: 148px;
   }
-  .d-pod { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+  .d-pod { display: flex; flex-direction: column; align-items: center; gap: 0; text-align: center; }
   .d-pod-name {
     font-size: 10.5px; font-weight: 600; color: var(--ink-2); line-height: 1.2;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 140px; width: 100%; margin-bottom: 3px;
   }
-  .d-pod-rev { font-size: 9.5px; color: var(--ink-3); }
+  .d-pod-you-pill {
+    display: inline-block; background: var(--primary); color: white;
+    font-size: 8px; font-weight: 800; letter-spacing: 0.1em;
+    padding: 2px 6px; border-radius: 999px; margin-bottom: 3px; margin-top: 4px;
+  }
+  .d-pod-rev { font-size: 9.5px; color: var(--ink-3); margin-bottom: 5px; }
   .d-pod-block {
     width: 100%; border-radius: 8px 8px 0 0;
     display: flex; align-items: flex-start; justify-content: center;
     padding-top: 8px; font-weight: 800; font-size: 20px; color: white;
-    position: relative;
+    position: relative; flex-shrink: 0;
   }
-  .d-pod-1 .d-pod-block { background: linear-gradient(180deg,#EFC659,#C9971F); height: 100%; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
-  .d-pod-2 .d-pod-block { background: linear-gradient(180deg,#C8CDD3,#9098A3); height: 76%; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
-  .d-pod-3 .d-pod-block { background: linear-gradient(180deg,#DA9263,#B26A3C); height: 58%; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
-  .d-you .d-pod-block::after {
-    content: "YOU";
-    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-    background: var(--ink); color: white; font-size: 9px; font-weight: 800;
-    letter-spacing: 0.1em; padding: 3px 7px; border-radius: 999px;
-  }
+  .d-pod-1 .d-pod-block { background: linear-gradient(180deg,#EFC659,#C9971F); height: 90px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
+  .d-pod-2 .d-pod-block { background: linear-gradient(180deg,#C8CDD3,#9098A3); height: 62px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
+  .d-pod-3 .d-pod-block { background: linear-gradient(180deg,#DA9263,#B26A3C); height: 44px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3); }
   .d-you .d-pod-name { color: var(--ink); font-weight: 700; }
 
   .d-chase-line {
@@ -614,18 +614,21 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
           {/* 2nd place — left silver */}
           <div className={`d-pod d-pod-2${isYou(p2) ? ' d-you' : ''}`}>
             <div className="d-pod-name">{p2?.name || '—'}</div>
+            {isYou(p2) && <div className="d-pod-you-pill">YOU</div>}
             <div className="d-pod-rev">{p2 ? fmtIN(p2.review_count) : 0} reviews</div>
             <div className="d-pod-block">2</div>
           </div>
           {/* 1st place — center gold */}
           <div className={`d-pod d-pod-1${isYou(p1) ? ' d-you' : ''}`}>
             <div className="d-pod-name">{p1?.name || '—'}</div>
+            {isYou(p1) && <div className="d-pod-you-pill">YOU</div>}
             <div className="d-pod-rev">{p1 ? fmtIN(p1.review_count) : 0} reviews</div>
             <div className="d-pod-block">1</div>
           </div>
           {/* 3rd place — right bronze */}
           <div className={`d-pod d-pod-3${isYou(p3) ? ' d-you' : ''}`}>
             <div className="d-pod-name">{p3?.name || '—'}</div>
+            {isYou(p3) && <div className="d-pod-you-pill">YOU</div>}
             <div className="d-pod-rev">{p3 ? fmtIN(p3.review_count) : 0} reviews</div>
             <div className="d-pod-block">3</div>
           </div>
@@ -642,7 +645,11 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
               <>
                 <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,.55)', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 600, marginBottom: 2 }}>Next move</div>
                 <div style={{ color: 'white', fontSize: 13 }}>
-                  <span className="d-gap-num">{gap}</span> more to overtake <strong>{nextEntry.name}</strong>
+                  {gap <= 50 ? (
+                    <><span className="d-gap-num">{gap}</span> more reviews to overtake <strong>{nextEntry.name}</strong></>
+                  ) : (
+                    <>You're holding strong at <strong>#{myRank}</strong>! Keep collecting to stay ahead.</>
+                  )}
                 </div>
               </>
             ) : (
@@ -650,7 +657,7 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
             )}
           </div>
           {myRank > 1 && nextEntry && (
-            <button className="d-chase-cta" onClick={onAskNow}>Ask now</button>
+            <button className="d-chase-cta" onClick={onAskNow}>{gap <= 50 ? 'Ask now' : 'Keep going'}</button>
           )}
         </div>
       </div>
