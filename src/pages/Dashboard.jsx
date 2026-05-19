@@ -1018,8 +1018,6 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
             {whereLabel && <span className="d-lb-where">{whereLabel}</span>}
           </div>
           <div className="d-lb-actions">
-            <button className="d-btn-ghost">Filter</button>
-            <button className="d-btn-ghost">Refresh</button>
             <button
               className="d-btn-primary"
               onClick={() => setShowManage(v => !v)}
