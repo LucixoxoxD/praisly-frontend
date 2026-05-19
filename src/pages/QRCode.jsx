@@ -44,8 +44,8 @@ export default function QRCode() {
   const [error, setError]             = useState('')
   const [copied, setCopied]           = useState(false)
   const [downloading, setDownloading] = useState(false)
-  const [praislyReviews, setPraislyReviews] = useState([])
-  const [scanCount, setScanCount]           = useState(null)
+  const [reviewStats, setReviewStats]   = useState(null)
+  const [reviewsPage, setReviewsPage]   = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -65,20 +65,22 @@ export default function QRCode() {
       .catch(() => setError('Failed to load QR code. Please try again.'))
       .finally(() => setLoading(false))
 
-    // Praisly-only reviews (not Google all-time count)
-    // TODO: separate scan tracking from review tracking — scan_count should come from review_requests table
-    api.get('/api/reviews/list?limit=500&page=1')
+    // Stats for aggregated counts (rating_distribution, reviews_last_30_days)
+    api.get('/api/reviews/stats')
       .then(r => {
-        console.log('[QRCode] reviews/list raw response:', r.data)
-        const reviews = r.data?.reviews || r.data || []
-        console.log('[QRCode] praisly reviews parsed:', reviews.length, 'sample:', reviews[0])
-        setPraislyReviews(reviews)
-        // Use total field from response if available (authoritative count)
-        if (typeof r.data?.total === 'number') {
-          setScanCount(prev => prev !== null ? prev : r.data.total)
-        }
+        console.log('[QRCode] reviews/stats:', r.data)
+        setReviewStats(r.data)
       })
-      .catch(err => console.warn('[QRCode] reviews/list fetch failed:', err?.response?.status, err?.message))
+      .catch(err => console.warn('[QRCode] reviews/stats failed:', err?.response?.status, err?.message))
+
+    // List with limit=50 (backend max) — used for total count and recent entries
+    // TODO: separate scan tracking from review tracking — scan_count should come from review_requests table
+    api.get('/api/reviews/list?limit=50&page=1')
+      .then(r => {
+        console.log('[QRCode] reviews/list:', r.data)
+        setReviewsPage(r.data)
+      })
+      .catch(err => console.warn('[QRCode] reviews/list failed:', err?.response?.status, err?.message))
 
     return () => {
       if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl)
@@ -86,18 +88,21 @@ export default function QRCode() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const qrMetrics = useMemo(() => {
-    const totalReviews = praislyReviews.length
-    const positive = praislyReviews.filter(r => Number(r.rating) >= 4).length
-    const privateCount = praislyReviews.filter(r => r.status === 'private').length
+    // Authoritative total from paginated response (avoids page-size guessing)
+    const totalReviews = reviewsPage?.total ?? reviewsPage?.reviews?.length ?? 0
+    // rating_distribution from stats is more reliable than filtering a partial page
+    const dist = reviewStats?.rating_distribution || {}
+    const positive = Number(dist['4'] || 0) + Number(dist['5'] || 0)
+    const reviews = reviewsPage?.reviews || []
+    const privateCount = reviews.filter(r => r.status === 'private').length
     // TODO: separate scan tracking from review tracking
-    // scanCount will equal totalReviews until a dedicated scan_count endpoint exists
-    const scans = scanCount !== null ? scanCount : totalReviews
+    const scans = totalReviews
     const convPct = scans > 0 ? Math.round(totalReviews / scans * 100) : 0
     const recentCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-    const scansThisWeek = praislyReviews.filter(r => r.created_at && r.created_at >= recentCutoff).length
-    console.log('[QRCode] metrics:', { totalReviews, positive, privateCount, scans, convPct, scansThisWeek })
+    const scansThisWeek = reviews.filter(r => r.created_at && r.created_at >= recentCutoff).length
+    console.log('[QRCode] metrics:', { totalReviews, positive, privateCount, convPct, scansThisWeek })
     return { scans, totalReviews, positive, privateCount, convPct, scansThisWeek }
-  }, [praislyReviews, scanCount])
+  }, [reviewStats, reviewsPage])
 
   async function handleCopy() {
     try {
