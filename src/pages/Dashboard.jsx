@@ -405,14 +405,28 @@ const PAGE_CSS = `
   .d-delta-pill.hot  { background: var(--primary-soft); color: var(--primary-ink); }
   .d-delta-pill.flat { background: var(--surface-tint); color: var(--ink-4); }
 
+  /* ── Page-level overflow guard ── */
+  .d-page { max-width: 100vw; overflow-x: hidden; }
+
   /* ── Responsive ── */
   @media (max-width: 960px) {
     .d-rank-num { font-size: 76px; }
     .d-stats { gap: 12px; }
   }
   @media (max-width: 768px) {
-    /* Hero card stacks vertically */
-    .d-hero { grid-template-columns: 1fr; padding: 24px; gap: 20px; }
+    /* Hero card stacks vertically, no overflow */
+    .d-hero {
+      grid-template-columns: 1fr; padding: 20px; gap: 16px;
+      overflow: hidden; box-sizing: border-box;
+    }
+
+    /* Podium card fills full width, no bleed */
+    .d-podium-card {
+      width: 100%; box-sizing: border-box; padding: 16px;
+    }
+
+    /* Podium header wraps so location pill doesn't clip */
+    .d-podium-head { flex-wrap: wrap; gap: 6px; }
 
     /* AI strip goes column layout */
     .d-ai-strip {
@@ -422,9 +436,7 @@ const PAGE_CSS = `
     .d-ai-content { width: 100%; }
     .d-ai-title { font-size: 13px; line-height: 1.5; }
     .d-ai-cta { width: 100%; text-align: center; padding: 10px 15px; }
-    .d-ai-dismiss {
-      position: absolute; top: 10px; right: 10px;
-    }
+    .d-ai-dismiss { position: absolute; top: 10px; right: 10px; }
   }
   @media (max-width: 700px) {
     .d-stats { grid-template-columns: 1fr; }
@@ -1276,7 +1288,7 @@ export default function Dashboard() {
   }
 
   return (
-    <>
+    <div className="d-page">
       <style>{PAGE_CSS}</style>
 
       {/* Milestone celebration */}
@@ -1358,6 +1370,6 @@ export default function Dashboard() {
         />
       </div>
 
-    </>
+    </div>
   )
 }
