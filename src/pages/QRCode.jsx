@@ -44,8 +44,8 @@ export default function QRCode() {
   const [error, setError]             = useState('')
   const [copied, setCopied]           = useState(false)
   const [downloading, setDownloading] = useState(false)
-  const [stats, setStats]             = useState(null)
-  const [scanCount, setScanCount]     = useState(null)
+  const [praislyReviews, setPraislyReviews] = useState([])
+  const [scanCount, setScanCount]           = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -56,7 +56,8 @@ export default function QRCode() {
         setQrObjectUrl(URL.createObjectURL(imgRes.data))
         setReviewUrl(infoRes.data.review_url)
         setBizName(infoRes.data.business_name)
-        // Use scan_count if the endpoint returns it, otherwise falls back to reviews count
+        console.log('[QRCode] qr/info:', infoRes.data)
+        // Use scan_count if the endpoint returns it
         if (typeof infoRes.data.scan_count === 'number') {
           setScanCount(infoRes.data.scan_count)
         }
@@ -64,8 +65,18 @@ export default function QRCode() {
       .catch(() => setError('Failed to load QR code. Please try again.'))
       .finally(() => setLoading(false))
 
-    api.get('/api/reviews/stats')
-      .then(r => setStats(r.data))
+    // Praisly-only reviews (not Google all-time count)
+    // TODO: separate scan tracking from review tracking — scan_count should come from review_requests table
+    api.get('/api/reviews/list?limit=500&page=1')
+      .then(r => {
+        const reviews = r.data?.reviews || r.data || []
+        console.log('[QRCode] praisly reviews sample:', reviews[0], 'total:', reviews.length)
+        setPraislyReviews(reviews)
+        // Use total field from response if available (authoritative count)
+        if (typeof r.data?.total === 'number') {
+          setScanCount(prev => prev !== null ? prev : r.data.total)
+        }
+      })
       .catch(() => {})
 
     return () => {
@@ -74,18 +85,18 @@ export default function QRCode() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const qrMetrics = useMemo(() => {
-    const dist = stats?.rating_distribution || {}
-    const positive = (Number(dist['4'] || 0) + Number(dist['5'] || 0))
-    const totalReviews = stats?.google_current_count || 0
-    const privateCount = Math.max(0, totalReviews - positive)
-    // If QR info doesn't return scan_count, use totalReviews as fallback
+    const totalReviews = praislyReviews.length
+    const positive = praislyReviews.filter(r => Number(r.rating) >= 4).length
+    const privateCount = praislyReviews.filter(r => r.status === 'private').length
+    // TODO: separate scan tracking from review tracking
+    // scanCount will equal totalReviews until a dedicated scan_count endpoint exists
     const scans = scanCount !== null ? scanCount : totalReviews
     const convPct = scans > 0 ? Math.round(totalReviews / scans * 100) : 0
-    const scansThisWeek = stats?.reviews_last_30_days
-      ? Math.round(stats.reviews_last_30_days / 4)
-      : null
+    const recentCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const scansThisWeek = praislyReviews.filter(r => r.created_at && r.created_at >= recentCutoff).length
+    console.log('[QRCode] metrics:', { totalReviews, positive, privateCount, scans, convPct, scansThisWeek })
     return { scans, totalReviews, positive, privateCount, convPct, scansThisWeek }
-  }, [stats, scanCount])
+  }, [praislyReviews, scanCount])
 
   async function handleCopy() {
     try {
@@ -175,7 +186,7 @@ export default function QRCode() {
           <div className="qr-stat-label">Total scans</div>
           <div className="qr-stat-sub">Customers who scanned your QR</div>
           <div className="qr-stat-val">{qrMetrics.scans.toLocaleString('en-IN')}</div>
-          {qrMetrics.scansThisWeek !== null && qrMetrics.scansThisWeek > 0
+          {qrMetrics.scansThisWeek > 0
             ? <p className="qr-stat-trend positive">↑ {qrMetrics.scansThisWeek} this week</p>
             : <p className="qr-stat-trend">No scans this week</p>
           }
