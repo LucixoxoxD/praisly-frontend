@@ -629,32 +629,32 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
       </div>
 
       {/* ── Right: podium ── */}
-      <div className="d-podium-card">
+      <div className="d-podium-card" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
         <div className="d-podium-head">
           <span>TOP {Math.min(3, total)} · {bizType?.toUpperCase() || 'BUSINESSES'}</span>
           {bizCity && <span className="d-target-pill">📍 {bizCity}</span>}
         </div>
 
-        <div className="d-podium">
+        <div className="d-podium" style={{ display: 'flex', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
           {/* 2nd place — left silver */}
-          <div className={`d-pod d-pod-2${isYou(p2) ? ' d-you' : ''}`}>
-            <div className="d-pod-name">{p2?.name || '—'}</div>
+          <div className={`d-pod d-pod-2${isYou(p2) ? ' d-you' : ''}`} style={{ flex: '1 1 0', minWidth: 0, maxWidth: '33.33%', overflow: 'hidden' }}>
+            <div className="d-pod-name" style={{ fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', display: 'block', textAlign: 'center' }}>{p2?.name || '—'}</div>
             {isYou(p2) && <div className="d-pod-you-pill">YOU</div>}
-            <div className="d-pod-rev">{p2 ? fmtIN(p2.review_count) : 0} reviews</div>
+            <div className="d-pod-rev" style={{ fontSize: '9px' }}>{p2 ? fmtIN(p2.review_count) : 0} reviews</div>
             <div className="d-pod-block">2</div>
           </div>
           {/* 1st place — center gold */}
-          <div className={`d-pod d-pod-1${isYou(p1) ? ' d-you' : ''}`}>
-            <div className="d-pod-name">{p1?.name || '—'}</div>
+          <div className={`d-pod d-pod-1${isYou(p1) ? ' d-you' : ''}`} style={{ flex: '1 1 0', minWidth: 0, maxWidth: '33.33%', overflow: 'hidden' }}>
+            <div className="d-pod-name" style={{ fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', display: 'block', textAlign: 'center' }}>{p1?.name || '—'}</div>
             {isYou(p1) && <div className="d-pod-you-pill">YOU</div>}
-            <div className="d-pod-rev">{p1 ? fmtIN(p1.review_count) : 0} reviews</div>
+            <div className="d-pod-rev" style={{ fontSize: '9px' }}>{p1 ? fmtIN(p1.review_count) : 0} reviews</div>
             <div className="d-pod-block">1</div>
           </div>
           {/* 3rd place — right bronze */}
-          <div className={`d-pod d-pod-3${isYou(p3) ? ' d-you' : ''}`}>
-            <div className="d-pod-name">{p3?.name || '—'}</div>
+          <div className={`d-pod d-pod-3${isYou(p3) ? ' d-you' : ''}`} style={{ flex: '1 1 0', minWidth: 0, maxWidth: '33.33%', overflow: 'hidden' }}>
+            <div className="d-pod-name" style={{ fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', display: 'block', textAlign: 'center' }}>{p3?.name || '—'}</div>
             {isYou(p3) && <div className="d-pod-you-pill">YOU</div>}
-            <div className="d-pod-rev">{p3 ? fmtIN(p3.review_count) : 0} reviews</div>
+            <div className="d-pod-rev" style={{ fontSize: '9px' }}>{p3 ? fmtIN(p3.review_count) : 0} reviews</div>
             <div className="d-pod-block">3</div>
           </div>
         </div>
@@ -1288,7 +1288,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="d-page">
+    <div className="d-page" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
       <style>{PAGE_CSS}</style>
 
       {/* Milestone celebration */}
