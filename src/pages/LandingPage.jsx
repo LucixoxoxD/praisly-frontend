@@ -42,12 +42,12 @@ const STYLES = `
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   .lp-btn-primary {
-    display: inline-block; padding: 14px 28px; background: #10b981; color: white;
+    display: inline-block; padding: 14px 28px; background: var(--primary); color: white;
     border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none;
     border: none; cursor: pointer; transition: all 0.2s; font-family: inherit;
     white-space: nowrap;
   }
-  .lp-btn-primary:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(16,185,129,0.35); }
+  .lp-btn-primary:hover { background: var(--primary-ink); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(216,144,32,0.35); }
   .lp-btn-outline {
     display: inline-block; padding: 14px 28px; background: transparent; color: white;
     border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none;
@@ -61,7 +61,7 @@ const STYLES = `
     border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.2s; font-family: inherit;
     white-space: nowrap;
   }
-  .lp-btn-outline-dark:hover { border-color: #10b981; color: #10b981; }
+  .lp-btn-outline-dark:hover { border-color: var(--primary); color: var(--primary); }
   .feature-card { transition: box-shadow 0.2s, transform 0.2s; }
   .feature-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.09); transform: translateY(-2px); }
   .pricing-card { transition: box-shadow 0.25s, transform 0.25s; }
@@ -71,9 +71,9 @@ const STYLES = `
   .nav-link { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.15s; }
   .nav-link:hover { color: white; }
   .nav-link-dark { color: #374151; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.15s; }
-  .nav-link-dark:hover { color: #10b981; }
+  .nav-link-dark:hover { color: var(--primary); }
   @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-  @keyframes pulse-green { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 70% { box-shadow: 0 0 0 10px rgba(16,185,129,0); } }
+  @keyframes pulse-green { 0%,100% { box-shadow: 0 0 0 0 rgba(216,144,32,0.4); } 70% { box-shadow: 0 0 0 10px rgba(216,144,32,0); } }
   @keyframes lp-slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
   .lp-mobile-menu { animation: lp-slideDown 0.2s ease; }
   .lp-mobile-link {
@@ -125,20 +125,20 @@ function PhoneMockup() {
             {['Styling ✓', 'Hygiene', 'Friendly Staff ✓', 'Good Price', 'Ambience'].map(tag => (
               <span key={tag} style={{
                 padding: '4px 8px', borderRadius: 20, fontSize: 9, fontWeight: 600,
-                background: tag.includes('✓') ? '#10b981' : 'white',
+                background: tag.includes('✓') ? '#D89020' : 'white',
                 color: tag.includes('✓') ? 'white' : '#64748b',
-                border: `1.5px solid ${tag.includes('✓') ? '#10b981' : '#e2e8f0'}`,
+                border: `1.5px solid ${tag.includes('✓') ? '#D89020' : '#e2e8f0'}`,
               }}>{tag.replace(' ✓', '')}</span>
             ))}
           </div>
           {/* Draft preview */}
-          <div style={{ background: '#f0fdf4', borderRadius: 10, padding: '8px 10px', border: '1.5px solid #6ee7b7', marginBottom: 10 }}>
+          <div style={{ background: '#FBEED0', borderRadius: 10, padding: '8px 10px', border: '1.5px solid #D89020', marginBottom: 10 }}>
             <p style={{ fontSize: 8.5, color: '#374151', lineHeight: 1.5, margin: 0 }}>
               "Great styling at Looks Salon. Staff was friendly and the place was clean. Will come back for sure."
             </p>
           </div>
           {/* CTA */}
-          <div style={{ background: '#10b981', borderRadius: 8, padding: '8px', textAlign: 'center' }}>
+          <div style={{ background: '#D89020', borderRadius: 8, padding: '8px', textAlign: 'center' }}>
             <span style={{ color: 'white', fontSize: 10, fontWeight: 700 }}>Post on Google ↗</span>
           </div>
         </div>
@@ -165,7 +165,7 @@ function FAQItem({ q, a }) {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
         <p style={{ fontWeight: 600, fontSize: 15, color: '#0f172a', margin: 0 }}>{q}</p>
-        <span style={{ color: '#10b981', fontSize: 20, lineHeight: 1, flexShrink: 0, transition: 'transform 0.2s', transform: open ? 'rotate(45deg)' : 'none' }}>+</span>
+        <span style={{ color: 'var(--primary)', fontSize: 20, lineHeight: 1, flexShrink: 0, transition: 'transform 0.2s', transform: open ? 'rotate(45deg)' : 'none' }}>+</span>
       </div>
       <div style={{ overflow: 'hidden', maxHeight: open ? 200 : 0, transition: 'max-height 0.3s ease', marginTop: open ? 10 : 0 }}>
         <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.7, margin: 0 }}>{a}</p>
@@ -210,7 +210,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", overflowX: 'hidden' }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif", overflowX: 'hidden' }}>
       <style>{STYLES}</style>
 
       {/* ══════════════════════════════════════════════════════════════
@@ -259,7 +259,7 @@ export default function LandingPage() {
             to="/signup"
             style={{
               padding: '8px 18px',
-              background: '#10b981',
+              background: 'var(--primary)',
               color: 'white',
               borderRadius: 8,
               fontWeight: 700,
@@ -267,8 +267,8 @@ export default function LandingPage() {
               textDecoration: 'none',
               transition: 'all 0.2s',
             }}
-            onMouseEnter={e => e.currentTarget.style.background = '#059669'}
-            onMouseLeave={e => e.currentTarget.style.background = '#10b981'}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-ink)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'var(--primary)'}
           >
             Start Free Trial →
           </Link>
@@ -316,7 +316,7 @@ export default function LandingPage() {
             onClick={() => setMobileMenuOpen(false)}
             style={{
               display: 'block', marginTop: 16, padding: '13px',
-              background: '#10b981', color: 'white', borderRadius: 10,
+              background: 'var(--primary)', color: 'white', borderRadius: 10,
               fontWeight: 700, fontSize: 15, textDecoration: 'none', textAlign: 'center',
               transition: 'background 0.2s',
             }}
@@ -354,7 +354,7 @@ export default function LandingPage() {
                 }}
               >
                 Get More Google Reviews{' '}
-                <span style={{ color: '#10b981' }}>on Autopilot</span>
+                <span style={{ color: '#F5B945' }}>on Autopilot</span>
               </h1>
 
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 18, lineHeight: 1.7, marginBottom: 32, maxWidth: 480 }}>
@@ -479,7 +479,7 @@ export default function LandingPage() {
                     <div style={{ width: 64, height: 64, borderRadius: 18, background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: item.icon === 'G' ? 24 : 28, fontWeight: 900, color: item.icon === 'G' ? '#4285F4' : 'white', fontFamily: 'serif' }}>
                       {item.icon}
                     </div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: 8 }}>{item.step}</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: 8 }}>{item.step}</p>
                     <h3 style={{ fontWeight: 700, fontSize: 18, color: '#0f172a', marginBottom: 10 }}>{item.title}</h3>
                     <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.65, margin: 0, maxWidth: 220, marginInline: 'auto' }}>{item.desc}</p>
                     {i < 2 && (
@@ -487,7 +487,7 @@ export default function LandingPage() {
                     )}
                   </div>
                   {i < 2 && (
-                    <div style={{ display: 'flex', alignItems: 'flex-start', paddingTop: 52, color: '#10b981', fontSize: 24, fontWeight: 700 }}>→</div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', paddingTop: 52, color: 'var(--primary)', fontSize: 24, fontWeight: 700 }}>→</div>
                   )}
                 </div>
               </Reveal>
@@ -583,10 +583,10 @@ export default function LandingPage() {
               </div>
             </Reveal>
             <Reveal delay={200}>
-              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '2px solid #10b981', boxShadow: '0 0 0 4px rgba(16,185,129,0.08)', height: '100%' }}>
+              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '2px solid var(--primary)', boxShadow: '0 0 0 4px rgba(216,144,32,0.08)', height: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                   <p style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', margin: 0 }}>Praisly</p>
-                  <span style={{ background: '#d1fae5', color: '#065f46', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>Best choice</span>
+                  <span style={{ background: 'var(--primary-soft)', color: 'var(--primary-ink)', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>Best choice</span>
                 </div>
                 {['🚀 AI writes the review for them', '40+ reviews in 2 months', 'Built for Indian businesses', '₹999/month — early adopter pricing'].map(item => (
                   <p key={item} style={{ fontSize: 14, color: '#374151', fontWeight: 500, margin: '0 0 10px', lineHeight: 1.5 }}>{item}</p>
@@ -622,15 +622,15 @@ export default function LandingPage() {
               {/* Arrow */}
               <div style={{ textAlign: 'center', flex: '0 0 120px' }}>
                 <p style={{ fontSize: 28 }}>→</p>
-                <p style={{ fontSize: 11, color: '#10b981', fontWeight: 700 }}>After 2 months</p>
+                <p style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 700 }}>After 2 months</p>
               </div>
 
               {/* After */}
-              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '2px solid #10b981', minWidth: 200, textAlign: 'center', flex: '0 0 220px', boxShadow: '0 0 0 4px rgba(16,185,129,0.1)' }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12 }}>After Praisly</p>
+              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '2px solid var(--primary)', minWidth: 200, textAlign: 'center', flex: '0 0 220px', boxShadow: '0 0 0 4px rgba(216,144,32,0.1)' }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12 }}>After Praisly</p>
                 <p style={{ fontSize: 32 }}>🤩</p>
                 <p style={{ fontWeight: 700, fontSize: 22, color: '#0f172a', margin: '8px 0 4px' }}>4.7 ★</p>
-                <p style={{ color: '#10b981', fontSize: 13, fontWeight: 600 }}>47 reviews</p>
+                <p style={{ color: 'var(--primary)', fontSize: 13, fontWeight: 600 }}>47 reviews</p>
               </div>
             </div>
           </Reveal>
@@ -709,7 +709,7 @@ export default function LandingPage() {
                   }}
                 >
                   Yearly
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save ₹4,000 (33% off)</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--win)' }}>Save ₹4,000 (33% off)</span>
                 </button>
               </div>
             </div>
@@ -721,12 +721,12 @@ export default function LandingPage() {
               className="pricing-card"
               style={{
                 background: 'white', borderRadius: 20,
-                border: '2px solid #10b981',
-                boxShadow: '0 8px 32px rgba(16,185,129,0.15)',
+                border: '2px solid var(--primary)',
+                boxShadow: '0 8px 32px rgba(216,144,32,0.15)',
                 padding: 32, position: 'relative',
               }}
             >
-              <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 18px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+              <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'var(--primary)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 18px', borderRadius: 999, whiteSpace: 'nowrap' }}>
                 {lpYearly ? 'Best Value' : 'Full Access'}
               </div>
 
@@ -781,7 +781,7 @@ export default function LandingPage() {
                 style={{
                   display: 'block', textAlign: 'center',
                   padding: '14px', borderRadius: 12,
-                  background: '#10b981', color: 'white',
+                  background: 'var(--primary)', color: 'white',
                   fontWeight: 700, fontSize: 16,
                   textDecoration: 'none', transition: 'opacity 0.15s',
                 }}

@@ -75,7 +75,7 @@ export default function Settings() {
   const trialExpired = trialEndsAt ? Date.now() >= new Date(trialEndsAt).getTime() : false
 
   const set     = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const onFocus = (e) => (e.target.style.borderColor = '#10b981')
+  const onFocus = (e) => (e.target.style.borderColor = 'var(--primary)')
   const onBlur  = (e) => (e.target.style.borderColor = '#e2e8f0')
 
   async function handleSave(e) {
@@ -225,7 +225,7 @@ export default function Settings() {
               style={{
                 width: '100%',
                 padding: '11px',
-                background: '#10b981',
+                background: 'var(--primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 8,
@@ -260,7 +260,7 @@ export default function Settings() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <span style={{ fontSize: 13, color: '#374151', fontWeight: 500 }}>Current plan</span>
               {isPaid ? (
-                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, background: '#d1fae5', color: '#065f46' }}>
+                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, background: 'var(--primary-soft)', color: 'var(--primary-ink)' }}>
                   {plan === 'yearly' ? 'Yearly ✓' : 'Monthly ✓'}
                 </span>
               ) : trialExpired ? (
@@ -289,7 +289,7 @@ export default function Settings() {
                 display: 'block',
                 width: '100%',
                 padding: '11px',
-                background: '#10b981',
+                background: 'var(--primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 8,

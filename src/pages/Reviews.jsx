@@ -24,10 +24,10 @@ const TABS = [
 const PAGE_CSS = `
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
   .review-card {
-    background: white;
+    background: var(--surface);
     border-radius: 12px;
     padding: 16px 20px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--line);
     margin-bottom: 10px;
     transition: box-shadow 0.2s ease;
   }
@@ -35,7 +35,7 @@ const PAGE_CSS = `
 `
 
 function ratingBorder(rating) {
-  if (rating >= 4) return '#10b981'
+  if (rating >= 4) return 'var(--win)'
   if (rating === 3) return '#f59e0b'
   return '#ef4444'
 }
@@ -52,9 +52,9 @@ function Stars({ rating }) {
 
 function StatusBadge({ status }) {
   const map = {
-    posted:  { bg: '#d1fae5', color: '#065f46', label: 'Posted on Google ✓' },
-    pending: { bg: '#fef3c7', color: '#92400e', label: 'Pending' },
-    private: { bg: '#f1f5f9', color: '#475569', label: 'Private feedback' },
+    posted:  { bg: 'var(--win-soft)',     color: 'var(--win)',         label: 'Posted on Google ✓' },
+    pending: { bg: 'var(--primary-soft)', color: 'var(--primary-ink)', label: 'Pending' },
+    private: { bg: 'var(--danger-soft)',  color: 'var(--danger)',      label: 'Private feedback' },
   }
   const s = map[status] || map.private
   return (
@@ -145,7 +145,7 @@ export default function Reviews() {
           display: 'flex',
           gap: 4,
           marginBottom: 20,
-          background: '#f1f5f9',
+          background: 'var(--surface-tint)',
           borderRadius: 10,
           padding: 4,
           width: 'fit-content',
@@ -164,8 +164,8 @@ export default function Reviews() {
               cursor: 'pointer',
               fontSize: 13,
               fontWeight: 600,
-              background: tab === t.key ? 'white' : 'transparent',
-              color: tab === t.key ? '#0f172a' : '#64748b',
+              background: tab === t.key ? 'var(--primary-soft)' : 'transparent',
+              color: tab === t.key ? 'var(--primary-ink)' : 'var(--ink-3)',
               boxShadow: tab === t.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
               transition: 'all 0.15s',
               fontFamily: 'inherit',
@@ -200,7 +200,7 @@ export default function Reviews() {
               style={{
                 display: 'inline-block',
                 padding: '9px 20px',
-                background: '#10b981',
+                background: 'var(--primary)',
                 color: 'white',
                 borderRadius: 8,
                 textDecoration: 'none',
@@ -298,8 +298,8 @@ export default function Reviews() {
                       style={{
                         padding: '2px 8px',
                         borderRadius: 20,
-                        background: '#f1f5f9',
-                        color: '#475569',
+                        background: 'var(--surface-tint)',
+                        color: 'var(--ink-3)',
                         fontSize: 11,
                         fontWeight: 500,
                       }}
@@ -353,9 +353,9 @@ function PaginationBtn({ label, onClick, disabled, active }) {
       style={{
         padding: '7px 13px',
         borderRadius: 8,
-        border: `1px solid ${active ? '#10b981' : '#e2e8f0'}`,
-        background: active ? '#10b981' : 'white',
-        color: active ? 'white' : disabled ? '#94a3b8' : '#374151',
+        border: `1px solid ${active ? 'var(--primary)' : 'var(--line)'}`,
+        background: active ? 'var(--primary)' : 'var(--surface)',
+        color: active ? 'white' : disabled ? 'var(--ink-4)' : 'var(--ink-2)',
         fontSize: 13,
         fontWeight: active ? 600 : 400,
         cursor: disabled ? 'not-allowed' : 'pointer',

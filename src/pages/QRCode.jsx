@@ -84,7 +84,7 @@ export default function QRCode() {
           style={{
             width: 32, height: 32,
             border: '3px solid #e2e8f0',
-            borderTopColor: '#10b981',
+            borderTopColor: 'var(--primary)',
             borderRadius: '50%',
             animation: 'spin 0.8s linear infinite',
           }}
@@ -152,10 +152,10 @@ export default function QRCode() {
                 textAlign: 'center',
               }}
             >
-              {/* Navy header */}
+              {/* Card header */}
               <div
                 style={{
-                  background: '#1a1a2e',
+                  background: 'var(--primary)',
                   padding: '20px 24px',
                 }}
               >
@@ -211,7 +211,7 @@ export default function QRCode() {
                     fontFamily: "'Plus Jakarta Sans', system-ui",
                     fontSize: 13,
                     fontWeight: 700,
-                    color: '#10b981',
+                    color: 'var(--primary)',
                     letterSpacing: '-0.2px',
                   }}
                 >
@@ -248,8 +248,8 @@ export default function QRCode() {
               style={{
                 flexShrink: 0,
                 padding: '5px 10px',
-                background: copied ? '#d1fae5' : '#f1f5f9',
-                color: copied ? '#065f46' : '#374151',
+                background: copied ? 'var(--primary-soft)' : '#f1f5f9',
+                color: copied ? 'var(--primary-ink)' : '#374151',
                 border: 'none',
                 borderRadius: 6,
                 fontSize: 12,
@@ -271,7 +271,7 @@ export default function QRCode() {
               style={{
                 flex: 1,
                 padding: '11px',
-                background: '#0f172a',
+                background: 'var(--primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 10,
@@ -323,7 +323,7 @@ export default function QRCode() {
               style={{
                 flex: 1,
                 padding: '11px',
-                background: '#10b981',
+                background: 'var(--primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 10,
@@ -366,8 +366,8 @@ export default function QRCode() {
                   style={{
                     width: 24, height: 24,
                     borderRadius: '50%',
-                    background: '#d1fae5',
-                    color: '#065f46',
+                    background: 'var(--primary-soft)',
+                    color: 'var(--primary-ink)',
                     fontSize: 12,
                     fontWeight: 700,
                     display: 'flex',

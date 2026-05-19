@@ -25,7 +25,7 @@ function fmtIN(n) {
 }
 
 function ratingBorder(r) {
-  if (r >= 4) return '#10b981'
+  if (r >= 4) return 'var(--win)'
   if (r === 3) return '#f59e0b'
   return '#ef4444'
 }
@@ -97,7 +97,7 @@ const PAGE_CSS = `
     padding: 3px 9px; border-radius: 20px;
     font-size: 11px; font-weight: 700;
   }
-  .d-badge-green  { background: #d1fae5; color: #065f46; }
+  .d-badge-green  { background: var(--win-soft); color: var(--win); }
   .d-badge-amber  { background: #fef3c7; color: #92400e; }
   .d-badge-gray   { background: #f1f5f9; color: #475569; }
   .d-badge-purple { background: #ede9fe; color: #5b21b6; }
@@ -105,29 +105,29 @@ const PAGE_CSS = `
   .lb-row {
     display: flex; align-items: center; gap: 0;
     padding: 11px 14px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--line);
     transition: background 0.15s;
   }
   .lb-row:last-child { border-bottom: none; }
-  .lb-row:hover { background: #f8fafc; }
+  .lb-row:hover { background: var(--surface-tint); }
   .lb-row.lb-me {
-    background: #f0fdf4;
-    border-left: 4px solid #10b981;
+    background: var(--primary-soft);
+    border-left: 4px solid var(--primary);
     padding-left: 10px;
   }
-  .lb-row.lb-me:hover { background: #e6faf2; }
+  .lb-row.lb-me:hover { background: var(--primary-soft); filter: brightness(0.97); }
 
   .search-result {
     padding: 12px 14px; border-radius: 10px;
-    border: 1px solid #e2e8f0; margin-bottom: 8px;
+    border: 1px solid var(--line); margin-bottom: 8px;
     cursor: pointer; transition: background 0.15s, border-color 0.15s;
-    background: white;
+    background: var(--surface);
   }
-  .search-result:hover { background: #f0fdf4; border-color: #10b981; }
+  .search-result:hover { background: var(--primary-soft); border-color: var(--primary); }
 
   .review-card {
-    background: white; border-radius: 12px;
-    padding: 16px; border: 1px solid #f1f5f9;
+    background: var(--surface); border-radius: 12px;
+    padding: 16px; border: 1px solid var(--line);
     margin-bottom: 10px; transition: box-shadow 0.2s;
   }
   .review-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
@@ -183,9 +183,9 @@ function Stars({ rating }) {
 
 function StatusBadge({ status }) {
   const map = {
-    posted:  { bg: '#d1fae5', color: '#065f46', label: 'Posted on Google ✓' },
-    pending: { bg: '#fef3c7', color: '#92400e', label: 'Pending' },
-    private: { bg: '#f1f5f9', color: '#475569', label: 'Private feedback' },
+    posted:  { bg: 'var(--win-soft)',     color: 'var(--win)',       label: 'Posted on Google ✓' },
+    pending: { bg: 'var(--primary-soft)', color: 'var(--primary-ink)', label: 'Pending' },
+    private: { bg: 'var(--danger-soft)',  color: 'var(--danger)',    label: 'Private feedback' },
   }
   const s = map[status] || map.private
   return <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: s.bg, color: s.color }}>{s.label}</span>
@@ -234,7 +234,7 @@ function InfoTooltip({ text }) {
 // Hero stat card (large)
 // ---------------------------------------------------------------------------
 
-function HeroCard({ title, children, tintColor = '#10b981', icon, delay = 0, style }) {
+function HeroCard({ title, children, tintColor = '#D89020', icon, delay = 0, style }) {
   return (
     <div
       className="d-card"
@@ -259,7 +259,7 @@ function HeroCard({ title, children, tintColor = '#10b981', icon, delay = 0, sty
 // Mini stat card (2nd row)
 // ---------------------------------------------------------------------------
 
-function MiniCard({ title, value, sub, icon, iconBg, tintColor = '#10b981', delay = 0, extra }) {
+function MiniCard({ title, value, sub, icon, iconBg, tintColor = '#D89020', delay = 0, extra }) {
   const count = useCountUp(value ?? 0)
   return (
     <div
@@ -309,7 +309,7 @@ function RankHeroCard({ rank, reviews30, leaderboard, stats, biz }) {
       className="d-card"
       style={{
         padding: '20px 24px',
-        background: 'linear-gradient(135deg, #ecfdf5 0%, white 80%)',
+        background: 'linear-gradient(135deg, var(--primary-soft) 0%, var(--surface) 80%)',
         marginBottom: 14,
         animation: 'fadeUp 0.3s ease both',
         animationDelay: '0ms',
@@ -328,7 +328,7 @@ function RankHeroCard({ rank, reviews30, leaderboard, stats, biz }) {
               </p>
             )}
             {reviews30 > 0 && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '3px 10px', borderRadius: 999, background: '#10b981', color: 'white', fontSize: 11, fontWeight: 700 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '3px 10px', borderRadius: 999, background: 'var(--primary)', color: 'white', fontSize: 11, fontWeight: 700 }}>
                 +{reviews30} this month
               </span>
             )}
@@ -338,7 +338,7 @@ function RankHeroCard({ rank, reviews30, leaderboard, stats, biz }) {
         {/* Right — message */}
         <div style={{ textAlign: 'right' }}>
           {isLeading ? (
-            <p style={{ fontSize: 18, fontWeight: 600, color: '#059669', margin: 0, lineHeight: 1.4 }}>
+            <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--win)', margin: 0, lineHeight: 1.4 }}>
               🏆 You're leading your area!
             </p>
           ) : (
@@ -356,7 +356,7 @@ function RankHeroCard({ rank, reviews30, leaderboard, stats, biz }) {
 // Confetti + milestone overlay
 // ---------------------------------------------------------------------------
 
-const CONF_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899']
+const CONF_COLORS = ['#D89020', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899']
 
 function ConfettiPieces() {
   const pieces = useMemo(() =>
@@ -408,7 +408,7 @@ function MilestoneOverlay({ notif, onDismiss }) {
         <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.6, margin: '0 0 28px' }}>{notif.message}</p>
         <button
           onClick={onDismiss}
-          style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 12, padding: '13px 32px', fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 12, padding: '13px 32px', fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           Awesome! 🙌
         </button>
@@ -480,7 +480,7 @@ function CompetitorModal({ bizCity, onClose, onAdd }) {
                 {r.user_ratings_total != null && <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>{fmtIN(r.user_ratings_total)} reviews</p>}
               </div>
             </div>
-            {adding === r.place_id && <p style={{ fontSize: 12, color: '#10b981', margin: '6px 0 0', fontWeight: 600 }}>Adding…</p>}
+            {adding === r.place_id && <p style={{ fontSize: 12, color: 'var(--primary)', margin: '6px 0 0', fontWeight: 600 }}>Adding…</p>}
           </div>
         ))}
         {!searching && query && results.length === 0 && (
@@ -527,7 +527,7 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
           <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>Add local competitors to see who's winning the review game in your area</p>
           <button
             onClick={() => setShowModal(true)}
-            style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 12, padding: '10px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 12, padding: '10px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
             Add Competitors
           </button>
@@ -545,7 +545,7 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
           <h3 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 18, fontWeight: 700, color: '#0f172a', margin: 0 }}>Local Ranking</h3>
           <button
             onClick={() => setShowManage(!showManage)}
-            style={{ fontSize: 13, color: '#10b981', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
+            style={{ fontSize: 13, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
           >
             Manage
           </button>
@@ -573,7 +573,7 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
               <div style={{ flex: 1, minWidth: 0, paddingRight: 8 }}>
                 <p style={{ fontSize: 13, fontWeight: entry.is_self ? 700 : 500, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {entry.name}
-                  {entry.is_self && <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600, marginLeft: 6 }}>(You)</span>}
+                  {entry.is_self && <span style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 600, marginLeft: 6 }}>(You)</span>}
                 </p>
               </div>
 
@@ -592,8 +592,8 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
                 <span style={{
                   display: 'inline-flex', alignItems: 'center',
                   padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-                  background: (entry.reviews_last_30_days || 0) > 0 ? '#f0fdf4' : '#f1f5f9',
-                  color: (entry.reviews_last_30_days || 0) > 0 ? '#15803d' : '#94a3b8',
+                  background: (entry.reviews_last_30_days || 0) > 0 ? 'var(--primary-soft)' : '#f1f5f9',
+                  color: (entry.reviews_last_30_days || 0) > 0 ? 'var(--primary-ink)' : '#94a3b8',
                 }}>
                   +{entry.reviews_last_30_days || 0}
                 </span>
@@ -621,7 +621,7 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
           <div style={{ padding: '10px 14px 14px' }}>
             <button
               onClick={() => setShowModal(true)}
-              style={{ width: '100%', padding: '9px', background: 'none', border: '1.5px dashed #e2e8f0', borderRadius: 10, fontSize: 13, color: '#10b981', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '9px', background: 'none', border: '1.5px dashed var(--line-2)', borderRadius: 10, fontSize: 13, color: 'var(--primary)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
             >
               + Add Competitor
             </button>
@@ -633,8 +633,8 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
       {aiRec && !dismissRec && (
         <div
           style={{
-            background: '#ecfdf5', borderRadius: '0 0 16px 16px',
-            border: '1px solid #d1fae5', borderTop: 'none',
+            background: 'var(--primary-soft)', borderRadius: '0 0 16px 16px',
+            border: '1px solid var(--line-2)', borderTop: 'none',
             padding: '14px 16px', marginBottom: 20,
             display: 'flex', alignItems: 'flex-start', gap: 12,
             animation: 'slideIn 0.2s ease both',
@@ -856,7 +856,7 @@ export default function Dashboard() {
           <p style={{ color: '#64748b', fontSize: 14, marginBottom: 24 }}>Please refresh the page to try again.</p>
           <button
             onClick={() => window.location.reload()}
-            style={{ padding: '10px 24px', background: '#10b981', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ padding: '10px 24px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
             Refresh
           </button>
@@ -886,7 +886,7 @@ export default function Dashboard() {
             <p style={{ fontSize: 15, fontWeight: 700, color: '#991b1b', margin: '0 0 2px' }}>Your 7-day free trial has ended</p>
             <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>Subscribe to continue collecting reviews.</p>
           </div>
-          <Link to="/billing" style={{ display: 'inline-block', padding: '10px 20px', background: '#10b981', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          <Link to="/billing" style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--primary)', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
             Subscribe Now →
           </Link>
         </div>
@@ -907,17 +907,17 @@ export default function Dashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 14 }} className="d-hero-grid">
 
         {/* Card 1 — Google Reviews Gained */}
-        <HeroCard title="Google Reviews Gained" icon="📈" tintColor="#10b981" delay={0}>
-          <p className="d-hero-num" style={{ color: stats?.google_reviews_gained > 0 ? '#059669' : '#0f172a', marginBottom: 4 }}>
+        <HeroCard title="Google Reviews Gained" icon="📈" tintColor="#D89020" delay={0}>
+          <p className="d-hero-num" style={{ color: stats?.google_reviews_gained > 0 ? 'var(--win)' : 'var(--ink)', marginBottom: 4 }}>
             {stats?.google_reviews_gained > 0 ? `+${fmtIN(gainedAnim)}` : fmtIN(gainedAnim)}
           </p>
           <p className="d-sub">since you joined Praisly</p>
           {stats?.google_current_count > 0 ? (
             <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
-              {fmtIN(stats.google_baseline_count)} → <strong style={{ color: '#059669' }}>{fmtIN(stats.google_current_count)}</strong> total
+              {fmtIN(stats.google_baseline_count)} → <strong style={{ color: 'var(--win)' }}>{fmtIN(stats.google_current_count)}</strong> total
             </p>
           ) : (
-            <p style={{ fontSize: 12, color: '#10b981', marginTop: 8, fontWeight: 600 }}>Start collecting reviews!</p>
+            <p style={{ fontSize: 12, color: 'var(--primary)', marginTop: 8, fontWeight: 600 }}>Start collecting reviews!</p>
           )}
         </HeroCard>
 
@@ -996,7 +996,7 @@ export default function Dashboard() {
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f8fafc' }} />
                 <Bar dataKey="count" radius={[5,5,0,0]} isAnimationActive label={{ position: 'top', fill: '#6b7280', fontSize: 12 }}>
                   {ratingData.map((_, i) => (
-                    <Cell key={i} fill={['#ef4444','#f97316','#facc15','#10b981','#fbbf24'][i]} />
+                    <Cell key={i} fill={['#ef4444','#f97316','#facc15','#D89020','#F5B945'][i]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -1013,14 +1013,14 @@ export default function Dashboard() {
               <AreaChart data={timeData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#D89020" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#D89020" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" fontSize={11} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
                 <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#e2e8f0' }} />
-                <Area type="monotone" dataKey="count" stroke="#10b981" fill="url(#areaGrad)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#10b981', strokeWidth: 0 }} isAnimationActive />
+                <Area type="monotone" dataKey="count" stroke="#D89020" fill="url(#areaGrad)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#D89020', strokeWidth: 0 }} isAnimationActive />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -1083,14 +1083,14 @@ export default function Dashboard() {
                 <AreaChart data={growthChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#D89020" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#D89020" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="date" fontSize={11} tick={{ fill: '#9ca3af' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
                   <YAxis fontSize={11} tick={{ fill: '#9ca3af' }} allowDecimals={false} axisLine={false} tickLine={false} />
                   <Tooltip content={<ChartTooltip unit="total reviews" />} cursor={{ stroke: '#e2e8f0' }} />
-                  <Area type="monotone" dataKey="count" stroke="#10b981" fill="url(#growthGrad)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#10b981', strokeWidth: 0 }} isAnimationActive />
+                  <Area type="monotone" dataKey="count" stroke="#D89020" fill="url(#growthGrad)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#D89020', strokeWidth: 0 }} isAnimationActive />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -1102,7 +1102,7 @@ export default function Dashboard() {
       <div style={{ animation: 'fadeUp 0.35s ease both', animationDelay: '560ms' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <h3 style={{ fontSize: 14, fontWeight: 600, color: '#374151', margin: 0 }}>Recent Reviews</h3>
-          <Link to="/reviews" style={{ fontSize: 13, color: '#10b981', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
+          <Link to="/reviews" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
         </div>
 
         {reviews.length === 0 ? (
@@ -1110,7 +1110,7 @@ export default function Dashboard() {
             <p style={{ fontSize: 36, marginBottom: 12 }}>🌟</p>
             <p style={{ color: '#374151', fontSize: 15, fontWeight: 600, margin: 0 }}>No reviews yet</p>
             <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 4, marginBottom: 16 }}>Share your QR code to start collecting reviews</p>
-            <Link to="/qr" style={{ display: 'inline-block', padding: '9px 20px', background: '#10b981', color: 'white', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
+            <Link to="/qr" style={{ display: 'inline-block', padding: '9px 20px', background: 'var(--primary)', color: 'white', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
               View QR Code →
             </Link>
           </div>

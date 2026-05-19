@@ -137,7 +137,7 @@ export default function Billing() {
             }}
           >
             Yearly
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>Save ₹4,000 (33% off)</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--win)' }}>Save ₹4,000 (33% off)</span>
           </button>
         </div>
       </div>
@@ -145,12 +145,12 @@ export default function Billing() {
       {/* Single pricing card */}
       <div style={{
         background: 'white', borderRadius: 20,
-        border: '2px solid #10b981',
-        boxShadow: '0 8px 32px rgba(16,185,129,0.15)',
+        border: '2px solid var(--primary)',
+        boxShadow: '0 8px 32px rgba(216,144,32,0.15)',
         padding: 32, position: 'relative',
       }}>
         {/* Top badge */}
-        <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 18px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'var(--primary)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 18px', borderRadius: 999, whiteSpace: 'nowrap' }}>
           {yearly ? 'Best Value' : 'Full Access'}
         </div>
 
@@ -223,7 +223,7 @@ export default function Billing() {
             disabled={upgrading}
             style={{
               width: '100%', height: 48,
-              background: upgrading ? '#9ca3af' : '#10b981',
+              background: upgrading ? '#9ca3af' : 'var(--primary)',
               color: 'white', border: 'none', borderRadius: 12,
               fontSize: 16, fontWeight: 700, cursor: upgrading ? 'not-allowed' : 'pointer',
               fontFamily: 'inherit', transition: 'background 0.15s',
