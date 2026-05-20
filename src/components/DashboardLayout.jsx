@@ -62,6 +62,11 @@ const LAYOUT_CSS = `
   .sidebar-inner { padding: 16px 12px; }
   @media (max-width: 767px) { .sidebar-inner { padding-bottom: 80px; } }
 
+  /* Force-hide mobile-only elements on desktop — overrides inline display:flex */
+  @media (min-width: 769px) {
+    .mobile-only { display: none !important; }
+  }
+
   @keyframes dropIn {
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: none; }
@@ -370,7 +375,7 @@ function BottomNav() {
 
   return (
     <nav
-      className="md:hidden"
+      className="md:hidden mobile-only"
       style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
         background: 'var(--surface)', borderTop: '1px solid var(--line)',
@@ -677,7 +682,7 @@ export default function DashboardLayout({ children }) {
         >
           {/* Hamburger — mobile only, opens sidebar */}
           <button
-            className="md:hidden"
+            className="md:hidden mobile-only"
             onClick={() => setMobileOpen(o => !o)}
             style={{ color: 'var(--ink-4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
             aria-label="Open menu"
