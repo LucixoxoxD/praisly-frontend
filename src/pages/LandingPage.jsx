@@ -507,12 +507,132 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-footer-links a { color: var(--ink-3); text-decoration: none; transition: color .15s; }
 .lp-footer-links a:hover { color: var(--ink); }
 
+/* ── HERO H1 STROKED ── */
+.lp-hero h1 .stroked { color: transparent; -webkit-text-stroke: 2px var(--ink); font-style: italic; }
+
+/* ── HERO REASSURE ── */
+.lp-hero-reassure { display: flex; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.lp-hero-reassure .lp-re-pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px 7px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.lp-hero-reassure .lp-re-pill .ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary-ink); font-size: 12px; font-weight: 800; }
+.lp-hero-reassure .lp-re-pill .ic.green { background: var(--win-soft); color: var(--win); }
+.lp-hero-reassure .lp-re-pill .ic.ink { background: var(--ink); color: var(--primary); }
+
+/* ── TESTIMONIALS ── */
+.lp-testimonials-section { background: var(--surface-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.lp-tg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lp-tcard { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 26px 26px 22px; display: flex; flex-direction: column; gap: 16px; position: relative; }
+.lp-tcard.feat-card { background: var(--ink); color: #F5EFE0; border-color: var(--ink); }
+.lp-tcard.feat-card .lp-t-quote { color: white; }
+.lp-tcard.feat-card .lp-t-name { color: white; }
+.lp-tcard.feat-card .lp-t-meta { color: rgba(255,255,255,0.55); }
+.lp-tcard.feat-card .lp-t-rank { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+.lp-tcard.feat-card .lp-t-rank .arr { color: var(--primary); }
+.lp-tcard.feat-card .lp-t-rank .from { color: rgba(255,255,255,0.5); }
+.lp-tcard.feat-card .lp-t-rank .to { color: var(--primary); }
+.lp-t-stars { display: flex; gap: 1px; color: #F5B945; }
+.lp-t-stars svg { width: 16px; height: 16px; }
+.lp-t-quote { font-family: var(--font-display); font-size: 18px; line-height: 1.35; letter-spacing: -0.012em; color: var(--ink); font-weight: 500; margin: 0; }
+.lp-t-quote .accent { color: var(--primary-ink); font-weight: 700; }
+.lp-tcard.feat-card .lp-t-quote .accent { color: var(--primary); }
+.lp-t-author { display: flex; align-items: center; gap: 12px; margin-top: auto; padding-top: 4px; }
+.lp-t-av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; color: white; font-size: 14px; flex-shrink: 0; }
+.lp-t-name { font-weight: 700; font-size: 14px; color: var(--ink); line-height: 1.2; }
+.lp-t-meta { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.lp-t-rank { background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px; display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.lp-t-rank .from { color: var(--ink-3); }
+.lp-t-rank .arr { color: var(--win); font-weight: 800; }
+.lp-t-rank .to { color: var(--primary-ink); font-size: 18px; }
+.lp-t-rank .label { margin-left: auto; font-family: inherit; font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ── STORY ── */
+.lp-story-section { padding-top: 30px; }
+.lp-story-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; position: relative; }
+.lp-story-grid::before { content: ""; position: absolute; top: 78px; left: 16%; right: 16%; height: 2px; background: repeating-linear-gradient(90deg, var(--ink-4) 0, var(--ink-4) 4px, transparent 4px, transparent 9px); z-index: 0; }
+.lp-story-card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
+.lp-story-card.win { background: linear-gradient(180deg, #FBEED0 0%, #F8DFA1 100%); border-color: rgba(155,102,16,0.25); box-shadow: var(--shadow-gold); }
+.lp-story-week { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.lp-story-card.win .lp-story-week { color: var(--primary-ink); }
+.lp-story-rank { font-family: var(--font-display); font-weight: 800; font-size: 88px; line-height: 0.85; letter-spacing: -0.05em; color: var(--ink); }
+.lp-story-rank .hash { font-size: 36px; color: var(--ink-3); font-weight: 700; margin-right: 2px; }
+.lp-story-card.win .lp-story-rank .hash { color: var(--primary-ink); }
+.lp-story-rank-meta { font-size: 13px; color: var(--ink-3); font-weight: 600; margin-top: -8px; }
+.lp-story-line { font-family: var(--font-display); font-size: 16px; line-height: 1.25; font-weight: 600; letter-spacing: -0.012em; color: var(--ink); margin-top: 4px; }
+.lp-story-stat { display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; border-top: 1px solid rgba(26,22,16,0.10); font-size: 13px; }
+.lp-story-stat .lbl { color: var(--ink-3); font-weight: 500; }
+.lp-story-stat .val { font-family: var(--font-display); font-weight: 700; color: var(--ink); }
+.lp-story-stat .val.up { color: var(--win); }
+.lp-story-card.win .lp-story-stat .val { color: var(--primary-ink); }
+
+/* ── DASHBOARD CALLOUTS ── */
+.lp-callout { position: absolute; background: var(--ink); color: white; padding: 10px 14px 10px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 600; line-height: 1.3; max-width: 220px; box-shadow: 0 12px 24px -10px rgba(26,22,16,0.4); z-index: 2; }
+.lp-callout strong { color: var(--primary); font-weight: 700; }
+.lp-callout .pin { position: absolute; width: 22px; height: 22px; background: var(--primary); border: 3px solid var(--ink); border-radius: 50%; }
+.lp-callout .pin::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--primary); animation: lp-ping 2s ease-out infinite; }
+@keyframes lp-ping { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(2.5); opacity: 0; } }
+.lp-callout.c1 { top: 28%; left: -40px; transform: translate(-30%, -50%); }
+.lp-callout.c1 .pin { right: -32px; top: 50%; transform: translateY(-50%); }
+.lp-callout.c2 { top: 12%; right: -40px; transform: translate(20%, 0); }
+.lp-callout.c2 .pin { left: -32px; top: 50%; transform: translateY(-50%); }
+.lp-callout.c3 { bottom: 14%; right: -50px; transform: translate(20%, 0); }
+.lp-callout.c3 .pin { left: -32px; top: 50%; transform: translateY(-50%); }
+
+/* ── ROI STRIP ── */
+.lp-roi-strip { max-width: 760px; margin: 28px auto 0; background: var(--ink); color: white; border-radius: 16px; padding: 18px 22px; display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; position: relative; overflow: hidden; }
+.lp-roi-strip::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 100% at 100% 50%, rgba(216,144,32,0.20), transparent 60%); pointer-events: none; }
+.lp-roi-strip > * { position: relative; z-index: 1; }
+.lp-roi-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--primary); color: #2c1e07; display: grid; place-items: center; font-size: 22px; font-weight: 800; font-family: var(--font-display); flex-shrink: 0; }
+.lp-roi-content .lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 2px; }
+.lp-roi-content .body { font-family: var(--font-display); font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: white; }
+.lp-roi-content .body strong { color: var(--primary); font-weight: 700; }
+
+/* ── LOCAL PACK ── */
+.lp-local-pack-section { background: var(--bg); }
+.lp-lpwrap { display: grid; grid-template-columns: 1fr 1.1fr; gap: 50px; align-items: center; }
+.lp-lp-copy h2 { font-family: var(--font-display); font-size: clamp(28px, 3.6vw, 42px); line-height: 1.05; letter-spacing: -0.025em; font-weight: 700; margin: 16px 0 16px; color: var(--ink); }
+.lp-lp-copy p { font-size: 17px; color: var(--ink-2); margin: 0 0 24px; max-width: 460px; }
+.lp-lp-bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.lp-lp-bullets li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: var(--ink-2); }
+.lp-lp-bullets .ck { width: 24px; height: 24px; border-radius: 50%; background: var(--primary-soft); color: var(--primary-ink); display: grid; place-items: center; flex-shrink: 0; font-weight: 800; font-size: 13px; margin-top: 1px; }
+.lp-maps-frame { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-md); position: relative; }
+.lp-maps-search { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.lp-g-logo { font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+.lp-g-logo .b { color: #4285F4; } .lp-g-logo .r { color: #EA4335; } .lp-g-logo .y { color: #FBBC05; }
+.lp-g-logo .b2 { color: #4285F4; } .lp-g-logo .g { color: #34A853; } .lp-g-logo .r2 { color: #EA4335; }
+.lp-maps-qbox { flex: 1; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; color: var(--ink-2); }
+.lp-maps-chips { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 12px; overflow-x: auto; }
+.lp-maps-chip { padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.lp-maps-chip.on { background: var(--ink); color: white; border-color: var(--ink); }
+.lp-maps-results { padding: 4px 0 8px; }
+.lp-maps-result { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); align-items: start; }
+.lp-maps-result:last-child { border-bottom: 0; }
+.lp-maps-result.you { background: linear-gradient(90deg, rgba(216,144,32,0.10), rgba(216,144,32,0.0)); box-shadow: inset 3px 0 0 var(--primary); }
+.lp-maps-pin { width: 28px; height: 28px; border-radius: 8px; background: var(--ink); color: white; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 12px; margin-top: 2px; }
+.lp-maps-result.you .lp-maps-pin { background: var(--primary); color: #2c1e07; }
+.lp-maps-name { font-weight: 700; font-size: 15px; color: #1A0DAB; letter-spacing: -0.005em; }
+.lp-maps-name .you-tag { background: var(--primary); color: #2c1e07; font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+.lp-maps-rating { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--ink-2); margin-top: 3px; }
+.lp-maps-rating .stars { color: #FBBC05; letter-spacing: -1px; font-size: 13px; }
+.lp-maps-rating .num { font-weight: 700; }
+.lp-maps-rating .reviews { color: var(--ink-3); }
+.lp-maps-rating .dot-sep { color: var(--ink-4); margin: 0 2px; }
+.lp-maps-meta { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
+.lp-maps-cta { text-align: right; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-4); text-transform: uppercase; align-self: center; font-family: var(--font-mono); }
+.lp-maps-result.you .lp-maps-cta { color: var(--primary-ink); }
+.lp-maps-floater { position: absolute; top: 50%; right: -24px; transform: translateY(-50%) rotate(3deg); background: var(--ink); color: white; padding: 12px 16px; border-radius: 14px; font-size: 13px; font-weight: 600; line-height: 1.3; max-width: 220px; box-shadow: 0 18px 40px -16px rgba(26,22,16,0.5); z-index: 2; }
+.lp-maps-floater strong { color: var(--primary); }
+.lp-maps-floater::after { content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 16px; height: 16px; background: var(--ink); }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 1080px) {
   .lp-hero-grid { grid-template-columns: 1fr; gap: 48px; }
   .lp-battle { max-width: 520px; }
   .lp-features { grid-template-columns: 1fr; }
   .lp-dash-hero { grid-template-columns: 1fr; }
+  .lp-tg { grid-template-columns: 1fr; }
+  .lp-callout { display: none; }
+  .lp-lpwrap { grid-template-columns: 1fr; gap: 32px; }
+  .lp-maps-floater { display: none; }
+  .lp-story-grid::before { display: none; }
 }
 @media (max-width: 760px) {
   .lp-nav-links { display: none !important; }
@@ -523,6 +643,9 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-cta-card { padding: 40px 28px; }
   .lp-battle { height: 440px; }
   .lp-hero h1 { font-size: 40px; }
+  .lp-story-grid { grid-template-columns: 1fr; }
+  .lp-roi-strip { grid-template-columns: 1fr; text-align: center; }
+  .lp-roi-icon { margin: 0 auto; }
 }
 @media (max-width: 480px) {
   .lp-wrap { padding: 0 20px; }
@@ -637,11 +760,12 @@ export default function LandingPage() {
             </span>
 
             <h1>
-              Beat the business <span className="accent">next door</span> on Google.
+              The shop <span className="stroked">next door</span> has<br/>
+              <span className="accent">4× your reviews.</span> Not for long.
             </h1>
 
             <p className="lp-hero-sub">
-              Praisly helps local businesses collect more Google reviews, track competitors, and climb local rankings — all on autopilot.
+              Praisly helps Indian local businesses — salons, clinics, gyms, restaurants, coaching centres — collect more Google reviews, track every competitor in your neighborhood, and climb the local pack. All on autopilot.
             </p>
 
             <div className="lp-hero-ctas">
@@ -657,6 +781,12 @@ export default function LandingPage() {
               )}
             </div>
 
+            <div className="lp-hero-reassure">
+              <span className="lp-re-pill"><span className="ic green">✓</span>Setup in 10 min</span>
+              <span className="lp-re-pill"><span className="ic">💳</span>No card required</span>
+              <span className="lp-re-pill"><span className="ic ink">W</span>WhatsApp support</span>
+            </div>
+
             <div className="lp-hero-trust">
               <div className="lp-stack-avatars">
                 <div style={{ background: 'linear-gradient(135deg,#FF7C4F,#E13B3B)' }}>SD</div>
@@ -664,7 +794,7 @@ export default function LandingPage() {
                 <div style={{ background: 'linear-gradient(135deg,#2a8c5e,#1a6843)' }}>GK</div>
                 <div style={{ background: 'linear-gradient(135deg,#EFC659,#C9971F)' }}>RC</div>
               </div>
-              <div><strong>200+ Indian shops</strong> climbing the rankings this week</div>
+              <div><strong>237 Indian shops</strong> climbing rankings this week</div>
             </div>
           </div>
 
@@ -756,6 +886,73 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
+          TESTIMONIALS
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="lp-section lp-testimonials-section" id="sec-testimonials">
+        <div className="lp-wrap">
+          <Reveal>
+            <div className="lp-section-head">
+              <span className="lp-section-eyebrow">Real shops · Real ranks</span>
+              <h2>From "we're invisible on Google" to <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>#1 in the local pack</em>.</h2>
+            </div>
+          </Reveal>
+          <div className="lp-tg">
+            <Reveal delay={0}>
+              <article className="lp-tcard">
+                <div className="lp-t-stars">{[...Array(5)].map((_, i) => <StarIcon key={i} />)}</div>
+                <p className="lp-t-quote">"My competitor had been #1 for 3 years. We crossed him in <span className="accent">6 weeks</span>. The QR code on the billing counter is doing all the work."</p>
+                <div className="lp-t-rank">
+                  <span className="from">#5</span><span className="arr">→</span><span className="to">#1</span>
+                  <span className="label">In 6 weeks</span>
+                </div>
+                <div className="lp-t-author">
+                  <div className="lp-t-av" style={{ background: 'linear-gradient(135deg,#FF7C4F,#E13B3B)' }}>RG</div>
+                  <div>
+                    <div className="lp-t-name">Dr. Rohan Gupta</div>
+                    <div className="lp-t-meta">Gupta Dental · Sector 18, Noida</div>
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+            <Reveal delay={80}>
+              <article className="lp-tcard feat-card">
+                <div className="lp-t-stars">{[...Array(5)].map((_, i) => <StarIcon key={i} />)}</div>
+                <p className="lp-t-quote">"We were invisible on Google. Now every week new customers walk in saying they saw us at the top of Maps. <span className="accent">Praisly changed the game for us.</span>"</p>
+                <div className="lp-t-rank">
+                  <span className="from">47</span><span className="arr">→</span><span className="to">312</span>
+                  <span className="label">Reviews · 4 months</span>
+                </div>
+                <div className="lp-t-author">
+                  <div className="lp-t-av" style={{ background: 'linear-gradient(135deg,#2a8c5e,#1a6843)' }}>PS</div>
+                  <div>
+                    <div className="lp-t-name">Priya Sharma</div>
+                    <div className="lp-t-meta">Glow Beauty Salon · Indiranagar, Bengaluru</div>
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+            <Reveal delay={160}>
+              <article className="lp-tcard">
+                <div className="lp-t-stars">{[...Array(5)].map((_, i) => <StarIcon key={i} />)}</div>
+                <p className="lp-t-quote">"Set it up in 15 minutes over WhatsApp with their team. <span className="accent">One extra walk-in per week</span> already pays for the whole year. No-brainer."</p>
+                <div className="lp-t-rank">
+                  <span className="from">3.9★</span><span className="arr">→</span><span className="to">4.7★</span>
+                  <span className="label">Rating · 8 weeks</span>
+                </div>
+                <div className="lp-t-author">
+                  <div className="lp-t-av" style={{ background: 'linear-gradient(135deg,#5b6ee8,#3950b8)' }}>AK</div>
+                  <div>
+                    <div className="lp-t-name">Arjun Kothari</div>
+                    <div className="lp-t-meta">FitZone Gym · Andheri West, Mumbai</div>
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
           HOW IT WORKS
       ══════════════════════════════════════════════════════════════ */}
       <section className="lp-section" id="how">
@@ -824,6 +1021,62 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          8-WEEK STORY
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="lp-section lp-story-section" id="sec-story">
+        <div className="lp-wrap">
+          <Reveal>
+            <div className="lp-section-head">
+              <span className="lp-section-eyebrow">A real climb · Gupta Dental, Noida</span>
+              <h2>From #5 to #1 in 8 weeks.<br/><em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>Here's exactly what happened.</em></h2>
+              <p>One business, one QR code, one dashboard. Anonymized rank journey from a real Praisly customer.</p>
+            </div>
+          </Reveal>
+          <div className="lp-story-grid">
+            <Reveal delay={0}>
+              <article className="lp-story-card">
+                <div className="lp-story-week">
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--ink-3)', display: 'inline-block', flexShrink: 0 }} />
+                  Week 1 · Starting line
+                </div>
+                <div className="lp-story-rank"><span className="hash">#</span>5</div>
+                <div className="lp-story-rank-meta">of 14 dentists in Sector 18</div>
+                <div className="lp-story-line">"Customers say we're good. But nobody finds us on Google."</div>
+                <div className="lp-story-stat"><span className="lbl">Reviews</span><span className="val">28</span></div>
+                <div className="lp-story-stat"><span className="lbl">Rating</span><span className="val">4.2★</span></div>
+              </article>
+            </Reveal>
+            <Reveal delay={80}>
+              <article className="lp-story-card">
+                <div className="lp-story-week">
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--win)', display: 'inline-block', flexShrink: 0 }} />
+                  Week 4 · QR live, AI drafts on
+                </div>
+                <div className="lp-story-rank"><span className="hash">#</span>3</div>
+                <div className="lp-story-rank-meta">Climbed past 2 competitors</div>
+                <div className="lp-story-line">QR at billing counter. 2 in 3 happy customers leave a review.</div>
+                <div className="lp-story-stat"><span className="lbl">Reviews</span><span className="val up">+33 (61)</span></div>
+                <div className="lp-story-stat"><span className="lbl">Rating</span><span className="val up">4.5★</span></div>
+              </article>
+            </Reveal>
+            <Reveal delay={160}>
+              <article className="lp-story-card win">
+                <div className="lp-story-week">
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-ink)', display: 'inline-block', flexShrink: 0 }} />
+                  Week 8 · Local pack, position #1
+                </div>
+                <div className="lp-story-rank"><span className="hash">#</span>1</div>
+                <div className="lp-story-rank-meta">Top of Maps for "dentist near me"</div>
+                <div className="lp-story-line">"3 walk-ins this week said they found us on Google Maps."</div>
+                <div className="lp-story-stat"><span className="lbl">Reviews</span><span className="val">128</span></div>
+                <div className="lp-story-stat"><span className="lbl">Rating</span><span className="val">4.7★</span></div>
+              </article>
             </Reveal>
           </div>
         </div>
@@ -952,6 +1205,20 @@ export default function LandingPage() {
 
           <Reveal>
             <div className="lp-dash-frame" style={{ maxWidth: 1080, margin: '0 auto' }}>
+              {/* Callout bubbles */}
+              <div className="lp-callout c1">
+                <div className="pin" />
+                See your <strong>live rank</strong> updated every 12 minutes
+              </div>
+              <div className="lp-callout c2">
+                <div className="pin" />
+                <strong>Podium view</strong> shows the top 3 in your area
+              </div>
+              <div className="lp-callout c3">
+                <div className="pin" />
+                AI tells you <strong>exactly</strong> who to chase
+              </div>
+
               {/* Browser chrome */}
               <div className="lp-dash-chrome">
                 <div className="dot" style={{ background: '#FF9F8B' }} />
@@ -965,17 +1232,17 @@ export default function LandingPage() {
                 {/* Hero rank + podium */}
                 <div className="lp-dash-hero">
                   <div style={{ position: 'relative' }}>
-                    <span className="lp-dh-eyebrow">Your standing · Dentists · Noida</span>
+                    <span className="lp-dh-eyebrow">Your standing · Restaurants · Bandra West</span>
                     <div className="lp-dh-rank-row">
                       <div className="lp-dh-rank-num"><span className="hash">#</span>3</div>
                       <div className="lp-dh-context">
-                        You're <span style={{ color: '#B26A3C' }}>#3 of 12</span> dentists<br/>
-                        <span className="of">in</span> Noida
+                        You're <span style={{ color: '#B26A3C' }}>#3 of 18</span> restaurants<br/>
+                        <span className="of">in</span> Bandra West
                         <div className="lp-dh-sub">Tracked weekly · Last updated 12 min ago</div>
                       </div>
                     </div>
                     <div className="lp-dh-momentum">
-                      <span className="lp-dh-pill win">↗ +8 reviews this month</span>
+                      <span className="lp-dh-pill win">↗ +24 reviews this month</span>
                       <span className="lp-dh-pill gold">🔥 6-week streak</span>
                     </div>
                   </div>
@@ -983,23 +1250,23 @@ export default function LandingPage() {
                   {/* Podium */}
                   <div className="lp-dh-podium">
                     <div className="lp-dh-podium-head">
-                      <span>Top 3 · Dentists</span>
-                      <span className="tag">📍 Noida</span>
+                      <span>Top 3 · Restaurants</span>
+                      <span className="tag">📍 Bandra</span>
                     </div>
                     <div className="lp-dh-podium-grid">
                       <div className="lp-dh-pod p2">
-                        <div className="lp-dh-pod-name">City Dental</div>
-                        <div className="lp-dh-pod-rev">61</div>
+                        <div className="lp-dh-pod-name">Curry House</div>
+                        <div className="lp-dh-pod-rev">312</div>
                         <div className="lp-dh-pod-block">2</div>
                       </div>
                       <div className="lp-dh-pod p1">
-                        <div className="lp-dh-pod-name">Noida Smile</div>
-                        <div className="lp-dh-pod-rev">1,169</div>
+                        <div className="lp-dh-pod-name">Bombay Bistro</div>
+                        <div className="lp-dh-pod-rev">847</div>
                         <div className="lp-dh-pod-block">1</div>
                       </div>
                       <div className="lp-dh-pod p3 you">
-                        <div className="lp-dh-pod-name" style={{ color: 'var(--ink)', fontWeight: 700 }}>Sharma</div>
-                        <div className="lp-dh-pod-rev">58</div>
+                        <div className="lp-dh-pod-name" style={{ color: 'var(--ink)', fontWeight: 700 }}>Spice Junction</div>
+                        <div className="lp-dh-pod-rev">208</div>
                         <div className="lp-dh-pod-block">3</div>
                       </div>
                     </div>
@@ -1010,23 +1277,90 @@ export default function LandingPage() {
                 <div className="lp-dash-stats">
                   <div className="lp-ds">
                     <div className="lp-ds-lbl">Reviews gained</div>
-                    <div className="lp-ds-val">13<span className="unit">/mo</span></div>
-                    <div className="lp-ds-meta"><span className="up">↗ +29%</span> · 45 → 58</div>
+                    <div className="lp-ds-val">24<span className="unit">/mo</span></div>
+                    <div className="lp-ds-meta"><span className="up">↗ +33%</span> · 184 → 208</div>
                   </div>
                   <div className="lp-ds">
                     <div className="lp-ds-lbl">Google rating</div>
-                    <div className="lp-ds-val">4.5<span className="unit">★</span></div>
-                    <div className="lp-ds-meta"><span className="up">↗ +0.3</span> · vs last month</div>
+                    <div className="lp-ds-val">4.6<span className="unit">★</span></div>
+                    <div className="lp-ds-meta"><span className="up">↗ +0.2</span> · vs last month</div>
                   </div>
                   <div className="lp-ds">
                     <div className="lp-ds-lbl">QR scans → reviews</div>
-                    <div className="lp-ds-val">78<span className="unit">%</span></div>
-                    <div className="lp-ds-meta">27 reviews · 6 this week</div>
+                    <div className="lp-ds-val">71<span className="unit">%</span></div>
+                    <div className="lp-ds-meta">62 reviews · 14 this week</div>
                   </div>
                 </div>
               </div>
             </div>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          GOOGLE MAPS LOCAL PACK
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="lp-section lp-local-pack-section" id="sec-local-pack">
+        <div className="lp-wrap lp-lpwrap">
+          <div className="lp-lp-copy">
+            <span className="lp-section-eyebrow">The local pack is the game</span>
+            <h2>Top 3 on Google Maps gets <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>76% of all calls</em> in your area.</h2>
+            <p>The "Map Pack" — those 3 businesses Google shows at the top of every "near me" search — is where 76% of local calls go. Praisly's whole job is getting you in there.</p>
+            <ul className="lp-lp-bullets">
+              {[
+                'Track your live position in the local pack, every day',
+                'See which competitors are inside the top 3 right now',
+                'Get the exact review count needed to break in',
+                'WhatsApp alert the moment you climb or drop',
+              ].map(item => (
+                <li key={item}><span className="ck">✓</span>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="lp-maps-frame">
+            <div className="lp-maps-floater">
+              <strong>+ 23 reviews</strong> and you take the #1 slot on Maps. Praisly tells you when.
+            </div>
+            <div className="lp-maps-search">
+              <span className="lp-g-logo">
+                <span className="b">G</span><span className="r">o</span><span className="y">o</span>
+                <span className="b2">g</span><span className="g">l</span><span className="r2">e</span>
+              </span>
+              <div className="lp-maps-qbox">🔍 gym near me — Andheri West, Mumbai</div>
+            </div>
+            <div className="lp-maps-chips">
+              <span className="lp-maps-chip on">Open now</span>
+              <span className="lp-maps-chip">Top rated</span>
+              <span className="lp-maps-chip">24/7</span>
+              <span className="lp-maps-chip">All</span>
+            </div>
+            <div className="lp-maps-results">
+              {[
+                { pin: 'A', name: "Gold's Gym Andheri West", rating: '4.5', stars: '★★★★★', reviews: '(2,341)', type: 'Gym', meta: 'Lokhandwala · Open · 24 hrs · 1.1 km', cta: '#1', you: false },
+                { pin: 'B', name: 'Cult Fit Andheri', rating: '4.3', stars: '★★★★☆', reviews: '(894)', type: 'Fitness centre', meta: 'Andheri West · Open · Closes 11pm · 2.3 km', cta: '#2', you: false },
+                { pin: 'C', name: 'FitZone Gym', rating: '4.7', stars: '★★★★★', reviews: '(412)', type: 'Gym · Climbing ↗', meta: 'Andheri West · Open · 5am–11pm · 0.4 km', cta: '#3', you: true },
+              ].map(r => (
+                <div key={r.pin} className={`lp-maps-result${r.you ? ' you' : ''}`}>
+                  <div className="lp-maps-pin">{r.pin}</div>
+                  <div>
+                    <div className="lp-maps-name">
+                      {r.name}{r.you && <span className="you-tag">YOU</span>}
+                    </div>
+                    <div className="lp-maps-rating">
+                      <span className="num">{r.rating}</span>
+                      <span className="stars">{r.stars}</span>
+                      <span className="reviews">{r.reviews}</span>
+                      <span className="dot-sep">·</span>
+                      <span>{r.type}</span>
+                    </div>
+                    <div className="lp-maps-meta">{r.meta}</div>
+                  </div>
+                  <div className="lp-maps-cta">{r.cta}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1095,6 +1429,19 @@ export default function LandingPage() {
                 </Link>
                 <div className="small">No credit card · Cancel in 1 click · Setup in 10 minutes</div>
               </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="lp-roi-strip">
+              <div className="lp-roi-icon">₹</div>
+              <div className="lp-roi-content">
+                <div className="lbl">Quick math · Pays for itself</div>
+                <div className="body">Average local business gains <strong>5 extra walk-ins / week</strong> from Praisly. <strong>1 customer covers the whole month.</strong></div>
+              </div>
+              <Link to="/signup" className="lp-btn lp-btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+                Start free trial <Arrow />
+              </Link>
             </div>
           </Reveal>
         </div>
