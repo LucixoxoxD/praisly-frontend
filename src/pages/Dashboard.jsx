@@ -60,6 +60,68 @@ const AVATAR_GRADS = [
 
 const CONF_COLORS = ['#D89020', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899']
 
+// ─── Revenue estimation ──────────────────────────────────────────────────────
+
+const REVENUE_PER_REVIEW = {
+  healthcare_clinic: 2500,
+  salon:             1500,
+  gym:               2000,
+  restaurant:        1000,
+  coaching:         10000,
+  ca_law:            7000,
+  auto_repair:       2000,
+  real_estate:       8000,
+  other:             2000,
+  // Legacy fallbacks
+  dentist:           2500,
+  ca_firm:           7000,
+}
+
+// Maps raw DB/frontend business_type strings → REVENUE_PER_REVIEW key
+const BIZ_TYPE_KEY_MAP = {
+  'healthcare / clinic':    'healthcare_clinic',
+  'salon / beauty parlour': 'salon',
+  'gym / fitness / yoga':   'gym',
+  'restaurant / cafe':      'restaurant',
+  'coaching / tuition':     'coaching',
+  'ca / law firm':          'ca_law',
+  'auto / repair service':  'auto_repair',
+  'real estate':            'real_estate',
+  'other':                  'other',
+  // Legacy DB values
+  'dentist':                'dentist',
+  'ca_firm':                'ca_firm',
+  'salon':                  'salon',
+  'gym':                    'gym',
+  'restaurant':             'restaurant',
+  'coaching':               'coaching',
+}
+
+const BIZ_TYPE_DISPLAY = {
+  healthcare_clinic: 'clinic',
+  salon:             'salon',
+  gym:               'gym',
+  restaurant:        'restaurant',
+  coaching:          'coaching centre',
+  ca_law:            'office',
+  auto_repair:       'service centre',
+  real_estate:       'agency',
+  other:             'business',
+  dentist:           'clinic',
+  ca_firm:           'office',
+}
+
+function getRevenueInfo(rawBizType) {
+  const key = BIZ_TYPE_KEY_MAP[(rawBizType || '').toLowerCase().trim()] || 'other'
+  const perReview = REVENUE_PER_REVIEW[key] ?? REVENUE_PER_REVIEW.other
+  const display   = BIZ_TYPE_DISPLAY[key] ?? 'business'
+  return { perReview, display }
+}
+
+function formatINR(amount) {
+  return '₹' + Math.floor(amount || 0).toLocaleString('en-IN')
+}
+
 // ─── CSS ────────────────────────────────────────────────────────────────────
 
 const PAGE_CSS = `
@@ -250,7 +312,7 @@ const PAGE_CSS = `
   .d-chase-cta:hover { opacity: 0.85; }
 
   /* ── Stat cards ── */
-  .d-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .d-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
   .d-stat {
     background: var(--surface); border: 1px solid var(--line);
     border-radius: 14px; padding: 18px 20px;
@@ -409,9 +471,9 @@ const PAGE_CSS = `
   .d-page { max-width: 100vw; overflow-x: hidden; }
 
   /* ── Responsive ── */
-  @media (max-width: 960px) {
+  @media (max-width: 1024px) {
     .d-rank-num { font-size: 76px; }
-    .d-stats { gap: 12px; }
+    .d-stats { grid-template-columns: repeat(2,1fr); gap: 12px; }
   }
   @media (max-width: 768px) {
     /* Hero card stacks vertically, no overflow */
@@ -438,7 +500,7 @@ const PAGE_CSS = `
     .d-ai-cta { width: 100%; text-align: center; padding: 10px 15px; }
     .d-ai-dismiss { position: absolute; top: 10px; right: 10px; }
   }
-  @media (max-width: 700px) {
+  @media (max-width: 768px) {
     .d-stats { grid-template-columns: 1fr; }
     .d-greeting { flex-direction: column; align-items: flex-start; gap: 10px; }
   }
@@ -692,7 +754,7 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
 
 // ─── Stat Cards ──────────────────────────────────────────────────────────────
 
-function StatCards({ stats, sparkGained, sparkCollected }) {
+function StatCards({ stats, sparkGained, sparkCollected, biz }) {
   const gained        = stats?.google_reviews_gained ?? 0
   const currentCount  = stats?.google_current_count ?? 0
   const baselineCount = stats?.google_baseline_count ?? 0
@@ -711,6 +773,9 @@ function StatCards({ stats, sparkGained, sparkCollected }) {
 
   const gainedSpark    = sparkGained.length >= 2    ? sparkGained    : [0, Math.max(gained, 1)]
   const collectedSpark = sparkCollected.length >= 2 ? sparkCollected : [0, Math.max(collected, 1)]
+
+  const { perReview, display: bizDisplay } = getRevenueInfo(biz?.business_type)
+  const estimatedRevenue = gained * perReview
 
   return (
     <div className="d-stats">
@@ -784,6 +849,27 @@ function StatCards({ stats, sparkGained, sparkCollected }) {
         </div>
         <div className="d-stat-spark">
           <Spark points={collectedSpark} color="#1A1610" />
+        </div>
+      </div>
+
+      {/* Card 4 — Estimated Revenue */}
+      <div className="d-stat">
+        <div className="d-stat-head">
+          <span className="d-stat-label">Estimated Revenue</span>
+          <span className="d-stat-icon" style={{ background: 'var(--win-soft)' }}>₹</span>
+        </div>
+        <div className="d-stat-row">
+          <span className="d-stat-val" style={{ fontSize: estimatedRevenue >= 100000 ? 30 : 36 }}>
+            {formatINR(estimatedRevenue)}
+          </span>
+        </div>
+        <div className="d-stat-foot">
+          <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>
+            based on {formatINR(perReview)}/review for {bizDisplay}
+          </span>
+        </div>
+        <div className="d-stat-spark">
+          <Spark points={gainedSpark} color="var(--win)" />
         </div>
       </div>
 
@@ -1257,8 +1343,8 @@ export default function Dashboard() {
         <Skel style={{ height: 34, width: 240, marginBottom: 8 }} />
         <Skel style={{ height: 14, width: 320, marginBottom: 28 }} />
         <Skel style={{ height: 220, borderRadius: 20, marginBottom: 14 }} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 14 }}>
-          {[0,1,2].map(i => <Skel key={i} style={{ height: 148, borderRadius: 14 }} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 14 }}>
+          {[0,1,2,3].map(i => <Skel key={i} style={{ height: 148, borderRadius: 14 }} />)}
         </div>
         <Skel style={{ height: 68, borderRadius: 14, marginBottom: 14 }} />
         <Skel style={{ height: 260, borderRadius: 14, marginBottom: 20 }} />
@@ -1338,6 +1424,7 @@ export default function Dashboard() {
           stats={stats}
           sparkGained={sparkGained}
           sparkCollected={sparkCollected}
+          biz={biz}
         />
       </div>
 
