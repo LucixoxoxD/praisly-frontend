@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import WhatsAppButton from './WhatsAppButton'
 
@@ -57,7 +57,7 @@ const LAYOUT_CSS = `
   .sidebar-logout:hover { color: var(--ink-2); }
 
   .content-area { padding: 28px 24px; }
-  @media (max-width: 767px) { .content-area { padding: 20px 16px; } }
+  @media (max-width: 767px) { .content-area { padding: 20px 16px 80px; } }
 
   @keyframes dropIn {
     from { opacity: 0; transform: translateY(-8px); }
@@ -333,8 +333,70 @@ function formatSubtitle(biz) {
   return null
 }
 
+// ─── Bottom navigation bar (mobile only) ─────────────────────────────────────
+const BOTTOM_ITEMS = [
+  {
+    to: '/dashboard', label: 'Home',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  },
+  {
+    to: '/reviews', label: 'Reviews',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.24l7.19-.61L12 2l2.81 6.63 7.19.61-5.46 4.73L18.18 21z"/></svg>,
+  },
+  {
+    to: '/qr', label: 'QR Code',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/></svg>,
+  },
+  {
+    to: '/send', label: 'WhatsApp',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  },
+]
+
+function BottomNav({ onMoreClick, moreActive }) {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const btnStyle = (active) => ({
+    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+    justifyContent: 'center', gap: 3, padding: '8px 4px 6px',
+    background: 'none', border: 'none', cursor: 'pointer',
+    color: active ? 'var(--primary)' : 'var(--ink-4)',
+    transition: 'color 0.15s',
+  })
+
+  return (
+    <nav
+      className="md:hidden"
+      style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
+        background: 'var(--surface)', borderTop: '1px solid var(--line)',
+        boxShadow: '0 -2px 8px rgba(0,0,0,0.06)',
+        display: 'flex', justifyContent: 'space-around', alignItems: 'stretch',
+        paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+      }}
+    >
+      {BOTTOM_ITEMS.map(({ to, label, icon }) => {
+        const active = location.pathname === to
+        return (
+          <button key={to} onClick={() => navigate(to)} style={btnStyle(active)} aria-label={label}>
+            {icon}
+            <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, lineHeight: 1 }}>{label}</span>
+          </button>
+        )
+      })}
+      <button onClick={onMoreClick} style={btnStyle(moreActive)} aria-label="More options">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+        </svg>
+        <span style={{ fontSize: 10, fontWeight: moreActive ? 700 : 500, lineHeight: 1 }}>More</span>
+      </button>
+    </nav>
+  )
+}
+
 // ─── PWA swipe-back gesture ───────────────────────────────────────────────────
-function useSwipeBack() {
+function useSwipeBack(mobileOpen) {
   const location = useLocation()
   const isPWA = isStandaloneApp()
   const [swipeProgress, setSwipeProgress] = useState(0)
@@ -345,7 +407,8 @@ function useSwipeBack() {
   const isHome = location.pathname === '/dashboard'
 
   useEffect(() => {
-    if (!isPWA || isHome) return
+    // Also skip when sidebar is open — prevents conflict with sidebar swipe-open gesture
+    if (!isPWA || isHome || mobileOpen) return
 
     const EDGE = 30       // px from left edge to start gesture
     const THRESHOLD = 80  // px horizontal travel to confirm back
@@ -397,7 +460,7 @@ function useSwipeBack() {
       document.removeEventListener('touchmove', onTouchMove)
       document.removeEventListener('touchend', onTouchEnd)
     }
-  }, [isPWA, isHome])
+  }, [isPWA, isHome, mobileOpen])
 
   return { swipeProgress, swipeOver }
 }
@@ -538,7 +601,7 @@ function Sidebar({ onClose }) {
 export default function DashboardLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const isPWA = isStandaloneApp()
-  const { swipeProgress, swipeOver } = useSwipeBack()
+  const { swipeProgress, swipeOver } = useSwipeBack(mobileOpen)
   useEffect(() => { document.title = 'Praisly Dashboard' }, [])
 
   return (
@@ -598,20 +661,15 @@ export default function DashboardLayout({ children }) {
             borderBottom: '1px solid var(--line)',
           }}
         >
-          {/* Hamburger — mobile only */}
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="md:hidden"
-            style={{ color: 'var(--ink)', background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', lineHeight: 1, padding: '4px 8px 4px 0', flexShrink: 0 }}
-            aria-label="Open menu"
-          >
-            ☰
-          </button>
-
-          {/* Title — mobile only */}
+          {/* Title — mobile only, absolutely centered so right-side icons don't offset it */}
           <span
             className="md:hidden"
-            style={{ flex: 1, textAlign: 'center', color: 'var(--ink)', fontSize: 18, fontWeight: 800 }}
+            style={{
+              position: 'absolute', left: '50%', top: '50%',
+              transform: 'translate(-50%, -50%)',
+              color: 'var(--ink)', fontSize: 18, fontWeight: 800,
+              pointerEvents: 'none', userSelect: 'none',
+            }}
           >
             Praisly
           </span>
@@ -647,6 +705,9 @@ export default function DashboardLayout({ children }) {
       </div>
 
       <WhatsAppButton message="Hi Praisly team, I need help with my account" />
+
+      {/* Fixed bottom nav — mobile only */}
+      <BottomNav onMoreClick={() => setMobileOpen(true)} moreActive={mobileOpen} />
     </div>
   )
 }
