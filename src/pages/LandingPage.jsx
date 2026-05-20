@@ -243,10 +243,16 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   position: absolute; background: var(--surface); border: 1px solid var(--line);
   border-radius: 24px; padding: 22px 24px; box-shadow: var(--shadow-md); width: 100%;
 }
-.lp-battle-card.them { top: 0; right: 0; width: 78%; transform: rotate(-1.5deg); opacity: .95; }
+.lp-battle-card.them {
+  top: 0; right: 0; width: 78%; transform: rotate(-1.5deg); opacity: 0.85;
+  box-shadow: var(--shadow-sm);
+  animation: cardSlideUpThem 0.6s ease-out;
+}
 .lp-battle-card.you {
-  bottom: 0; left: 0; width: 88%; transform: rotate(1deg);
-  box-shadow: var(--shadow-gold); border-color: rgba(216,144,32,0.4); z-index: 2;
+  top: 195px; bottom: auto; left: 0; width: 88%; transform: rotate(1deg);
+  box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1);
+  border-left: 3px solid var(--primary); border-color: rgba(216,144,32,0.4); z-index: 2;
+  animation: cardSlideUpYou 0.8s ease-out 0.2s both, glowPulse 4s ease-in-out 1s infinite;
 }
 .lp-bc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .lp-bc-where {
@@ -257,7 +263,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
   padding: 3px 9px; border-radius: 999px; white-space: nowrap;
 }
-.lp-bc-flag.stalled { background: var(--surface-2); color: var(--ink-3); border: 1px solid var(--line); }
+.lp-bc-flag.stalled { background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; }
 .lp-bc-flag.climbing { background: var(--ink); color: var(--primary); }
 .lp-bc-name {
   font-family: var(--font-display); font-size: 22px; font-weight: 700;
@@ -281,15 +287,20 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
 .lp-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 11.5px; }
-.lp-pill.up { background: var(--win-soft); color: var(--win); }
+.lp-pill.up { background: var(--win-soft); color: var(--win); box-shadow: 0 0 8px rgba(31,138,91,0.18); }
 .lp-pill.flat { background: var(--surface-2); color: var(--ink-3); border: 1px solid var(--line); }
 .lp-chase-arrow {
-  position: absolute; top: 32%; right: 4%; z-index: 3;
+  position: absolute; bottom: -14px; right: 20px; z-index: 3;
   background: var(--ink); color: var(--primary);
   padding: 9px 14px 9px 12px; border-radius: 999px;
   font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
   display: inline-flex; align-items: center; gap: 6px;
-  box-shadow: 0 12px 30px -10px rgba(26,22,16,0.4); transform: rotate(-6deg);
+  box-shadow: 0 8px 20px -8px rgba(26,22,16,0.4);
+  animation: subtlePulse 3s ease-in-out infinite;
+}
+.lp-chase-caret {
+  position: absolute; bottom: -18px; right: 28px; z-index: 3;
+  font-size: 9px; color: var(--primary-ink); opacity: 0.65; line-height: 1;
 }
 .lp-preview-pill {
   position: absolute; top: 4%; left: 8%; z-index: 4;
@@ -622,6 +633,42 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-maps-floater strong { color: var(--primary); }
 .lp-maps-floater::after { content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 16px; height: 16px; background: var(--ink); }
 
+/* ── VS CONNECTOR ── */
+.lp-vs-connector {
+  position: absolute; top: 178px; left: 44%;
+  transform: translate(-50%, -50%); z-index: 5;
+  display: flex; flex-direction: column; align-items: center;
+}
+.lp-vs-connector::before,
+.lp-vs-connector::after {
+  content: ""; width: 0; border-left: 1.5px dashed var(--line-2); height: 38px;
+}
+.lp-vs-badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ink); color: white;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.04em;
+  box-shadow: 0 2px 8px rgba(26,22,16,0.3); flex-shrink: 0;
+}
+
+/* ── BATTLE ANIMATIONS ── */
+@keyframes cardSlideUpThem {
+  from { transform: rotate(-1.5deg) translateY(30px); opacity: 0; }
+  to { transform: rotate(-1.5deg) translateY(0); opacity: 1; }
+}
+@keyframes cardSlideUpYou {
+  from { transform: rotate(1deg) translateY(30px); opacity: 0; }
+  to { transform: rotate(1deg) translateY(0); opacity: 1; }
+}
+@keyframes subtlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1); }
+  50% { box-shadow: 0 0 32px rgba(216,144,32,0.28), 0 8px 24px rgba(0,0,0,0.12); }
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 1080px) {
   .lp-hero-grid { grid-template-columns: 1fr; gap: 48px; }
@@ -642,6 +689,8 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-dash-stats { grid-template-columns: 1fr; }
   .lp-cta-card { padding: 40px 28px; }
   .lp-battle { height: 440px; }
+  .lp-battle-card.you { top: auto; bottom: 0; }
+  .lp-vs-connector { display: none; }
   .lp-hero h1 { font-size: 40px; }
   .lp-story-grid { grid-template-columns: 1fr; }
   .lp-roi-strip { grid-template-columns: 1fr; text-align: center; }
@@ -819,16 +868,21 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="lp-bc-foot">
-                <span className="lp-pill flat">▬ No movement</span>
+                <span className="lp-pill flat" style={{ color: '#DC2626', background: '#FEE2E2', border: '1px solid #FCA5A5' }}>▬ No movement</span>
                 <svg className="spark" viewBox="0 0 88 24" preserveAspectRatio="none" style={{ height: 24, width: 88 }}>
-                  <polyline fill="none" stroke="#B8AFA4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points="0,14 8,13 16,14 24,12 32,14 40,13 48,14 56,13 64,14 72,12 80,13 88,13"/>
+                  <polyline fill="none" stroke="#B8AFA4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points="0,10 8,11 16,11 24,12 32,12 40,13 48,13 56,14 64,14 72,15 80,15 88,16"/>
                 </svg>
               </div>
+              {/* Chase pill anchored to bottom of competitor card */}
+              <div className="lp-chase-arrow">
+                <ArrowUp /> 15 to overtake
+              </div>
+              <div className="lp-chase-caret">▼</div>
             </div>
 
-            {/* Chase indicator */}
-            <div className="lp-chase-arrow">
-              <ArrowUp /> 15 to overtake
+            {/* VS bridge */}
+            <div className="lp-vs-connector" aria-hidden="true">
+              <div className="lp-vs-badge">VS</div>
             </div>
 
             {/* Your card */}
