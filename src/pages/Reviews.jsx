@@ -560,6 +560,7 @@ export default function Reviews() {
       .then(r => {
         const reviews = r.data?.reviews || r.data || []
         console.log('[Reviews] allReviews sample:', reviews[0], 'total:', reviews.length)
+        console.log('[Reviews] status values in sample:', reviews.slice(0, 5).map(rv => ({ id: rv.id, status: rv.status, rating: rv.rating, is_positive: rv.is_positive })))
         setAllReviews(reviews)
       })
       .catch(err => console.warn('[Reviews] allReviews fetch failed:', err))
@@ -613,7 +614,11 @@ export default function Reviews() {
     const viewsToHigh = pageViews > 0 ? (highRatings / pageViews * 100) : 0
     const highToClick = highRatings > 0 ? (googleClicks / highRatings * 100) : 0
 
-    const negativeBlocked = allReviews.filter(r => r.is_positive === false).length
+    // stats.negative_saved is authoritative (all reviews, not capped at 50)
+    // fallback: count reviews where status === 'private' (list endpoint never returns is_positive)
+    const negativeBlocked = typeof stats?.negative_saved === 'number' && stats.negative_saved > 0
+      ? stats.negative_saved
+      : allReviews.filter(r => r.status === 'private').length
     return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick, negativeBlocked }
   }, [stats, allReviews, data.total])
 
