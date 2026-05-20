@@ -66,6 +66,11 @@ export default function Settings() {
   })
   const [saving, setSaving] = useState(false)
 
+  const [seoKeywords, setSeoKeywords] = useState(stored?.seo_keywords || [])
+  const [customKw, setCustomKw] = useState('')
+  const [seoGenerating, setSeoGenerating] = useState(false)
+  const [seoSaving, setSeoSaving] = useState(false)
+
   const plan       = stored?.plan || null
   const isPaid     = plan === 'monthly' || plan === 'yearly'
   const trialEndsAt = stored?.trial_ends_at
@@ -77,6 +82,43 @@ export default function Settings() {
   const set     = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const onFocus = (e) => (e.target.style.borderColor = 'var(--primary)')
   const onBlur  = (e) => (e.target.style.borderColor = '#e2e8f0')
+
+  async function handleGenerateKeywords() {
+    setSeoGenerating(true)
+    try {
+      const res = await api.post('/api/business/generate-seo-keywords')
+      setSeoKeywords(res.data.keywords || [])
+      toast('Keywords generated! Edit and save when ready.')
+    } catch (err) {
+      toast(err.response?.data?.detail || 'Failed to generate keywords', 'error')
+    } finally {
+      setSeoGenerating(false)
+    }
+  }
+
+  function handleAddCustom() {
+    const kw = customKw.trim().toLowerCase()
+    if (!kw || seoKeywords.length >= 8 || seoKeywords.includes(kw)) return
+    setSeoKeywords(prev => [...prev, kw])
+    setCustomKw('')
+  }
+
+  function removeKw(index) {
+    setSeoKeywords(prev => prev.filter((_, i) => i !== index))
+  }
+
+  async function handleSaveKeywords() {
+    setSeoSaving(true)
+    try {
+      const res = await api.put('/api/business/update', { seo_keywords: seoKeywords })
+      authService.setBusiness({ ...stored, ...res.data })
+      toast('Keywords saved!')
+    } catch (err) {
+      toast(err.response?.data?.detail || 'Failed to save keywords', 'error')
+    } finally {
+      setSeoSaving(false)
+    }
+  }
 
   async function handleSave(e) {
     e.preventDefault()
@@ -240,6 +282,152 @@ export default function Settings() {
               {saving ? 'Saving…' : 'Save Changes'}
             </button>
           </form>
+        </div>
+
+        {/* SEO Keywords */}
+        <div
+          style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 28,
+            border: '1px solid #e2e8f0',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6, flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>SEO Keywords</h2>
+              <p style={{ fontSize: 13, color: '#64748b', margin: 0, maxWidth: 380, lineHeight: 1.5 }}>
+                Add keywords to boost your Google Maps ranking. These get woven into AI-generated reviews naturally.
+              </p>
+            </div>
+            <button
+              onClick={handleGenerateKeywords}
+              disabled={seoGenerating}
+              style={{
+                padding: '8px 16px',
+                background: seoGenerating ? '#e5c57a' : 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: seoGenerating ? 'not-allowed' : 'pointer',
+                fontFamily: 'inherit',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
+              {seoGenerating ? 'Generating…' : '✦ Auto-generate'}
+            </button>
+          </div>
+
+          <div style={{ marginTop: 20 }}>
+            {seoKeywords.length === 0 ? (
+              <p style={{ fontSize: 13, color: '#94a3b8', margin: 0, padding: '12px 0' }}>
+                No keywords yet. Click Auto-generate to get started.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {seoKeywords.map((kw, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '5px 10px 5px 12px',
+                      background: '#fef3c7',
+                      border: '1px solid #fde68a',
+                      borderRadius: 20,
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: '#92400e',
+                    }}
+                  >
+                    {kw}
+                    <button
+                      onClick={() => removeKw(i)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 16,
+                        height: 16,
+                        border: 'none',
+                        background: 'transparent',
+                        color: '#b45309',
+                        cursor: 'pointer',
+                        fontSize: 14,
+                        lineHeight: 1,
+                        padding: 0,
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            <input
+              type="text"
+              value={customKw}
+              onChange={(e) => setCustomKw(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddCustom()}
+              placeholder={seoKeywords.length >= 8 ? '8/8 keywords — remove one first' : 'Add custom keyword'}
+              disabled={seoKeywords.length >= 8}
+              maxLength={60}
+              style={{ ...inputStyle, flex: 1, opacity: seoKeywords.length >= 8 ? 0.5 : 1 }}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+            <button
+              onClick={handleAddCustom}
+              disabled={!customKw.trim() || seoKeywords.length >= 8}
+              style={{
+                padding: '10px 16px',
+                background: '#f1f5f9',
+                color: '#374151',
+                border: '1.5px solid #e2e8f0',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: (!customKw.trim() || seoKeywords.length >= 8) ? 'not-allowed' : 'pointer',
+                opacity: (!customKw.trim() || seoKeywords.length >= 8) ? 0.5 : 1,
+                fontFamily: 'inherit',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Add
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
+            <span style={{ fontSize: 12, color: seoKeywords.length >= 8 ? '#ef4444' : '#94a3b8', fontWeight: seoKeywords.length >= 8 ? 600 : 400 }}>
+              {seoKeywords.length}/8 keywords
+            </span>
+            <button
+              onClick={handleSaveKeywords}
+              disabled={seoSaving}
+              style={{
+                padding: '9px 20px',
+                background: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: seoSaving ? 'not-allowed' : 'pointer',
+                opacity: seoSaving ? 0.7 : 1,
+                fontFamily: 'inherit',
+              }}
+            >
+              {seoSaving ? 'Saving…' : 'Save Keywords'}
+            </button>
+          </div>
         </div>
 
         {/* Plan & Usage */}
