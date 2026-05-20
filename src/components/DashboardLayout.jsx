@@ -502,20 +502,16 @@ function Sidebar({ onClose, mobileDrawer = false }) {
         )}
       </div>
 
-      {/* Workspace nav group — desktop only (mobile uses bottom nav) */}
-      {!mobileDrawer && (
-        <>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px' }}>
-            Workspace
-          </div>
-          {WORKSPACE_NAV.map(item => (
-            <NavLink key={item.to} to={item.to} onClick={onClose} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-              <span style={{ fontSize: 15 }}>{item.icon}</span>
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </>
-      )}
+      {/* Workspace nav group */}
+      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px' }}>
+        Workspace
+      </div>
+      {WORKSPACE_NAV.map(item => (
+        <NavLink key={item.to} to={item.to} onClick={onClose} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+          <span style={{ fontSize: 15 }}>{item.icon}</span>
+          <span>{item.label}</span>
+        </NavLink>
+      ))}
 
       {/* Account nav group */}
       <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px', marginTop: 20 }}>
@@ -527,6 +523,24 @@ function Sidebar({ onClose, mobileDrawer = false }) {
           <span>{item.label}</span>
         </NavLink>
       ))}
+
+      {/* Logout */}
+      <button
+        onClick={() => authService.logout()}
+        style={{
+          marginTop: 16,
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: 'var(--ink-3)',
+          fontSize: 13,
+          fontFamily: 'inherit',
+          padding: '0 8px',
+          textAlign: 'left',
+        }}
+      >
+        Logout →
+      </button>
 
       {/* Spacer */}
       <div style={{ flex: 1 }} />
