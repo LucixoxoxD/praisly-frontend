@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import QRCodeStyling from 'qr-code-styling'
 import html2canvas from 'html2canvas'
 import api from '../services/api'
 import { useToast } from '../components/Toast'
@@ -37,70 +38,76 @@ const PAGE_CSS = `
 export default function QRCode() {
   const toast = useToast()
   const cardRef = useRef(null)
-  const [qrObjectUrl, setQrObjectUrl] = useState(null)
-  const [reviewUrl, setReviewUrl]     = useState('')
-  const [bizName, setBizName]         = useState('')
-  const [loading, setLoading]         = useState(true)
-  const [error, setError]             = useState('')
-  const [copied, setCopied]           = useState(false)
+  const qrRef = useRef(null)
+  const qrInstance = useRef(null)
+
+  const [reviewUrl, setReviewUrl] = useState('')
+  const [bizName, setBizName]     = useState('')
+  const [loading, setLoading]     = useState(true)
+  const [error, setError]         = useState('')
+  const [copied, setCopied]       = useState(false)
   const [downloading, setDownloading] = useState(false)
-  const [reviewStats, setReviewStats]   = useState(null)
-  const [reviewsPage, setReviewsPage]   = useState(null)
+  const [reviewStats, setReviewStats] = useState(null)
+  const [reviewsPage, setReviewsPage] = useState(null)
+
+  // Create QR instance once on mount
+  useEffect(() => {
+    qrInstance.current = new QRCodeStyling({
+      width: 220,
+      height: 220,
+      type: 'svg',
+      data: 'https://placeholder.com',
+      dotsOptions: { color: '#1a1a1a', type: 'rounded' },
+      cornersSquareOptions: { type: 'extra-rounded', color: '#1a1a1a' },
+      cornersDotOptions: { color: '#1a1a1a' },
+      backgroundOptions: { color: '#ffffff' },
+    })
+  }, [])
+
+  // Append QR to DOM once the card is visible (after loading flips false)
+  useEffect(() => {
+    if (!loading && qrRef.current && qrInstance.current) {
+      qrRef.current.innerHTML = ''
+      qrInstance.current.append(qrRef.current)
+      if (reviewUrl) qrInstance.current.update({ data: reviewUrl })
+    }
+  }, [loading]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep QR data in sync when URL changes
+  useEffect(() => {
+    if (reviewUrl && qrInstance.current) {
+      qrInstance.current.update({ data: reviewUrl })
+    }
+  }, [reviewUrl])
 
   useEffect(() => {
-    Promise.all([
-      api.get('/api/qr/generate', { responseType: 'blob' }),
-      api.get('/api/qr/info'),
-    ])
-      .then(([imgRes, infoRes]) => {
-        setQrObjectUrl(URL.createObjectURL(imgRes.data))
-        setReviewUrl(infoRes.data.review_url)
-        setBizName(infoRes.data.business_name)
-        console.log('[QRCode] qr/info:', infoRes.data)
-        // Use scan_count if the endpoint returns it
-        if (typeof infoRes.data.scan_count === 'number') {
-          setScanCount(infoRes.data.scan_count)
-        }
+    api.get('/api/qr/info')
+      .then(res => {
+        setReviewUrl(res.data.review_url)
+        setBizName(res.data.business_name)
       })
       .catch(() => setError('Failed to load QR code. Please try again.'))
       .finally(() => setLoading(false))
 
-    // Stats for aggregated counts (rating_distribution, reviews_last_30_days)
     api.get('/api/reviews/stats')
-      .then(r => {
-        console.log('[QRCode] reviews/stats:', r.data)
-        setReviewStats(r.data)
-      })
+      .then(r => setReviewStats(r.data))
       .catch(err => console.warn('[QRCode] reviews/stats failed:', err?.response?.status, err?.message))
 
-    // List with limit=50 (backend max) — used for total count and recent entries
-    // TODO: separate scan tracking from review tracking — scan_count should come from review_requests table
     api.get('/api/reviews/list?limit=50&page=1')
-      .then(r => {
-        console.log('[QRCode] reviews/list:', r.data)
-        setReviewsPage(r.data)
-      })
+      .then(r => setReviewsPage(r.data))
       .catch(err => console.warn('[QRCode] reviews/list failed:', err?.response?.status, err?.message))
-
-    return () => {
-      if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   const qrMetrics = useMemo(() => {
-    // Authoritative total from paginated response (avoids page-size guessing)
     const totalReviews = reviewsPage?.total ?? reviewsPage?.reviews?.length ?? 0
-    // rating_distribution from stats is more reliable than filtering a partial page
     const dist = reviewStats?.rating_distribution || {}
     const positive = Number(dist['4'] || 0) + Number(dist['5'] || 0)
     const reviews = reviewsPage?.reviews || []
     const privateCount = reviews.filter(r => r.status === 'private').length
-    // TODO: separate scan tracking from review tracking
     const scans = totalReviews
     const convPct = scans > 0 ? Math.round(totalReviews / scans * 100) : 0
     const recentCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     const scansThisWeek = reviews.filter(r => r.created_at && r.created_at >= recentCutoff).length
-    console.log('[QRCode] metrics:', { totalReviews, positive, privateCount, convPct, scansThisWeek })
     return { scans, totalReviews, positive, privateCount, convPct, scansThisWeek }
   }, [reviewStats, reviewsPage])
 
@@ -148,15 +155,13 @@ export default function QRCode() {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
         <style>{PAGE_CSS}</style>
-        <div
-          style={{
-            width: 32, height: 32,
-            border: '3px solid #e2e8f0',
-            borderTopColor: 'var(--primary)',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite',
-          }}
-        />
+        <div style={{
+          width: 32, height: 32,
+          border: '3px solid #e2e8f0',
+          borderTopColor: 'var(--primary)',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
       </div>
     )
   }
@@ -175,7 +180,6 @@ export default function QRCode() {
     <div className="fade-up">
       <style>{PAGE_CSS}</style>
 
-      {/* Page title */}
       <h1 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 22, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>
         QR Code
       </h1>
@@ -183,10 +187,8 @@ export default function QRCode() {
         Track and manage your review collection touchpoint.
       </p>
 
-      {/* ── Performance stats ── */}
+      {/* Performance stats */}
       <div className="qr-stats-grid">
-
-        {/* Card 1: Total scans */}
         <div className="qr-stat-card">
           <div className="qr-stat-icon" style={{ background: '#EFF6FF' }}>📷</div>
           <div className="qr-stat-label">Total scans</div>
@@ -194,22 +196,15 @@ export default function QRCode() {
           <div className="qr-stat-val">{qrMetrics.scans.toLocaleString('en-IN')}</div>
           {qrMetrics.scansThisWeek > 0
             ? <p className="qr-stat-trend positive">↑ {qrMetrics.scansThisWeek} this week</p>
-            : <p className="qr-stat-trend">No scans this week</p>
-          }
+            : <p className="qr-stat-trend">No scans this week</p>}
         </div>
-
-        {/* Card 2: Reviews collected */}
         <div className="qr-stat-card">
           <div className="qr-stat-icon" style={{ background: 'var(--gold-soft)' }}>⭐</div>
           <div className="qr-stat-label">Reviews collected</div>
           <div className="qr-stat-sub">Completed the review flow</div>
           <div className="qr-stat-val">{qrMetrics.totalReviews.toLocaleString('en-IN')}</div>
-          <p className="qr-stat-trend">
-            {qrMetrics.positive} positive &middot; {qrMetrics.privateCount} private
-          </p>
+          <p className="qr-stat-trend">{qrMetrics.positive} positive &middot; {qrMetrics.privateCount} private</p>
         </div>
-
-        {/* Card 3: Conversion rate */}
         <div className="qr-stat-card">
           <div className="qr-stat-icon" style={{ background: 'var(--win-soft)' }}>📈</div>
           <div className="qr-stat-label">Scan → Review rate</div>
@@ -219,21 +214,18 @@ export default function QRCode() {
             <div className="qr-bar-fill" style={{ width: `${Math.min(qrMetrics.convPct, 100)}%` }} />
           </div>
         </div>
-
       </div>
 
-      {/* ── QR card (unchanged) ── */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 20,
-          alignItems: 'start',
-        }}
-      >
-        {/* Left column: card + controls */}
-        <div>
+      {/* Card + controls + right panel */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: 20,
+        alignItems: 'start',
+      }}>
 
+        {/* Left column: printable card + action buttons */}
+        <div>
           {/* White margin wrapper — captured by html2canvas for print-ready PNG */}
           <div
             ref={cardRef}
@@ -246,104 +238,135 @@ export default function QRCode() {
               boxSizing: 'border-box',
             }}
           >
-            {/* Branded card */}
-            <div
-              style={{
-                border: '2px solid #e5e7eb',
-                borderRadius: 16,
-                overflow: 'hidden',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
-                textAlign: 'center',
-              }}
-            >
-              {/* Card header */}
-              <div
-                style={{
-                  background: 'var(--primary)',
-                  padding: '20px 24px',
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', system-ui",
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: 'white',
-                    margin: '0 0 6px',
-                    letterSpacing: '-0.3px',
-                  }}
-                >
+            <div style={{
+              borderRadius: 20,
+              overflow: 'hidden',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
+              textAlign: 'center',
+            }}>
+
+              {/* Gold header */}
+              <div style={{
+                background: 'linear-gradient(135deg, #C4831A 0%, #E8A83A 60%, #D4922A 100%)',
+                padding: '24px 28px 22px',
+              }}>
+                <p style={{
+                  fontFamily: "'Plus Jakarta Sans', system-ui",
+                  fontSize: bizName.length > 22 ? 18 : 24,
+                  fontWeight: 800,
+                  color: 'white',
+                  margin: 0,
+                  letterSpacing: '-0.4px',
+                  lineHeight: 1.2,
+                  textShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }}>
                   {bizName}
-                </p>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', margin: 0 }}>
-                  Share your experience with us
                 </p>
               </div>
 
-              {/* QR area */}
-              <div style={{ background: 'white', padding: '32px 32px 24px' }}>
-                <img
-                  src={qrObjectUrl}
-                  alt="Review QR Code"
+              {/* White body */}
+              <div style={{ background: 'white', padding: '24px 32px 20px' }}>
+
+                {/* CTA text */}
+                <div style={{ marginBottom: 18 }}>
+                  <p style={{
+                    fontFamily: "'Plus Jakarta Sans', system-ui",
+                    fontSize: 26,
+                    fontWeight: 800,
+                    color: '#111',
+                    margin: '0 0 1px',
+                    lineHeight: 1.15,
+                    letterSpacing: '-0.5px',
+                  }}>
+                    Leave Us a
+                  </p>
+                  <p style={{
+                    fontFamily: "'Plus Jakarta Sans', system-ui",
+                    fontSize: 28,
+                    fontWeight: 800,
+                    fontStyle: 'italic',
+                    color: '#111',
+                    margin: 0,
+                    lineHeight: 1.15,
+                    letterSpacing: '-0.5px',
+                  }}>
+                    Review ⭐
+                  </p>
+                </div>
+
+                {/* QR code mount point */}
+                <div
+                  ref={qrRef}
                   style={{
                     width: 220,
                     height: 220,
-                    display: 'block',
-                    margin: '0 auto',
+                    margin: '0 auto 18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 />
-                <div style={{ borderTop: '1.5px dashed #d1d5db', margin: '20px 0 16px' }} />
-                <p style={{ color: '#9ca3af', fontSize: 13, margin: 0 }}>
-                  📱 Scan with your phone camera
+
+                {/* Google logo + stars */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  marginBottom: 6,
+                }}>
+                  <img
+                    src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
+                    alt="Google"
+                    crossOrigin="anonymous"
+                    style={{ height: 22, objectFit: 'contain' }}
+                  />
+                  <span style={{ fontSize: 17, letterSpacing: 1 }}>⭐⭐⭐⭐⭐</span>
+                </div>
+                <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, letterSpacing: '0.2px' }}>
+                  Scan to share your experience
                 </p>
               </div>
 
-              {/* Branding footer */}
-              <div
-                style={{
-                  background: '#f8fafc',
-                  borderTop: '1px solid #e5e7eb',
-                  padding: '14px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span style={{ fontSize: 11, color: '#9ca3af' }}>Powered by</span>
-                <span
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', system-ui",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: 'var(--primary)',
-                    letterSpacing: '-0.2px',
-                  }}
-                >
+              {/* Footer */}
+              <div style={{
+                background: '#fafafa',
+                borderTop: '1px solid #f0f0f0',
+                padding: '11px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+                <span style={{ fontSize: 11, color: '#c4c4c4' }}>Powered by</span>
+                <span style={{
+                  fontFamily: "'Plus Jakarta Sans', system-ui",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#D4922A',
+                  letterSpacing: '-0.2px',
+                }}>
                   Praisly ⭐
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Print instruction */}
           <p style={{ fontSize: 13, color: '#64748b', margin: '12px 0 4px', lineHeight: 1.5 }}>
             💡 Print this and place it at your checkout counter, reception desk, or dining table
           </p>
 
           {/* URL row */}
-          <div
-            style={{
-              background: '#f8fafc',
-              borderRadius: 10,
-              padding: '10px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 8,
-              margin: '12px 0',
-              border: '1px solid #e2e8f0',
-            }}
-          >
+          <div style={{
+            background: '#f8fafc',
+            borderRadius: 10,
+            padding: '10px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 8,
+            margin: '12px 0',
+            border: '1px solid #e2e8f0',
+          }}>
             <span style={{ color: '#64748b', fontSize: 12, wordBreak: 'break-all', textAlign: 'left', flex: 1 }}>
               {reviewUrl}
             </span>
@@ -396,9 +419,7 @@ export default function QRCode() {
                   <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
                   Saving…
                 </>
-              ) : (
-                '↓ Download'
-              )}
+              ) : '↓ Download'}
             </button>
 
             <button
@@ -413,11 +434,10 @@ export default function QRCode() {
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',
-                transition: 'opacity 0.15s',
                 fontFamily: 'inherit',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
             >
               WhatsApp
             </button>
@@ -434,27 +454,24 @@ export default function QRCode() {
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',
-                transition: 'opacity 0.15s',
                 fontFamily: 'inherit',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
             >
               {copied ? '✓ Copied!' : '🔗 Copy Link'}
             </button>
           </div>
         </div>
 
-        {/* Right panel: instructions + tip */}
+        {/* Right panel: how it works + pro tip */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div
-            style={{
-              background: 'white',
-              borderRadius: 16,
-              padding: 24,
-              border: '1px solid #e2e8f0',
-            }}
-          >
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            border: '1px solid #e2e8f0',
+          }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '0 0 18px' }}>
               📋 How it works
             </h3>
@@ -466,20 +483,18 @@ export default function QRCode() {
               ['5', 'Customer posts it directly to Google'],
             ].map(([n, text]) => (
               <div key={n} style={{ display: 'flex', gap: 12, marginBottom: 12, alignItems: 'flex-start' }}>
-                <div
-                  style={{
-                    width: 24, height: 24,
-                    borderRadius: '50%',
-                    background: 'var(--primary-soft)',
-                    color: 'var(--primary-ink)',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
+                <div style={{
+                  width: 24, height: 24,
+                  borderRadius: '50%',
+                  background: 'var(--primary-soft)',
+                  color: 'var(--primary-ink)',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
                   {n}
                 </div>
                 <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.5, margin: 0 }}>{text}</p>
@@ -487,14 +502,12 @@ export default function QRCode() {
             ))}
           </div>
 
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              borderRadius: 16,
-              padding: 24,
-              color: 'white',
-            }}
-          >
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            borderRadius: 16,
+            padding: 24,
+            color: 'white',
+          }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px' }}>💡 Pro tip</h3>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, margin: 0 }}>
               Place the QR code where customers naturally pause — near the checkout counter, on the dining
