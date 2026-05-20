@@ -8,28 +8,28 @@ function formatPhone(digits) {
 }
 
 const BIZ_TYPES = [
-  { value: 'healthcare / clinic',   label: 'Healthcare / Clinic' },
+  { value: 'healthcare / clinic',    label: 'Healthcare / Clinic' },
   { value: 'salon / beauty parlour', label: 'Salon / Beauty Parlour' },
-  { value: 'gym / fitness / yoga',  label: 'Gym / Fitness / Yoga' },
-  { value: 'restaurant / cafe',     label: 'Restaurant / Cafe' },
-  { value: 'coaching / tuition',    label: 'Coaching / Tuition' },
-  { value: 'ca / law firm',         label: 'CA / Law Firm' },
-  { value: 'auto / repair service', label: 'Auto / Repair Service' },
-  { value: 'real estate',           label: 'Real Estate' },
-  { value: 'other',                 label: 'Other' },
+  { value: 'gym / fitness / yoga',   label: 'Gym / Fitness / Yoga' },
+  { value: 'restaurant / cafe',      label: 'Restaurant / Cafe' },
+  { value: 'coaching / tuition',     label: 'Coaching / Tuition' },
+  { value: 'ca / law firm',          label: 'CA / Law Firm' },
+  { value: 'auto / repair service',  label: 'Auto / Repair Service' },
+  { value: 'real estate',            label: 'Real Estate' },
+  { value: 'other',                  label: 'Other' },
 ]
 
 const inputStyle = {
   width: '100%',
   padding: '11px 14px',
-  border: '1.5px solid #e2e8f0',
+  border: '1.5px solid var(--line)',
   borderRadius: 8,
   fontSize: 14,
-  color: '#0f172a',
+  color: 'var(--ink)',
   outline: 'none',
   transition: 'border-color 0.15s',
   boxSizing: 'border-box',
-  background: 'white',
+  background: 'var(--surface)',
   fontFamily: 'inherit',
 }
 
@@ -37,7 +37,7 @@ const labelStyle = {
   display: 'block',
   fontSize: 13,
   fontWeight: 600,
-  color: '#374151',
+  color: 'var(--ink-2)',
   marginBottom: 6,
 }
 
@@ -56,8 +56,8 @@ export default function Signup() {
   const navigate = useNavigate()
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }))
-  const onFocus = (e) => (e.target.style.borderColor = '#10b981')
-  const onBlur  = (e) => (e.target.style.borderColor = '#e2e8f0')
+  const onFocus = (e) => (e.target.style.borderColor = 'var(--primary)')
+  const onBlur  = (e) => (e.target.style.borderColor = 'var(--line)')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -81,7 +81,7 @@ export default function Signup() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(160deg, #f8fafc 0%, #e2e8f0 100%)',
+        background: 'var(--bg)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -89,31 +89,44 @@ export default function Signup() {
       }}
     >
       <div style={{ width: '100%', maxWidth: 440 }}>
+        {/* Brand header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <h1
-            style={{
-              fontSize: 34,
-              fontWeight: 800,
-              color: '#0f172a',
-              fontFamily: "'Plus Jakarta Sans', system-ui",
-              letterSpacing: '-1px',
-              margin: 0,
-            }}
-          >
-            Praisly
-          </h1>
-          <p style={{ color: '#64748b', fontSize: 14, marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
+            <div
+              style={{
+                width: 38, height: 38, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #FF7C4F, #FF5B2E)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontSize: 20, fontWeight: 800, flexShrink: 0,
+              }}
+            >
+              P
+            </div>
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 800,
+                color: 'var(--ink)',
+                fontFamily: "'Plus Jakarta Sans', system-ui",
+                letterSpacing: '-0.5px',
+                margin: 0,
+              }}
+            >
+              Praisly
+            </h1>
+          </div>
+          <p style={{ color: 'var(--ink-3)', fontSize: 14, margin: 0 }}>
             Start collecting 5-star reviews
           </p>
         </div>
 
         <div
           style={{
-            background: 'white',
+            background: 'var(--surface)',
             borderRadius: 16,
             padding: '32px 28px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-            border: '1px solid #e2e8f0',
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid var(--line)',
           }}
         >
           <form onSubmit={handleSubmit}>
@@ -132,52 +145,24 @@ export default function Signup() {
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <label style={labelStyle}>Business Type</label>
-              <select
-                value={form.business_type}
-                onChange={(e) => set('business_type', e.target.value)}
-                style={inputStyle}
-                onFocus={onFocus}
-                onBlur={onBlur}
-              >
-                {BIZ_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ marginBottom: 14 }}>
-              <label style={labelStyle}>City</label>
-              <input
-                type="text"
-                value={form.city}
-                onChange={(e) => set('city', e.target.value)}
-                placeholder="Noida"
-                style={inputStyle}
-                onFocus={onFocus}
-                onBlur={onBlur}
-              />
-            </div>
-
-            <div style={{ marginBottom: 14 }}>
               <label style={labelStyle}>Phone number</label>
               <div
                 style={{
                   display: 'flex',
-                  border: `1.5px solid ${phoneFocused ? '#10b981' : '#e2e8f0'}`,
+                  border: `1.5px solid ${phoneFocused ? 'var(--primary)' : 'var(--line)'}`,
                   borderRadius: 8,
                   overflow: 'hidden',
                   transition: 'border-color 0.15s',
-                  background: 'white',
+                  background: 'var(--surface)',
                 }}
               >
                 <span
                   style={{
                     padding: '11px 12px',
                     fontSize: 14,
-                    color: '#64748b',
-                    background: '#f8fafc',
-                    borderRight: '1.5px solid #e2e8f0',
+                    color: 'var(--ink-3)',
+                    background: 'var(--surface-tint)',
+                    borderRight: '1.5px solid var(--line)',
                     fontWeight: 600,
                     userSelect: 'none',
                     whiteSpace: 'nowrap',
@@ -197,7 +182,7 @@ export default function Signup() {
                     border: 'none',
                     outline: 'none',
                     fontSize: 14,
-                    color: '#0f172a',
+                    color: 'var(--ink)',
                     fontFamily: 'inherit',
                     background: 'transparent',
                     minWidth: 0,
@@ -222,7 +207,7 @@ export default function Signup() {
               />
             </div>
 
-            <div style={{ marginBottom: 8 }}>
+            <div style={{ marginBottom: 14 }}>
               <label style={labelStyle}>Password</label>
               <input
                 type="password"
@@ -236,10 +221,46 @@ export default function Signup() {
               />
             </div>
 
+            <div style={{ marginBottom: 14 }}>
+              <label style={labelStyle}>Business Type</label>
+              <select
+                value={form.business_type}
+                onChange={(e) => set('business_type', e.target.value)}
+                style={inputStyle}
+                onFocus={onFocus}
+                onBlur={onBlur}
+              >
+                {BIZ_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 8 }}>
+              <label style={labelStyle}>City</label>
+              <input
+                type="text"
+                value={form.city}
+                onChange={(e) => set('city', e.target.value)}
+                placeholder="Noida"
+                style={inputStyle}
+                onFocus={onFocus}
+                onBlur={onBlur}
+              />
+            </div>
+
             {error && (
-              <p style={{ color: '#dc2626', fontSize: 13, marginBottom: 12, marginTop: 8 }}>
-                {error}
-              </p>
+              <div
+                style={{
+                  background: 'var(--danger-soft)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  marginBottom: 12,
+                  marginTop: 8,
+                }}
+              >
+                <p style={{ color: 'var(--danger)', fontSize: 13, margin: 0 }}>{error}</p>
+              </div>
             )}
 
             <button
@@ -248,7 +269,7 @@ export default function Signup() {
               style={{
                 width: '100%',
                 padding: '12px',
-                background: '#10b981',
+                background: 'var(--primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 8,
@@ -264,17 +285,17 @@ export default function Signup() {
               {loading ? 'Creating Account…' : 'Create Account'}
             </button>
 
-            <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: '12px 0 0', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: 'var(--ink-4)', textAlign: 'center', margin: '12px 0 0', lineHeight: 1.5 }}>
               By signing up you agree to our{' '}
-              <Link to="/terms" style={{ color: '#64748b', textDecoration: 'underline' }}>Terms of Service</Link>
+              <Link to="/terms" style={{ color: 'var(--ink-3)', textDecoration: 'underline' }}>Terms of Service</Link>
               {' '}and{' '}
-              <Link to="/privacy" style={{ color: '#64748b', textDecoration: 'underline' }}>Privacy Policy</Link>
+              <Link to="/privacy" style={{ color: 'var(--ink-3)', textDecoration: 'underline' }}>Privacy Policy</Link>
             </p>
           </form>
 
-          <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: '#64748b' }}>
+          <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--ink-3)' }}>
             Already have an account?{' '}
-            <Link to="/login" style={{ color: '#10b981', fontWeight: 600, textDecoration: 'none' }}>
+            <Link to="/login" style={{ color: 'var(--primary-ink)', fontWeight: 600, textDecoration: 'none' }}>
               Sign in
             </Link>
           </p>

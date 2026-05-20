@@ -11,21 +11,22 @@ const labelStyle = {
   display: 'block',
   fontSize: 13,
   fontWeight: 600,
-  color: '#374151',
+  color: 'var(--ink-2)',
   marginBottom: 6,
 }
 
 const inputStyle = {
   width: '100%',
   padding: '11px 14px',
-  border: '1.5px solid #e2e8f0',
+  border: '1.5px solid var(--line)',
   borderRadius: 8,
   fontSize: 14,
-  color: '#0f172a',
+  color: 'var(--ink)',
   outline: 'none',
   transition: 'border-color 0.15s',
   boxSizing: 'border-box',
   fontFamily: 'inherit',
+  background: 'var(--surface)',
 }
 
 export default function Login() {
@@ -38,8 +39,8 @@ export default function Login() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const onFocus = (e) => (e.target.style.borderColor = '#10b981')
-  const onBlur  = (e) => (e.target.style.borderColor = '#e2e8f0')
+  const onFocus = (e) => (e.target.style.borderColor = 'var(--primary)')
+  const onBlur  = (e) => (e.target.style.borderColor = 'var(--line)')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -67,7 +68,7 @@ export default function Login() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(160deg, #f8fafc 0%, #e2e8f0 100%)',
+        background: 'var(--bg)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -75,38 +76,51 @@ export default function Login() {
       }}
     >
       <div style={{ width: '100%', maxWidth: 400 }}>
+        {/* Brand header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <h1
-            style={{
-              fontSize: 34,
-              fontWeight: 800,
-              color: '#0f172a',
-              fontFamily: "'Plus Jakarta Sans', system-ui",
-              letterSpacing: '-1px',
-              margin: 0,
-            }}
-          >
-            Praisly
-          </h1>
-          <p style={{ color: '#64748b', fontSize: 14, marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
+            <div
+              style={{
+                width: 38, height: 38, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #FF7C4F, #FF5B2E)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontSize: 20, fontWeight: 800, flexShrink: 0,
+              }}
+            >
+              P
+            </div>
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 800,
+                color: 'var(--ink)',
+                fontFamily: "'Plus Jakarta Sans', system-ui",
+                letterSpacing: '-0.5px',
+                margin: 0,
+              }}
+            >
+              Praisly
+            </h1>
+          </div>
+          <p style={{ color: 'var(--ink-3)', fontSize: 14, margin: 0 }}>
             Sign in to your dashboard
           </p>
         </div>
 
         <div
           style={{
-            background: 'white',
+            background: 'var(--surface)',
             borderRadius: 16,
             padding: '32px 28px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-            border: '1px solid #e2e8f0',
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid var(--line)',
           }}
         >
           {/* Tab toggle */}
           <div
             style={{
               display: 'flex',
-              background: '#f1f5f9',
+              background: 'var(--surface-tint)',
               borderRadius: 10,
               padding: 4,
               marginBottom: 20,
@@ -124,9 +138,9 @@ export default function Login() {
                   borderRadius: 8,
                   fontSize: 13,
                   fontWeight: tab === t ? 600 : 500,
-                  color: tab === t ? '#0f172a' : '#64748b',
-                  background: tab === t ? 'white' : 'transparent',
-                  boxShadow: tab === t ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                  color: tab === t ? 'var(--ink)' : 'var(--ink-3)',
+                  background: tab === t ? 'var(--surface)' : 'transparent',
+                  boxShadow: tab === t ? 'var(--shadow-sm)' : 'none',
                   cursor: 'pointer',
                   transition: 'all 0.15s',
                   fontFamily: 'inherit',
@@ -144,20 +158,20 @@ export default function Login() {
                 <div
                   style={{
                     display: 'flex',
-                    border: `1.5px solid ${phoneFocused ? '#10b981' : '#e2e8f0'}`,
+                    border: `1.5px solid ${phoneFocused ? 'var(--primary)' : 'var(--line)'}`,
                     borderRadius: 8,
                     overflow: 'hidden',
                     transition: 'border-color 0.15s',
-                    background: 'white',
+                    background: 'var(--surface)',
                   }}
                 >
                   <span
                     style={{
                       padding: '11px 12px',
                       fontSize: 14,
-                      color: '#64748b',
-                      background: '#f8fafc',
-                      borderRight: '1.5px solid #e2e8f0',
+                      color: 'var(--ink-3)',
+                      background: 'var(--surface-tint)',
+                      borderRight: '1.5px solid var(--line)',
                       fontWeight: 600,
                       userSelect: 'none',
                       whiteSpace: 'nowrap',
@@ -177,7 +191,7 @@ export default function Login() {
                       border: 'none',
                       outline: 'none',
                       fontSize: 14,
-                      color: '#0f172a',
+                      color: 'var(--ink)',
                       fontFamily: 'inherit',
                       background: 'transparent',
                       minWidth: 0,
@@ -220,16 +234,23 @@ export default function Login() {
             <div style={{ textAlign: 'right', marginTop: 6, marginBottom: 14 }}>
               <Link
                 to="/forgot-password"
-                style={{ fontSize: 12, color: '#64748b', textDecoration: 'none' }}
+                style={{ fontSize: 12, color: 'var(--primary-ink)', fontWeight: 500, textDecoration: 'none' }}
               >
                 Forgot password?
               </Link>
             </div>
 
             {error && (
-              <p style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>
-                {error}
-              </p>
+              <div
+                style={{
+                  background: 'var(--danger-soft)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  marginBottom: 12,
+                }}
+              >
+                <p style={{ color: 'var(--danger)', fontSize: 13, margin: 0 }}>{error}</p>
+              </div>
             )}
 
             <button
@@ -238,7 +259,7 @@ export default function Login() {
               style={{
                 width: '100%',
                 padding: '12px',
-                background: '#10b981',
+                background: 'var(--primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 8,
@@ -254,9 +275,9 @@ export default function Login() {
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: '#64748b' }}>
+          <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--ink-3)' }}>
             Don't have an account?{' '}
-            <Link to="/signup" style={{ color: '#10b981', fontWeight: 600, textDecoration: 'none' }}>
+            <Link to="/signup" style={{ color: 'var(--primary-ink)', fontWeight: 600, textDecoration: 'none' }}>
               Sign up
             </Link>
           </p>
