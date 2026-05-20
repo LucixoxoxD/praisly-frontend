@@ -81,8 +81,11 @@ api.interceptors.response.use(
 )
 
 export const authService = {
-  login: async (email, password) => {
-    const res = await api.post('/api/auth/login', { email, password })
+  login: async ({ email, phone, password }) => {
+    const body = { password }
+    if (phone) body.phone = phone
+    else body.email = email
+    const res = await api.post('/api/auth/login', body)
     localStorage.setItem('praisly_token', res.data.access_token)
     if (res.data.refresh_token) {
       localStorage.setItem('praisly_refresh_token', res.data.refresh_token)

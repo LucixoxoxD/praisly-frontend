@@ -2,6 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authService } from '../services/api'
 
+function formatPhone(digits) {
+  if (digits.length <= 5) return digits
+  return digits.slice(0, 5) + ' ' + digits.slice(5, 10)
+}
+
 const BIZ_TYPES = [
   { value: 'healthcare / clinic',   label: 'Healthcare / Clinic' },
   { value: 'salon / beauty parlour', label: 'Salon / Beauty Parlour' },
@@ -39,11 +44,13 @@ const labelStyle = {
 export default function Signup() {
   const [form, setForm] = useState({
     business_name: '',
+    phone: '',
     email: '',
     password: '',
     business_type: 'other',
     city: '',
   })
+  const [phoneFocused, setPhoneFocused] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -54,10 +61,14 @@ export default function Signup() {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (form.phone.length !== 10) {
+      setError('Please enter a valid 10-digit phone number')
+      return
+    }
     setLoading(true)
     setError('')
     try {
-      await authService.signup(form)
+      await authService.signup({ ...form, phone: '+91' + form.phone })
       navigate('/onboarding', { replace: true })
     } catch (err) {
       setError(err.response?.data?.detail || 'Signup failed. Please try again.')
@@ -146,6 +157,55 @@ export default function Signup() {
                 onFocus={onFocus}
                 onBlur={onBlur}
               />
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={labelStyle}>Phone number</label>
+              <div
+                style={{
+                  display: 'flex',
+                  border: `1.5px solid ${phoneFocused ? '#10b981' : '#e2e8f0'}`,
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  transition: 'border-color 0.15s',
+                  background: 'white',
+                }}
+              >
+                <span
+                  style={{
+                    padding: '11px 12px',
+                    fontSize: 14,
+                    color: '#64748b',
+                    background: '#f8fafc',
+                    borderRight: '1.5px solid #e2e8f0',
+                    fontWeight: 600,
+                    userSelect: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  value={formatPhone(form.phone)}
+                  onChange={(e) => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  required
+                  placeholder="98765 43210"
+                  style={{
+                    flex: 1,
+                    padding: '11px 14px',
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: 14,
+                    color: '#0f172a',
+                    fontFamily: 'inherit',
+                    background: 'transparent',
+                    minWidth: 0,
+                  }}
+                  onFocus={() => setPhoneFocused(true)}
+                  onBlur={() => setPhoneFocused(false)}
+                />
+              </div>
             </div>
 
             <div style={{ marginBottom: 14 }}>

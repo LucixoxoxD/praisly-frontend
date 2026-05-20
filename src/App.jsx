@@ -13,6 +13,7 @@ import QRCode from './pages/QRCode'
 import Settings from './pages/Settings'
 import Billing from './pages/Billing'
 import SendRequest from './pages/SendRequest'
+import ForgotPassword from './pages/ForgotPassword'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 
@@ -53,8 +54,9 @@ export default function App() {
             path="/"
             element={authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LandingPage />}
           />
-          <Route path="/login"      element={<AuthOnly><Login /></AuthOnly>} />
-          <Route path="/signup"     element={<AuthOnly><Signup /></AuthOnly>} />
+          <Route path="/login"           element={<AuthOnly><Login /></AuthOnly>} />
+          <Route path="/signup"          element={<AuthOnly><Signup /></AuthOnly>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/onboarding" element={<OnboardingRoute><Onboarding /></OnboardingRoute>} />
 
           {/* Public legal pages */}
