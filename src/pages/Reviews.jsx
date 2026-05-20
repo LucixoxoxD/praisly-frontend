@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer,
 } from 'recharts'
-import api from '../services/api'
+import api, { authService } from '../services/api'
 import { stripMarkdown } from '../utils/helpers'
 
 function cleanText(text) {
@@ -27,11 +27,57 @@ function decodeEntities(str) {
     .replace(/&#39;/g, "'")
 }
 
+// ─── Revenue helpers (mirrors Dashboard.jsx) ─────────────────────────────────
+
+const REVENUE_PER_REVIEW = {
+  healthcare_clinic: 2500,
+  salon:             1500,
+  gym:               2000,
+  restaurant:        1000,
+  coaching:         10000,
+  ca_law:            7000,
+  auto_repair:       2000,
+  real_estate:       8000,
+  other:             2000,
+  dentist:           2500,
+  ca_firm:           7000,
+}
+
+const BIZ_TYPE_KEY_MAP = {
+  'healthcare / clinic':    'healthcare_clinic',
+  'salon / beauty parlour': 'salon',
+  'gym / fitness / yoga':   'gym',
+  'restaurant / cafe':      'restaurant',
+  'coaching / tuition':     'coaching',
+  'ca / law firm':          'ca_law',
+  'auto / repair service':  'auto_repair',
+  'real estate':            'real_estate',
+  'other':                  'other',
+  'dentist':                'dentist',
+  'ca_firm':                'ca_firm',
+  'salon':                  'salon',
+  'gym':                    'gym',
+  'restaurant':             'restaurant',
+  'coaching':               'coaching',
+}
+
+function getRevenueInfo(rawBizType) {
+  const key = BIZ_TYPE_KEY_MAP[(rawBizType || '').toLowerCase().trim()] || 'other'
+  return REVENUE_PER_REVIEW[key] ?? REVENUE_PER_REVIEW.other
+}
+
+function formatINR(amount) {
+  return '₹' + Math.floor(amount || 0).toLocaleString('en-IN')
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const TABS = [
-  { key: '',        label: 'All' },
-  { key: 'posted',  label: 'Posted' },
-  { key: 'pending', label: 'Pending' },
-  { key: 'private', label: 'Private' },
+  { key: '',         label: 'All' },
+  { key: 'posted',   label: 'Posted' },
+  { key: 'pending',  label: 'Pending' },
+  { key: 'private',  label: 'Private' },
+  { key: 'insights', label: '🛡️ Insights' },
 ]
 
 const PAGE_CSS = `
@@ -112,10 +158,33 @@ const PAGE_CSS = `
   /* ── Divider ── */
   .rv-divider { height: 1px; background: var(--line); margin-bottom: 24px; }
 
+  /* ── Insights panel ── */
+  .ins-stat-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px; margin-bottom: 20px;
+  }
+  .ins-stat-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 20px 22px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ins-theme-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .ins-theme-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px;
+    transition: box-shadow 0.2s;
+  }
+  .ins-theme-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+
   @media (max-width: 768px) {
     .rv-cards { grid-template-columns: 1fr 1fr; }
     .rv-bottom { grid-template-columns: 1fr; }
     .rv-header-right { flex-wrap: wrap; }
+    .ins-stat-grid { grid-template-columns: 1fr; }
+    .ins-theme-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
     .rv-val { font-size: 24px; }
@@ -167,6 +236,271 @@ function SkeletonCard() {
   )
 }
 
+function Skel({ style }) {
+  return (
+    <div style={{ background: 'var(--surface-tint)', borderRadius: 8, animation: 'pulse 1.5s ease-in-out infinite', ...style }} />
+  )
+}
+
+function InsightsSkeleton() {
+  return (
+    <div>
+      {/* 3 stat cards */}
+      <div className="ins-stat-grid">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="ins-stat-card">
+            <Skel style={{ height: 32, width: 32, borderRadius: 9 }} />
+            <Skel style={{ height: 12, width: 120, marginTop: 8 }} />
+            <Skel style={{ height: 36, width: 80, marginTop: 4 }} />
+            <Skel style={{ height: 11, width: 140, marginTop: 4 }} />
+          </div>
+        ))}
+      </div>
+      {/* AI summary */}
+      <div style={{ background: 'var(--surface-tint)', border: '1px solid var(--line)', borderRadius: 14, padding: 20, marginBottom: 20 }}>
+        <Skel style={{ height: 12, width: 180, marginBottom: 12 }} />
+        <Skel style={{ height: 14, width: '90%', marginBottom: 8 }} />
+        <Skel style={{ height: 14, width: '75%', marginBottom: 8 }} />
+        <Skel style={{ height: 14, width: '60%' }} />
+      </div>
+      {/* 2 theme cards */}
+      <div className="ins-theme-grid">
+        {[0, 1].map(i => (
+          <div key={i} className="ins-theme-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <Skel style={{ height: 16, width: 100 }} />
+              <Skel style={{ height: 22, width: 80, borderRadius: 20 }} />
+            </div>
+            <Skel style={{ height: 11, width: 70, marginBottom: 12 }} />
+            <Skel style={{ height: 13, width: '95%', marginBottom: 6 }} />
+            <Skel style={{ height: 13, width: '80%', marginBottom: 6 }} />
+            <Skel style={{ height: 13, width: '65%' }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function InsightsPanel({ data, biz }) {
+  if (!data) return null
+
+  const perReview = getRevenueInfo(biz?.business_type)
+  const totalBlocked = data.total_blocked || 0
+  const blockedThisMonth = data.blocked_this_month || 0
+  const revenueProtected = totalBlocked * perReview
+  const currentRating = data.current_rating ? Number(data.current_rating).toFixed(1) : null
+  const ratingWithout = data.rating_without_protection ? Number(data.rating_without_protection).toFixed(1) : null
+  const ratingDiff = currentRating && ratingWithout
+    ? (Number(currentRating) - Number(ratingWithout)).toFixed(1)
+    : null
+
+  // ── Empty state ────────────────────────────────────────────────
+  if (totalBlocked === 0) {
+    return (
+      <div style={{
+        textAlign: 'center', padding: '56px 24px',
+        background: 'var(--surface)', border: '1px solid var(--line)',
+        borderRadius: 16,
+      }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
+        <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--ink)', margin: '0 0 10px' }}>
+          No negative reviews blocked yet
+        </p>
+        <p style={{ fontSize: 14, color: 'var(--ink-3)', lineHeight: 1.7, margin: 0, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+          When customers give 1–3 stars, their feedback comes to you privately instead of going to Google.
+          Praisly will analyze the patterns and suggest improvements.
+        </p>
+      </div>
+    )
+  }
+
+  // ── Trend label ───────────────────────────────────────────────
+  function TrendBadge({ trend }) {
+    const map = {
+      increasing: { label: '↑ Increasing', color: 'var(--danger)' },
+      decreasing: { label: '↓ Decreasing', color: 'var(--win)' },
+      stable:     { label: '→ Stable',     color: 'var(--ink-4)' },
+    }
+    const t = map[trend] || map.stable
+    return (
+      <span style={{ fontSize: 11, fontWeight: 600, color: t.color }}>{t.label}</span>
+    )
+  }
+
+  return (
+    <div>
+
+      {/* ── 3 protection stat cards ── */}
+      <div className="ins-stat-grid">
+
+        {/* Card 1 — Blocked */}
+        <div className="ins-stat-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--danger-soft)', display: 'grid', placeItems: 'center', fontSize: 18 }}>
+              🛡️
+            </div>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 600, marginTop: 10 }}>
+            Negative Reviews Blocked
+          </div>
+          <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--danger)', lineHeight: 1.1 }}>
+            {totalBlocked}
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>
+            {blockedThisMonth} this month
+          </div>
+        </div>
+
+        {/* Card 2 — Rating protected */}
+        <div className="ins-stat-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold-soft)', display: 'grid', placeItems: 'center', fontSize: 18 }}>
+              ⭐
+            </div>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 600, marginTop: 10 }}>
+            Your Rating Protected
+          </div>
+          <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1 }}>
+            {currentRating ? `${currentRating}★` : '—'}
+          </div>
+          {ratingWithout && (
+            <div style={{ fontSize: 11.5, lineHeight: 1.5 }}>
+              <span style={{ color: 'var(--danger)' }}>Without Praisly: {ratingWithout}★</span>
+              {ratingDiff && Number(ratingDiff) > 0 && (
+                <span style={{ color: 'var(--win)', marginLeft: 6, fontWeight: 700 }}>
+                  Saved {ratingDiff}★
+                </span>
+              )}
+            </div>
+          )}
+          {!ratingWithout && (
+            <div style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>
+              Add more context by sharing your QR
+            </div>
+          )}
+        </div>
+
+        {/* Card 3 — Revenue protected */}
+        <div className="ins-stat-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--win-soft)', display: 'grid', placeItems: 'center', fontSize: 18 }}>
+              ₹
+            </div>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 600, marginTop: 10 }}>
+            Revenue Protected
+          </div>
+          <div style={{ fontSize: revenueProtected >= 100000 ? 28 : 34, fontWeight: 800, color: 'var(--win)', lineHeight: 1.1 }}>
+            {formatINR(revenueProtected)}
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>
+            Bad reviews cost ~{formatINR(perReview)} each
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── AI summary banner ── */}
+      {data.ai_summary && (
+        <div style={{
+          background: 'var(--surface-tint)', border: '1px solid var(--line)',
+          borderRadius: 14, padding: '18px 22px',
+          display: 'flex', alignItems: 'flex-start', gap: 16,
+          marginBottom: 20,
+        }}>
+          <div style={{
+            width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+            background: 'linear-gradient(135deg, #E8B43A, #C9971F)',
+            display: 'grid', placeItems: 'center', fontSize: 20,
+          }}>
+            💡
+          </div>
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary-ink)', fontWeight: 700, marginBottom: 6 }}>
+              🧠 PRAISLY AI · FEEDBACK ANALYSIS
+            </div>
+            <p style={{ fontSize: 14, color: 'var(--ink)', lineHeight: 1.65, margin: 0 }}>
+              {data.ai_summary}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Theme cards ── */}
+      {data.themes?.length > 0 && (
+        <>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>
+            Complaint Themes
+          </div>
+          <div className="ins-theme-grid">
+            {data.themes.map((theme, idx) => (
+              <div key={idx} className="ins-theme-card">
+
+                {/* Header row */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 4 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>
+                    {theme.tag}
+                  </span>
+                  <span style={{
+                    background: 'var(--danger-soft)', color: 'var(--danger)',
+                    borderRadius: 20, padding: '3px 12px', fontSize: 12, fontWeight: 600,
+                    whiteSpace: 'nowrap', flexShrink: 0,
+                  }}>
+                    {theme.count} complaint{theme.count !== 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                {/* Trend */}
+                <div style={{ marginBottom: 10 }}>
+                  <TrendBadge trend={theme.trend} />
+                </div>
+
+                {/* AI insight */}
+                {theme.ai_insight && (
+                  <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.55, margin: '0 0 12px' }}>
+                    {theme.ai_insight}
+                  </p>
+                )}
+
+                {/* Recent feedback quotes */}
+                {theme.recent_feedback?.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+                      Recent feedback
+                    </div>
+                    {theme.recent_feedback.map((fb, fi) => (
+                      <div
+                        key={fi}
+                        style={{
+                          background: 'var(--bg)',
+                          borderLeft: '3px solid var(--line-2)',
+                          padding: '7px 12px',
+                          fontSize: 12,
+                          color: 'var(--ink-3)',
+                          fontStyle: 'italic',
+                          marginTop: 6,
+                          borderRadius: '0 8px 8px 0',
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        "{decodeEntities(cleanText(fb))}"
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+    </div>
+  )
+}
+
 function FunnelCard({ icon, iconBg, label, subtitle, value, barColor, barPct }) {
   return (
     <div className="rv-card">
@@ -205,6 +539,12 @@ export default function Reviews() {
   const [stats, setStats]           = useState(null)
   const [allReviews, setAllReviews] = useState([])
 
+  const [insights, setInsights]             = useState(null)
+  const [insightsLoading, setInsightsLoading] = useState(false)
+  const [insightsFetched, setInsightsFetched] = useState(false)
+
+  const biz = authService.getBusiness()
+
   // Fetch stats and all reviews independently so one failure doesn't block the other
   useEffect(() => {
     api.get('/api/reviews/stats')
@@ -225,6 +565,7 @@ export default function Reviews() {
 
   // Fetch paginated list for the review list section
   useEffect(() => {
+    if (tab === 'insights') return
     setLoading(true)
     const params = new URLSearchParams({ page, limit: 10 })
     if (tab) params.set('status', tab)
@@ -237,26 +578,31 @@ export default function Reviews() {
   function changeTab(t) {
     setTab(t)
     setPage(1)
+    if (t === 'insights' && !insightsFetched) {
+      setInsightsLoading(true)
+      api.get('/api/reviews/feedback-insights')
+        .then(r => {
+          setInsights(r.data)
+          setInsightsFetched(true)
+        })
+        .catch(() => setInsights(null))
+        .finally(() => setInsightsLoading(false))
+    }
   }
 
   // ── Funnel metrics ──────────────────────────────────────────────────────────
 
   const metrics = useMemo(() => {
-    // Page views: use total from paginated fetch (most reliable), fall back to allReviews count
     const pageViews = data.total || allReviews.length || 0
-
-    // High ratings: use rating_distribution from stats if available (avoids pagination issues)
     const dist = stats?.rating_distribution || {}
     const highRatings = (stats && Object.keys(dist).length > 0)
       ? (Number(dist['4'] || 0) + Number(dist['5'] || 0))
       : allReviews.filter(r => Number(r.rating) >= 4).length
 
-    // AI drafts: server-side count is authoritative
     const aiDrafts = typeof stats?.drafts_sent === 'number' && stats.drafts_sent > 0
       ? stats.drafts_sent
       : allReviews.filter(r => r.is_positive === true).length
 
-    // Google clicks: filter allReviews by posted status or is_posted_to_google flag
     const googleClicks = allReviews.length > 0
       ? allReviews.filter(r => r.status === 'posted' || r.is_posted_to_google === true).length
       : (stats?.google_reviews_gained || 0)
@@ -265,7 +611,6 @@ export default function Reviews() {
     const viewsToHigh = pageViews > 0 ? (highRatings / pageViews * 100) : 0
     const highToClick = highRatings > 0 ? (googleClicks / highRatings * 100) : 0
 
-    console.log('[Reviews] metrics:', { pageViews, highRatings, aiDrafts, googleClicks, convPct })
     return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick }
   }, [stats, allReviews, data.total])
 
@@ -356,7 +701,6 @@ export default function Reviews() {
 
       {/* ── Chart + Conversion ── */}
       <div className="rv-bottom">
-        {/* Review growth chart */}
         <div className="rv-chart-card">
           <div className="rv-chart-title">Review growth</div>
           <div className="rv-chart-sub">Daily page views vs. Google review taps (last 7 days)</div>
@@ -380,7 +724,6 @@ export default function Reviews() {
           )}
         </div>
 
-        {/* Global conversion card */}
         <div className="rv-conv-card">
           <div className="rv-conv-title">Global conversion</div>
           <div className="rv-conv-pct">{metrics.convPct.toFixed(1)}%</div>
@@ -406,18 +749,20 @@ export default function Reviews() {
         </div>
       </div>
 
-      {/* Divider before review list */}
+      {/* Divider */}
       <div className="rv-divider" />
 
-      {/* ── Review list header ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-        <h2 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 16, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
-          All Reviews
-        </h2>
-        <span style={{ color: 'var(--ink-3)', fontSize: 13 }}>{data.total} total</span>
-      </div>
+      {/* ── Review list header (hidden on insights tab) ── */}
+      {tab !== 'insights' && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+          <h2 style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 16, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
+            All Reviews
+          </h2>
+          <span style={{ color: 'var(--ink-3)', fontSize: 13 }}>{data.total} total</span>
+        </div>
+      )}
 
-      {/* Tab bar */}
+      {/* ── Tab bar ── */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--surface-tint)', borderRadius: 10, padding: 4, width: 'fit-content', maxWidth: '100%', overflowX: 'auto' }}>
         {TABS.map((t) => (
           <button
@@ -429,7 +774,7 @@ export default function Reviews() {
               background: tab === t.key ? 'var(--primary-soft)' : 'transparent',
               color: tab === t.key ? 'var(--primary-ink)' : 'var(--ink-3)',
               boxShadow: tab === t.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-              transition: 'all 0.15s', fontFamily: 'inherit',
+              transition: 'all 0.15s', fontFamily: 'inherit', whiteSpace: 'nowrap',
             }}
           >
             {t.label}
@@ -437,60 +782,69 @@ export default function Reviews() {
         ))}
       </div>
 
-      {/* Review list */}
-      {loading ? (
-        [0, 1, 2, 3].map((i) => <SkeletonCard key={i} />)
-      ) : data.reviews.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '64px 24px', background: 'white', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-          <p style={{ fontSize: 36, marginBottom: 12 }}>🌟</p>
-          <p style={{ color: '#374151', fontWeight: 600, fontSize: 15, margin: 0 }}>No reviews yet</p>
-          <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 4, marginBottom: 16 }}>
-            {tab ? `No ${tab} reviews yet` : 'Share your QR code to start collecting reviews'}
-          </p>
-          {!tab && (
-            <Link to="/qr" style={{ display: 'inline-block', padding: '9px 20px', background: 'var(--primary)', color: 'white', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
-              View QR Code →
-            </Link>
-          )}
-        </div>
-      ) : (
-        data.reviews.map((r) => (
-          <div key={r.id} className="review-card" style={{ borderLeft: `4px solid ${ratingBorder(r.rating)}` }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 8 }}>
-              <span style={{ color: '#0f172a', fontWeight: 600, fontSize: 14 }}>{r.customer_name || 'Anonymous'}</span>
-              <span style={{ color: '#94a3b8', fontSize: 12, flexShrink: 0 }}>
-                {r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
-              </span>
-            </div>
-            <div style={{ marginBottom: 8 }}><Stars rating={r.rating} /></div>
-            {(r.review_text || r.customer_edited_text) && (
-              <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.6, margin: '0 0 6px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                {cleanText(r.review_text || r.customer_edited_text)}
-              </p>
-            )}
-            {r.status === 'private' && r.private_feedback && (
-              <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.6, margin: '0 0 6px', fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                Private feedback: {cleanText(r.private_feedback)}
-              </p>
-            )}
-            {r.status !== 'private' && r.private_feedback && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-                {decodeEntities(cleanText(r.private_feedback)).split(',').map((t) => t.trim()).filter(Boolean).map((tag, i) => (
-                  <span key={i} style={{ padding: '2px 8px', borderRadius: 20, background: 'var(--surface-tint)', color: 'var(--ink-3)', fontSize: 11, fontWeight: 500 }}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <StatusBadge status={r.status} />
-            </div>
-          </div>
-        ))
+      {/* ── Insights panel ── */}
+      {tab === 'insights' && (
+        insightsLoading
+          ? <InsightsSkeleton />
+          : <InsightsPanel data={insights} biz={biz} />
       )}
 
-      {/* Pagination */}
-      {data.pages > 1 && (
+      {/* ── Review list ── */}
+      {tab !== 'insights' && (
+        loading ? (
+          [0, 1, 2, 3].map((i) => <SkeletonCard key={i} />)
+        ) : data.reviews.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '64px 24px', background: 'white', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+            <p style={{ fontSize: 36, marginBottom: 12 }}>🌟</p>
+            <p style={{ color: '#374151', fontWeight: 600, fontSize: 15, margin: 0 }}>No reviews yet</p>
+            <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 4, marginBottom: 16 }}>
+              {tab ? `No ${tab} reviews yet` : 'Share your QR code to start collecting reviews'}
+            </p>
+            {!tab && (
+              <Link to="/qr" style={{ display: 'inline-block', padding: '9px 20px', background: 'var(--primary)', color: 'white', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
+                View QR Code →
+              </Link>
+            )}
+          </div>
+        ) : (
+          data.reviews.map((r) => (
+            <div key={r.id} className="review-card" style={{ borderLeft: `4px solid ${ratingBorder(r.rating)}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 8 }}>
+                <span style={{ color: '#0f172a', fontWeight: 600, fontSize: 14 }}>{r.customer_name || 'Anonymous'}</span>
+                <span style={{ color: '#94a3b8', fontSize: 12, flexShrink: 0 }}>
+                  {r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                </span>
+              </div>
+              <div style={{ marginBottom: 8 }}><Stars rating={r.rating} /></div>
+              {(r.review_text || r.customer_edited_text) && (
+                <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.6, margin: '0 0 6px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  {cleanText(r.review_text || r.customer_edited_text)}
+                </p>
+              )}
+              {r.status === 'private' && r.private_feedback && (
+                <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.6, margin: '0 0 6px', fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  Private feedback: {cleanText(r.private_feedback)}
+                </p>
+              )}
+              {r.status !== 'private' && r.private_feedback && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+                  {decodeEntities(cleanText(r.private_feedback)).split(',').map((t) => t.trim()).filter(Boolean).map((tag, i) => (
+                    <span key={i} style={{ padding: '2px 8px', borderRadius: 20, background: 'var(--surface-tint)', color: 'var(--ink-3)', fontSize: 11, fontWeight: 500 }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <StatusBadge status={r.status} />
+              </div>
+            </div>
+          ))
+        )
+      )}
+
+      {/* ── Pagination (hidden on insights tab) ── */}
+      {tab !== 'insights' && data.pages > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 24, flexWrap: 'wrap' }}>
           <PaginationBtn label="← Prev" disabled={page === 1} onClick={() => setPage((p) => Math.max(1, p - 1))} />
           {Array.from({ length: data.pages }, (_, i) => i + 1).map((p) => (
