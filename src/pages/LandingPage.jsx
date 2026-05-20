@@ -673,7 +673,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 /* ── RESPONSIVE ── */
 @media (max-width: 1080px) {
   .lp-hero-grid { grid-template-columns: 1fr; gap: 48px; }
-  .lp-battle { max-width: 520px; }
+  .lp-battle { max-width: 520px; margin: 0 auto; }
   .lp-features { grid-template-columns: 1fr; }
   .lp-dash-hero { grid-template-columns: 1fr; }
   .lp-tg { grid-template-columns: 1fr; }
@@ -700,21 +700,30 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-price-card { padding: 28px 22px; }
 }
 @media (max-width: 768px) {
+  .lp-hero { overflow-x: hidden; }
   /* Battle: switch from absolute-positioned overlap to vertical flex stack */
   .lp-battle {
     height: auto !important;
     display: flex;
     flex-direction: column;
     gap: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: visible;
   }
   .lp-battle-card {
     position: relative !important;
     width: 100% !important;
+    max-width: 100% !important;
     top: auto !important; bottom: auto !important;
-    left: auto !important; right: auto !important;
+    left: 0 !important; right: auto !important;
+    margin-left: 0 !important; margin-right: 0 !important;
     transform: none !important;
     animation: none !important;
     opacity: 1 !important;
+    box-sizing: border-box;
   }
   .lp-battle-card.them {
     padding-top: 22px !important;
@@ -728,16 +737,18 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-chase-arrow {
     position: relative !important;
     top: auto !important; right: auto !important;
+    left: auto !important;
     display: inline-flex !important;
     margin: -8px auto !important;
     z-index: 5;
   }
   .lp-chase-caret { display: none !important; }
-  /* VS connector: horizontal divider */
+  /* VS connector: horizontal divider, centered */
   .lp-vs-connector {
     display: flex !important;
     position: relative !important;
     top: auto !important; left: auto !important;
+    right: auto !important;
     transform: none !important;
     flex-direction: row;
     align-items: center;
