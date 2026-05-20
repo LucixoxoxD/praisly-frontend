@@ -214,7 +214,7 @@ export default function Reviews() {
       })
       .catch(err => console.warn('[Reviews] stats fetch failed:', err))
 
-    api.get('/api/reviews/list?limit=500&page=1')
+    api.get('/api/reviews/list?limit=50&page=1')
       .then(r => {
         const reviews = r.data?.reviews || r.data || []
         console.log('[Reviews] allReviews sample:', reviews[0], 'total:', reviews.length)
