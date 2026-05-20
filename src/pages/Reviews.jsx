@@ -129,6 +129,7 @@ const PAGE_CSS = `
   .rv-bar-track { width: 100%; height: 4px; background: var(--surface-tint); border-radius: 2px; overflow: hidden; }
   .rv-bar-fill { height: 4px; border-radius: 2px; }
 
+  .rv-top-row { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
   .rv-bottom { display: grid; grid-template-columns: 1.8fr 1fr; gap: 14px; margin-bottom: 28px; }
   .rv-chart-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
   .rv-chart-title { font-size: 15px; font-weight: 700; color: var(--ink); margin: 0 0 3px; }
@@ -180,6 +181,7 @@ const PAGE_CSS = `
   .ins-theme-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
 
   @media (max-width: 768px) {
+    .rv-top-row { grid-template-columns: 1fr; }
     .rv-cards { grid-template-columns: 1fr 1fr; }
     .rv-bottom { grid-template-columns: 1fr; }
     .rv-header-right { flex-wrap: wrap; }
@@ -501,12 +503,12 @@ function InsightsPanel({ data, biz }) {
   )
 }
 
-function FunnelCard({ icon, iconBg, label, subtitle, value, barColor, barPct }) {
+function FunnelCard({ icon, iconBg, label, subtitle, value, barColor, barPct, isEmpty }) {
   return (
-    <div className="rv-card">
+    <div className="rv-card" style={isEmpty ? { border: '1.5px dashed var(--line)' } : {}}>
       <div className="rv-card-top">
-        <div className="rv-icon" style={{ background: iconBg }}>{icon}</div>
-        {barPct > 0 && <span className="rv-pct-badge">+{barPct.toFixed(0)}%</span>}
+        <div className="rv-icon" style={{ background: iconBg, opacity: isEmpty ? 0.5 : 1 }}>{icon}</div>
+        {barPct > 0 && !isEmpty && <span className="rv-pct-badge">+{barPct.toFixed(0)}%</span>}
       </div>
       <div className="rv-label">{label}</div>
       <div className="rv-card-sub">{subtitle}</div>
@@ -611,7 +613,8 @@ export default function Reviews() {
     const viewsToHigh = pageViews > 0 ? (highRatings / pageViews * 100) : 0
     const highToClick = highRatings > 0 ? (googleClicks / highRatings * 100) : 0
 
-    return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick }
+    const negativeBlocked = allReviews.filter(r => r.is_positive === false).length
+    return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick, negativeBlocked }
   }, [stats, allReviews, data.total])
 
   const chartData = useMemo(() => {
@@ -659,71 +662,51 @@ export default function Reviews() {
         </div>
       </div>
 
-      {/* ── 4 stat cards ── */}
-      <div className="rv-cards">
-        <FunnelCard
-          icon="🔗"
-          iconBg="#EFF6FF"
-          label="Page views"
-          subtitle="Customer visits to your review page"
-          value={metrics.pageViews}
-          barColor="#3B82F6"
-          barPct={metrics.pageViews > 0 ? 100 : 0}
-        />
-        <FunnelCard
-          icon="⭐"
-          iconBg="#FFFBEB"
-          label="High ratings (4–5★)"
-          subtitle="From in-flow sentiment taps"
-          value={metrics.highRatings}
-          barColor="#D89020"
-          barPct={metrics.viewsToHigh}
-        />
-        <FunnelCard
-          icon="✨"
-          iconBg="#F5F3FF"
-          label="AI drafts used"
-          subtitle="Customers who used a generated draft"
-          value={metrics.aiDrafts}
-          barColor="#8B5CF6"
-          barPct={metrics.pageViews > 0 ? (metrics.aiDrafts / metrics.pageViews * 100) : 0}
-        />
-        <FunnelCard
-          icon="🔍"
-          iconBg="#F0FDF4"
-          label="Google review clicks"
-          subtitle="Taps on your Google review button"
-          value={metrics.googleClicks}
-          barColor="#1F8A5B"
-          barPct={metrics.viewsToHigh > 0 ? (metrics.highToClick) : 0}
-        />
-      </div>
+      {/* ── Row 1: Negative Reviews Blocked + Global Conversion ── */}
+      <div className="rv-top-row">
 
-      {/* ── Chart + Conversion ── */}
-      <div className="rv-bottom">
-        <div className="rv-chart-card">
-          <div className="rv-chart-title">Review growth</div>
-          <div className="rv-chart-sub">Daily page views vs. Google review taps (last 7 days)</div>
-          <div className="rv-chart-legend">
-            <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#3B82F6' }} />Page views</span>
-            <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#D89020' }} />Google clicks</span>
+        {/* Blocked banner */}
+        <div style={{
+          background: '#FEF2F2',
+          borderRadius: 12,
+          padding: '18px 22px',
+          borderLeft: '4px solid #EF4444',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 20,
+          flexWrap: 'wrap',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ fontSize: 30, lineHeight: 1 }}>🛡️</div>
+            <div>
+              <div style={{ fontSize: 36, fontWeight: 800, color: '#DC2626', lineHeight: 1.1 }}>
+                {metrics.negativeBlocked}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginTop: 2 }}>
+                Negative Reviews Blocked
+              </div>
+              <div style={{ fontSize: 12, color: '#6B7280', marginTop: 4, maxWidth: 340, lineHeight: 1.5 }}>
+                {metrics.negativeBlocked > 0
+                  ? 'These would have been 1–2 star Google reviews — Praisly caught them first'
+                  : 'When unhappy customers use your QR, their feedback comes to you privately — never to Google'}
+              </div>
+            </div>
           </div>
-          {hasChartData ? (
-            <ResponsiveContainer width="100%" height={140}>
-              <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barGap={4}>
-                <XAxis dataKey="day" fontSize={11} tick={{ fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-                <Bar dataKey="views" name="Page views" fill="#3B82F6" radius={[3,3,0,0]} maxBarSize={24} />
-                <Bar dataKey="clicks" name="Google clicks" fill="#D89020" radius={[3,3,0,0]} maxBarSize={24} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="rv-chart-empty">
-              Not enough data yet — reviews will appear here as customers use your QR
+          {metrics.negativeBlocked > 0 && (
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 2 }}>Estimated damage prevented</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#DC2626' }}>
+                {formatINR(metrics.negativeBlocked * 5000)}
+              </div>
+              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
+                Based on avg. revenue impact of a negative Google review
+              </div>
             </div>
           )}
         </div>
 
+        {/* Global conversion card */}
         <div className="rv-conv-card">
           <div className="rv-conv-title">Global conversion</div>
           <div className="rv-conv-pct">{metrics.convPct.toFixed(1)}%</div>
@@ -747,6 +730,80 @@ export default function Reviews() {
             </div>
           </div>
         </div>
+
+      </div>
+
+      {/* ── 4 funnel stat cards ── */}
+      {(() => {
+        const allMetricsZero = metrics.pageViews === 0 && metrics.highRatings === 0 && metrics.aiDrafts === 0 && metrics.googleClicks === 0
+        return (
+          <div className="rv-cards">
+            <FunnelCard
+              icon="🔗"
+              iconBg="#EFF6FF"
+              label="Page views"
+              subtitle="Customer visits to your review page"
+              value={metrics.pageViews}
+              barColor="#3B82F6"
+              barPct={metrics.pageViews > 0 ? 100 : 0}
+              isEmpty={allMetricsZero}
+            />
+            <FunnelCard
+              icon="⭐"
+              iconBg="#FFFBEB"
+              label="High ratings (4–5★)"
+              subtitle="From in-flow sentiment taps"
+              value={metrics.highRatings}
+              barColor="#D89020"
+              barPct={metrics.viewsToHigh}
+              isEmpty={allMetricsZero}
+            />
+            <FunnelCard
+              icon="✨"
+              iconBg="#F5F3FF"
+              label="AI drafts used"
+              subtitle="Customers who used a generated draft"
+              value={metrics.aiDrafts}
+              barColor="#8B5CF6"
+              barPct={metrics.pageViews > 0 ? (metrics.aiDrafts / metrics.pageViews * 100) : 0}
+              isEmpty={allMetricsZero}
+            />
+            <FunnelCard
+              icon="🔍"
+              iconBg="#F0FDF4"
+              label="Google review clicks"
+              subtitle="Taps on your Google review button"
+              value={metrics.googleClicks}
+              barColor="#1F8A5B"
+              barPct={metrics.viewsToHigh > 0 ? metrics.highToClick : 0}
+              isEmpty={allMetricsZero}
+            />
+          </div>
+        )
+      })()}
+
+      {/* ── Review growth chart — full width ── */}
+      <div className="rv-chart-card" style={{ marginBottom: 28 }}>
+        <div className="rv-chart-title">Review growth</div>
+        <div className="rv-chart-sub">Daily page views vs. Google review taps (last 7 days)</div>
+        <div className="rv-chart-legend">
+          <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#3B82F6' }} />Page views</span>
+          <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#D89020' }} />Google clicks</span>
+        </div>
+        {hasChartData ? (
+          <ResponsiveContainer width="100%" height={140}>
+            <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barGap={4}>
+              <XAxis dataKey="day" fontSize={11} tick={{ fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+              <Bar dataKey="views" name="Page views" fill="#3B82F6" radius={[3,3,0,0]} maxBarSize={24} />
+              <Bar dataKey="clicks" name="Google clicks" fill="#D89020" radius={[3,3,0,0]} maxBarSize={24} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="rv-chart-empty">
+            Not enough data yet — reviews will appear here as customers use your QR
+          </div>
+        )}
       </div>
 
       {/* Divider */}
