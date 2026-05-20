@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import WhatsAppButton from './WhatsAppButton'
 
@@ -333,6 +333,75 @@ function formatSubtitle(biz) {
   return null
 }
 
+// ─── PWA swipe-back gesture ───────────────────────────────────────────────────
+function useSwipeBack() {
+  const location = useLocation()
+  const isPWA = isStandaloneApp()
+  const [swipeProgress, setSwipeProgress] = useState(0)
+  const [swipeOver, setSwipeOver] = useState(false)
+  const state = useRef({ active: false, startX: 0, startY: 0, lastX: 0 })
+
+  // Don't activate on the dashboard root (nowhere to go back to)
+  const isHome = location.pathname === '/dashboard'
+
+  useEffect(() => {
+    if (!isPWA || isHome) return
+
+    const EDGE = 30       // px from left edge to start gesture
+    const THRESHOLD = 80  // px horizontal travel to confirm back
+
+    function onTouchStart(e) {
+      const t = e.touches[0]
+      // Ignore input fields, textareas, selects
+      const tag = e.target.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (t.clientX > EDGE) return
+      state.current = { active: true, startX: t.clientX, startY: t.clientY, lastX: t.clientX }
+    }
+
+    function onTouchMove(e) {
+      if (!state.current.active) return
+      const t = e.touches[0]
+      const dx = t.clientX - state.current.startX
+      const dy = Math.abs(t.clientY - state.current.startY)
+
+      // Cancel if it looks like a vertical scroll
+      if (dy > dx && dy > 10) {
+        state.current.active = false
+        setSwipeProgress(0)
+        setSwipeOver(false)
+        return
+      }
+
+      state.current.lastX = t.clientX
+      const progress = Math.min(Math.max(dx / THRESHOLD, 0), 1)
+      setSwipeProgress(progress)
+      setSwipeOver(progress >= 1)
+    }
+
+    function onTouchEnd() {
+      if (!state.current.active) return
+      const dx = state.current.lastX - state.current.startX
+      state.current.active = false
+      if (dx >= THRESHOLD) window.history.back()
+      setSwipeProgress(0)
+      setSwipeOver(false)
+    }
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true })
+    document.addEventListener('touchmove', onTouchMove, { passive: true })
+    document.addEventListener('touchend', onTouchEnd, { passive: true })
+
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart)
+      document.removeEventListener('touchmove', onTouchMove)
+      document.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [isPWA, isHome])
+
+  return { swipeProgress, swipeOver }
+}
+
 function Sidebar({ onClose }) {
   const biz      = authService.getBusiness()
   const initials = getInitials(biz?.business_name)
@@ -468,10 +537,31 @@ function Sidebar({ onClose }) {
 
 export default function DashboardLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const isPWA = isStandaloneApp()
+  const { swipeProgress, swipeOver } = useSwipeBack()
   useEffect(() => { document.title = 'Praisly Dashboard' }, [])
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+      {/* PWA swipe-back indicator */}
+      {swipeProgress > 0.02 && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed', left: 0, top: '50%', transform: 'translateY(-50%)',
+            width: 36, height: 60, borderRadius: '0 30px 30px 0',
+            background: swipeOver ? 'rgba(31,138,91,0.85)' : 'rgba(26,22,16,0.6)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            opacity: Math.min(swipeProgress * 1.4, 1),
+            zIndex: 9999, pointerEvents: 'none',
+            transition: 'background 0.12s',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+        </div>
+      )}
       {/* Desktop sidebar */}
       <div className="hidden md:block" style={{ flexShrink: 0, width: 220 }}>
         <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
@@ -528,6 +618,22 @@ export default function DashboardLayout({ children }) {
 
           {/* Spacer — desktop pushes bell to far right */}
           <div className="hidden md:block" style={{ flex: 1 }} />
+
+          {/* Refresh — PWA only (no browser button available) */}
+          {isPWA && (
+            <button
+              onClick={() => window.location.reload()}
+              style={{ color: 'var(--ink-4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: 8 }}
+              aria-label="Refresh page"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M8 16H3v5"/>
+              </svg>
+            </button>
+          )}
 
           {/* Notification bell — both desktop & mobile */}
           <NotificationBell />
