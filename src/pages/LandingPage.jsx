@@ -689,9 +689,6 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-steps { grid-template-columns: 1fr; }
   .lp-dash-stats { grid-template-columns: 1fr; }
   .lp-cta-card { padding: 40px 28px; }
-  .lp-battle { height: 440px; }
-  .lp-battle-card.you { top: auto; bottom: 0; }
-  .lp-vs-connector { display: none; }
   .lp-hero h1 { font-size: 40px; }
   .lp-story-grid { grid-template-columns: 1fr; }
   .lp-roi-strip { grid-template-columns: 1fr; text-align: center; }
@@ -700,10 +697,61 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 @media (max-width: 480px) {
   .lp-wrap { padding: 0 20px; }
   .lp-nav-inner { padding: 12px 20px; }
-  .lp-battle-card.them { width: 92%; }
-  .lp-battle-card.you { width: 100%; }
-  .lp-chase-arrow { display: none; }
   .lp-price-card { padding: 28px 22px; }
+}
+@media (max-width: 768px) {
+  /* Battle: switch from absolute-positioned overlap to vertical flex stack */
+  .lp-battle {
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .lp-battle-card {
+    position: relative !important;
+    width: 100% !important;
+    top: auto !important; bottom: auto !important;
+    left: auto !important; right: auto !important;
+    transform: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .lp-battle-card.them {
+    padding-top: 22px !important;
+  }
+  .lp-battle-card.you {
+    box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1) !important;
+    border-left: 3px solid var(--primary) !important;
+  }
+  .lp-preview-pill { display: none !important; }
+  /* Chase arrow: in-flow between the two cards, centered */
+  .lp-chase-arrow {
+    position: relative !important;
+    top: auto !important; right: auto !important;
+    display: inline-flex !important;
+    margin: -8px auto !important;
+    z-index: 5;
+  }
+  .lp-chase-caret { display: none !important; }
+  /* VS connector: horizontal divider */
+  .lp-vs-connector {
+    display: flex !important;
+    position: relative !important;
+    top: auto !important; left: auto !important;
+    transform: none !important;
+    flex-direction: row;
+    align-items: center;
+    margin: -12px auto;
+    width: 80px;
+    z-index: 5;
+  }
+  .lp-vs-connector::before,
+  .lp-vs-connector::after {
+    height: 0 !important;
+    width: 28px !important;
+    border-left: none !important;
+    border-top: 1.5px dashed var(--line-2);
+  }
 }
 `
 
