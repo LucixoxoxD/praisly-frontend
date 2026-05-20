@@ -245,7 +245,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 }
 .lp-battle-card.them {
   top: 0; right: 0; width: 78%; transform: rotate(-1.5deg); opacity: 0.85;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm); padding-top: 38px;
   animation: cardSlideUpThem 0.6s ease-out;
 }
 .lp-battle-card.you {
@@ -258,10 +258,11 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-bc-where {
   font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--ink-3);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
 }
 .lp-bc-flag {
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
-  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
 }
 .lp-bc-flag.stalled { background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; }
 .lp-bc-flag.climbing { background: var(--ink); color: var(--primary); }
@@ -290,7 +291,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-pill.up { background: var(--win-soft); color: var(--win); box-shadow: 0 0 8px rgba(31,138,91,0.18); }
 .lp-pill.flat { background: var(--surface-2); color: var(--ink-3); border: 1px solid var(--line); }
 .lp-chase-arrow {
-  position: absolute; bottom: -14px; right: 20px; z-index: 3;
+  position: absolute; top: 192px; right: 14%; z-index: 10;
   background: var(--ink); color: var(--primary);
   padding: 9px 14px 9px 12px; border-radius: 999px;
   font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
@@ -299,7 +300,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   animation: subtlePulse 3s ease-in-out infinite;
 }
 .lp-chase-caret {
-  position: absolute; bottom: -18px; right: 28px; z-index: 3;
+  position: absolute; top: 228px; right: calc(14% + 14px); z-index: 10;
   font-size: 9px; color: var(--primary-ink); opacity: 0.65; line-height: 1;
 }
 .lp-preview-pill {
@@ -873,12 +874,13 @@ export default function LandingPage() {
                   <polyline fill="none" stroke="#B8AFA4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points="0,10 8,11 16,11 24,12 32,12 40,13 48,13 56,14 64,14 72,15 80,15 88,16"/>
                 </svg>
               </div>
-              {/* Chase pill anchored to bottom of competitor card */}
-              <div className="lp-chase-arrow">
-                <ArrowUp /> 15 to overtake
-              </div>
-              <div className="lp-chase-caret">▼</div>
             </div>
+
+            {/* Chase pill — sibling of both cards so it clears the YOU card's stacking context */}
+            <div className="lp-chase-arrow">
+              <ArrowUp /> 15 to overtake
+            </div>
+            <div className="lp-chase-caret">▼</div>
 
             {/* VS bridge */}
             <div className="lp-vs-connector" aria-hidden="true">
