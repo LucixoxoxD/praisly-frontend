@@ -59,6 +59,9 @@ const LAYOUT_CSS = `
   .content-area { padding: 28px 24px; }
   @media (max-width: 767px) { .content-area { padding: 20px 16px 80px; } }
 
+  .sidebar-inner { padding: 16px 12px; }
+  @media (max-width: 767px) { .sidebar-inner { padding-bottom: 80px; } }
+
   @keyframes dropIn {
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: none; }
@@ -467,7 +470,7 @@ function Sidebar({ onClose, mobileDrawer = false }) {
   const isPaid   = plan === 'monthly' || plan === 'yearly'
 
   return (
-    <div style={{
+    <div className="sidebar-inner" style={{
       width: 220,
       background: 'var(--surface)',
       borderRight: '1px solid var(--line)',
@@ -475,7 +478,6 @@ function Sidebar({ onClose, mobileDrawer = false }) {
       flexDirection: 'column',
       height: '100%',
       minHeight: '100vh',
-      padding: '16px 12px',
     }}>
       <style>{LAYOUT_CSS}</style>
 
