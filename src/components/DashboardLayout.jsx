@@ -353,7 +353,7 @@ const BOTTOM_ITEMS = [
   },
 ]
 
-function BottomNav({ onMoreClick, moreActive }) {
+function BottomNav() {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -385,12 +385,6 @@ function BottomNav({ onMoreClick, moreActive }) {
           </button>
         )
       })}
-      <button onClick={onMoreClick} style={btnStyle(moreActive)} aria-label="More options">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
-        </svg>
-        <span style={{ fontSize: 10, fontWeight: moreActive ? 700 : 500, lineHeight: 1 }}>More</span>
-      </button>
     </nav>
   )
 }
@@ -465,7 +459,7 @@ function useSwipeBack(mobileOpen) {
   return { swipeProgress, swipeOver }
 }
 
-function Sidebar({ onClose }) {
+function Sidebar({ onClose, mobileDrawer = false }) {
   const biz      = authService.getBusiness()
   const initials = getInitials(biz?.business_name)
   const subtitle = formatSubtitle(biz)
@@ -506,16 +500,20 @@ function Sidebar({ onClose }) {
         )}
       </div>
 
-      {/* Workspace nav group */}
-      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px' }}>
-        Workspace
-      </div>
-      {WORKSPACE_NAV.map(item => (
-        <NavLink key={item.to} to={item.to} onClick={onClose} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          <span style={{ fontSize: 15 }}>{item.icon}</span>
-          <span>{item.label}</span>
-        </NavLink>
-      ))}
+      {/* Workspace nav group — desktop only (mobile uses bottom nav) */}
+      {!mobileDrawer && (
+        <>
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px' }}>
+            Workspace
+          </div>
+          {WORKSPACE_NAV.map(item => (
+            <NavLink key={item.to} to={item.to} onClick={onClose} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+              <span style={{ fontSize: 15 }}>{item.icon}</span>
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </>
+      )}
 
       {/* Account nav group */}
       <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px', marginTop: 20 }}>
@@ -639,7 +637,7 @@ export default function DashboardLayout({ children }) {
           style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)', opacity: mobileOpen ? 1 : 0, pointerEvents: mobileOpen ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}
         />
         <div style={{ position: 'fixed', left: 0, top: 0, bottom: 0, zIndex: 50, width: 220, transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 0.3s ease' }}>
-          <Sidebar onClose={() => setMobileOpen(false)} />
+          <Sidebar onClose={() => setMobileOpen(false)} mobileDrawer />
         </div>
       </div>
 
@@ -661,7 +659,21 @@ export default function DashboardLayout({ children }) {
             borderBottom: '1px solid var(--line)',
           }}
         >
-          {/* Title — mobile only, absolutely centered so right-side icons don't offset it */}
+          {/* Hamburger — mobile only, opens sidebar */}
+          <button
+            className="md:hidden"
+            onClick={() => setMobileOpen(o => !o)}
+            style={{ color: 'var(--ink-4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+            aria-label="Open menu"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+
+          {/* Title — mobile only, absolutely centered */}
           <span
             className="md:hidden"
             style={{
@@ -674,8 +686,8 @@ export default function DashboardLayout({ children }) {
             Praisly
           </span>
 
-          {/* Spacer — desktop pushes bell to far right */}
-          <div className="hidden md:block" style={{ flex: 1 }} />
+          {/* Spacer — pushes bell/refresh to far right on all screen sizes */}
+          <div style={{ flex: 1 }} />
 
           {/* Refresh — PWA only (no browser button available) */}
           {isPWA && (
@@ -707,7 +719,7 @@ export default function DashboardLayout({ children }) {
       <WhatsAppButton message="Hi Praisly team, I need help with my account" />
 
       {/* Fixed bottom nav — mobile only */}
-      <BottomNav onMoreClick={() => setMobileOpen(true)} moreActive={mobileOpen} />
+      <BottomNav />
     </div>
   )
 }

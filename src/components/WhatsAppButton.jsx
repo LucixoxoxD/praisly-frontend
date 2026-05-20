@@ -14,7 +14,7 @@ export default function WhatsAppButton({ message, size = 56 }) {
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
 
   return (
-    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+    <div className="wa-fab" style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
       {hovered && (
         <div style={{
           background: '#1e293b', color: 'white',
@@ -49,7 +49,7 @@ export default function WhatsAppButton({ message, size = 56 }) {
       >
         {WA_ICON}
       </a>
-      <style>{`@keyframes wa-fadein { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }`}</style>
+      <style>{`@keyframes wa-fadein { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } } @media (max-width: 767px) { .wa-fab { bottom: 80px !important; } }`}</style>
     </div>
   )
 }
