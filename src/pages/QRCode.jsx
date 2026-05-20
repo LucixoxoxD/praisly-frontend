@@ -307,21 +307,29 @@ export default function QRCode() {
                   }}
                 />
 
-                {/* Google logo + stars */}
+                {/* Google wordmark + stars */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 10,
+                  gap: 8,
                   marginBottom: 6,
                 }}>
-                  <img
-                    src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
-                    alt="Google"
-                    crossOrigin="anonymous"
-                    style={{ height: 22, objectFit: 'contain' }}
-                  />
-                  <span style={{ fontSize: 17, letterSpacing: 1 }}>⭐⭐⭐⭐⭐</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1px', fontSize: '22px', fontWeight: '700', fontFamily: 'Arial, sans-serif', letterSpacing: '-0.5px' }}>
+                    <span style={{ color: '#4285F4' }}>G</span>
+                    <span style={{ color: '#EA4335' }}>o</span>
+                    <span style={{ color: '#FBBC05' }}>o</span>
+                    <span style={{ color: '#4285F4' }}>g</span>
+                    <span style={{ color: '#34A853' }}>l</span>
+                    <span style={{ color: '#EA4335' }}>e</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '3px' }}>
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} width="18" height="18" viewBox="0 0 24 24" fill="#FBBC05">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    ))}
+                  </div>
                 </div>
                 <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, letterSpacing: '0.2px' }}>
                   Scan to share your experience
