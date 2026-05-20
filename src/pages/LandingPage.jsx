@@ -675,17 +675,17 @@ export default function LandingPage() {
             {/* Competitor card */}
             <div className="lp-battle-card them">
               <div className="lp-bc-head">
-                <span className="lp-bc-where">Sector 41 · Noida</span>
+                <span className="lp-bc-where">Koramangala · Bengaluru</span>
                 <span className="lp-bc-flag stalled">Stalled · 4w</span>
               </div>
-              <div className="lp-bc-name">City Dental Care</div>
-              <div className="lp-bc-meta">Currently #2 · Established 2015</div>
+              <div className="lp-bc-name">Star Hair Studio</div>
+              <div className="lp-bc-meta">Currently #2 · Established 2014</div>
               <div className="lp-bc-row">
                 <div className="lp-bc-rank"><span className="hash">#</span><span className="n">2</span></div>
                 <div className="lp-bc-stats">
-                  <div className="lp-bc-stat-row"><span className="lbl">Reviews</span><span className="val">61</span></div>
+                  <div className="lp-bc-stat-row"><span className="lbl">Reviews</span><span className="val">147</span></div>
                   <div className="lp-bc-stat-row"><span className="lbl">Rating</span><span className="val">4.1 <span style={{ color: '#F5B945' }}>★</span></span></div>
-                  <div className="lp-bc-stat-row"><span className="lbl">This month</span><span className="val flat">+4</span></div>
+                  <div className="lp-bc-stat-row"><span className="lbl">This month</span><span className="val flat">+5</span></div>
                 </div>
               </div>
               <div className="lp-bc-foot">
@@ -698,26 +698,26 @@ export default function LandingPage() {
 
             {/* Chase indicator */}
             <div className="lp-chase-arrow">
-              <ArrowUp /> 3 to overtake
+              <ArrowUp /> 15 to overtake
             </div>
 
             {/* Your card */}
             <div className="lp-battle-card you">
               <div className="lp-bc-head">
-                <span className="lp-bc-where">Sector 18 · Noida</span>
-                <span className="lp-bc-flag climbing">🔥 Climbing · +8 this month</span>
+                <span className="lp-bc-where">Indiranagar · Bengaluru</span>
+                <span className="lp-bc-flag climbing">🔥 Climbing · +18 this month</span>
               </div>
               <div className="lp-bc-name">
-                Sharma Dental Clinic{' '}
+                Glow Beauty Salon{' '}
                 <span style={{ fontSize: 11, background: 'var(--primary)', color: '#2c1e07', padding: '2px 7px', borderRadius: 6, marginLeft: 6, fontWeight: 800, letterSpacing: '.06em', fontFamily: 'var(--font-body)', verticalAlign: 'middle' }}>YOU</span>
               </div>
-              <div className="lp-bc-meta">Currently #3 · Established 2018</div>
+              <div className="lp-bc-meta">Currently #3 · Established 2019</div>
               <div className="lp-bc-row">
                 <div className="lp-bc-rank"><span className="hash">#</span><span className="n">3</span></div>
                 <div className="lp-bc-stats">
-                  <div className="lp-bc-stat-row"><span className="lbl">Reviews</span><span className="val">58</span></div>
+                  <div className="lp-bc-stat-row"><span className="lbl">Reviews</span><span className="val">132</span></div>
                   <div className="lp-bc-stat-row"><span className="lbl">Rating</span><span className="val">4.5 <span style={{ color: '#F5B945' }}>★</span></span></div>
-                  <div className="lp-bc-stat-row"><span className="lbl">This month</span><span className="val up">+8</span></div>
+                  <div className="lp-bc-stat-row"><span className="lbl">This month</span><span className="val up">+18</span></div>
                 </div>
               </div>
               <div className="lp-bc-foot">
