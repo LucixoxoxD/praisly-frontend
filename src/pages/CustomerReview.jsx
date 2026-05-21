@@ -195,6 +195,7 @@ export default function CustomerReview() {
   const [reviewId, setReviewId]       = useState(null)
   const [googleReviewUrl, setGoogleReviewUrl] = useState(null)
   const [regenerating, setRegenerating] = useState(false)
+  const [regenFailed, setRegenFailed]   = useState(false)
   const [copied, setCopied]           = useState(false)
   const [googleClicked, setGoogleClicked] = useState(false)
 
@@ -283,6 +284,7 @@ export default function CustomerReview() {
 
   async function handleRegenerate() {
     setRegenerating(true)
+    setRegenFailed(false)
     try {
       const res = await api.post(`/api/review/${businessId}/regenerate`, {
         review_id: reviewId,
@@ -290,9 +292,15 @@ export default function CustomerReview() {
         selected_tags: selectedTags,
         previous_draft: draft,
       })
-      setDraft(res.data.draft || draft)
-      setCopied(false)
-    } catch {}
+      if (res.data.regenerated === false) {
+        setRegenFailed(true)
+      } else {
+        setDraft(res.data.draft || draft)
+        setCopied(false)
+      }
+    } catch {
+      setRegenFailed(true)
+    }
     setRegenerating(false)
   }
 
@@ -541,7 +549,7 @@ export default function CustomerReview() {
 
               {/* Try another — small text button */}
               {!submitting && draft && (
-                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ textAlign: 'center', marginBottom: regenFailed ? 8 : 16 }}>
                   <button
                     onClick={handleRegenerate}
                     disabled={regenerating}
@@ -556,6 +564,11 @@ export default function CustomerReview() {
                   >
                     {regenerating ? '…generating' : '🔄 Try another version'}
                   </button>
+                  {regenFailed && (
+                    <p style={{ fontSize: 12, color: '#f59e0b', margin: '0 0 8px', fontWeight: 500 }}>
+                      Couldn't generate a new version — try editing it yourself.
+                    </p>
+                  )}
                 </div>
               )}
 

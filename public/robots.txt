@@ -1,12 +1,15 @@
 User-agent: *
-Disallow: /review/
+Allow: /
 Disallow: /dashboard
 Disallow: /reviews
-Disallow: /qr
-Disallow: /send
 Disallow: /settings
 Disallow: /billing
 Disallow: /onboarding
-Allow: /
-
+Disallow: /qr-code
+Disallow: /whatsapp
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /review/
 Sitemap: https://praisly.in/sitemap.xml

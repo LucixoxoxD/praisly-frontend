@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import DOMPurify from 'dompurify'
 import api, { authService } from '../services/api'
 import { stripMarkdown } from '../utils/helpers'
 
@@ -908,7 +909,7 @@ function AiStrip({ aiRec, leaderboard, onDismiss, onSendBlast }) {
       <div className="d-ai-icon">⚡</div>
       <div className="d-ai-content">
         <div className="d-ai-eyebrow">⚡ PRAISLY AI · COMPETITIVE INSIGHT</div>
-        <div className="d-ai-title" dangerouslySetInnerHTML={{ __html: message }} />
+        <div className="d-ai-title" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message) }} />
       </div>
       <button className="d-ai-cta" onClick={onSendBlast}>📤 Send WhatsApp blast</button>
       <button className="d-ai-dismiss" onClick={onDismiss} aria-label="Dismiss">×</button>
@@ -1229,7 +1230,10 @@ export default function Dashboard() {
 
   const datePill = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })
 
-  useEffect(() => {
+  const fetchDashboardData = useCallback(() => {
+    setLoading(true)
+    setLoadingComps(true)
+    setFetchError(null)
     Promise.all([
       api.get('/api/reviews/stats'),
       api.get('/api/auth/me'),
@@ -1253,6 +1257,10 @@ export default function Dashboard() {
       setFetchError(err?.response?.status || 'network')
     }).finally(() => { setLoading(false); setLoadingComps(false) })
   }, [])
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [fetchDashboardData])
 
   async function dismissMilestone() {
     setMilestoneDismissed(true)
@@ -1359,12 +1367,12 @@ export default function Dashboard() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center', padding: '0 24px' }}>
           <p style={{ fontSize: 48, marginBottom: 16 }}>😕</p>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Something went wrong</h2>
-          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 24 }}>Please refresh the page to try again.</p>
+          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 24 }}>Please try again.</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={fetchDashboardData}
             style={{ padding: '10px 24px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            Refresh
+            Retry
           </button>
         </div>
       </>
