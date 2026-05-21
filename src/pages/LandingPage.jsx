@@ -238,7 +238,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-hero-trust strong { color: var(--ink); font-weight: 700; }
 
 /* ── BATTLE CARDS ── */
-.lp-battle { position: relative; height: 540px; }
+.lp-battle { position: relative; height: 540px; overflow: visible; }
 .lp-battle-card {
   position: absolute; background: var(--surface); border: 1px solid var(--line);
   border-radius: 24px; padding: 22px 24px; box-shadow: var(--shadow-md); width: 100%;
@@ -637,7 +637,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 /* ── VS CONNECTOR ── */
 .lp-vs-connector {
   position: absolute; top: 178px; left: 44%;
-  transform: translate(-50%, -50%); z-index: 5;
+  transform: translate(-50%, -50%); z-index: 10;
   display: flex; flex-direction: column; align-items: center;
 }
 .lp-vs-connector::before,
@@ -739,8 +739,8 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
     top: auto !important; right: auto !important;
     left: auto !important;
     display: inline-flex !important;
-    margin: -8px auto !important;
-    z-index: 5;
+    margin: 4px auto !important;
+    z-index: 10;
   }
   .lp-chase-caret { display: none !important; }
   /* VS connector: horizontal divider, centered */
@@ -752,9 +752,9 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
     transform: none !important;
     flex-direction: row;
     align-items: center;
-    margin: -12px auto;
+    margin: 4px auto;
     width: 80px;
-    z-index: 5;
+    z-index: 10;
   }
   .lp-vs-connector::before,
   .lp-vs-connector::after {
