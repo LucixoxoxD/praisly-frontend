@@ -189,6 +189,7 @@ const PAGE_CSS = `
     .ins-theme-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
+    .rv-cards { grid-template-columns: 1fr; }
     .rv-val { font-size: 24px; }
     .rv-conv-pct { font-size: 32px; }
   }

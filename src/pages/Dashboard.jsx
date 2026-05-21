@@ -414,7 +414,7 @@ const PAGE_CSS = `
     cursor: pointer; font-family: inherit; white-space: nowrap;
   }
   .d-btn-primary:hover { opacity: 0.88; }
-  .d-lb-wrap { overflow-x: auto; }
+  .d-lb-wrap { width: 100%; max-width: 100%; overflow-x: auto; }
   table.d-lb { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 500px; }
   .d-lb thead th {
     text-align: left; font-size: 10.5px; letter-spacing: 0.08em;
