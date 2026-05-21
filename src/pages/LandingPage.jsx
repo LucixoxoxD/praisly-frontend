@@ -782,7 +782,7 @@ export default function LandingPage() {
     setDemoLoading(true)
     try {
       const { authService } = await import('../services/api')
-      await authService.login(DEMO_EMAIL, DEMO_PASSWORD)
+      await authService.login({ email: DEMO_EMAIL, password: DEMO_PASSWORD })
       navigate('/dashboard')
     } catch (err) {
       console.error('Demo login failed:', err)
