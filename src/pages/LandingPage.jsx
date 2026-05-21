@@ -195,6 +195,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-hero-grid {
   position: relative; display: grid;
   grid-template-columns: 1.05fr 1fr; gap: 60px; align-items: center;
+  box-sizing: border-box; width: 100%; max-width: 100%;
 }
 .lp-hero-eyebrow {
   display: inline-flex; align-items: center; gap: 10px;
@@ -238,10 +239,10 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-hero-trust strong { color: var(--ink); font-weight: 700; }
 
 /* ── BATTLE CARDS ── */
-.lp-battle { position: relative; height: 540px; overflow: visible; }
+.lp-battle { position: relative; height: 540px; overflow: visible; width: 100%; max-width: 100%; box-sizing: border-box; }
 .lp-battle-card {
   position: absolute; background: var(--surface); border: 1px solid var(--line);
-  border-radius: 24px; padding: 22px 24px; box-shadow: var(--shadow-md); width: 100%;
+  border-radius: 24px; padding: 22px 24px; box-shadow: var(--shadow-md); width: 100%; max-width: 100%; box-sizing: border-box;
 }
 .lp-battle-card.them {
   top: 0; right: 0; width: 78%; transform: rotate(-1.5deg); opacity: 0.85;
@@ -717,18 +718,24 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
     position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
     top: auto !important; bottom: auto !important;
     left: 0 !important; right: auto !important;
     margin-left: 0 !important; margin-right: 0 !important;
     transform: none !important;
     animation: none !important;
     opacity: 1 !important;
-    box-sizing: border-box;
   }
   .lp-battle-card.them {
     padding-top: 22px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
   .lp-battle-card.you {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1) !important;
     border-left: 3px solid var(--primary) !important;
   }
