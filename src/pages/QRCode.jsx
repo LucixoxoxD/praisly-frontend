@@ -309,8 +309,8 @@ export default function QRCode() {
                 />
 
                 {/* Google wordmark + stars */}
-                <div style={{ display: 'table', margin: '16px auto 6px' }}>
-                  <span style={{ display: 'table-cell', verticalAlign: 'middle', fontSize: '28px', fontWeight: '700', fontFamily: 'Arial, sans-serif', letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <span style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'Arial, sans-serif', letterSpacing: '-0.5px' }}>
                     <span style={{ color: '#4285F4' }}>G</span>
                     <span style={{ color: '#EA4335' }}>o</span>
                     <span style={{ color: '#FBBC05' }}>o</span>
@@ -318,13 +318,7 @@ export default function QRCode() {
                     <span style={{ color: '#34A853' }}>l</span>
                     <span style={{ color: '#EA4335' }}>e</span>
                   </span>
-                  <span style={{ display: 'table-cell', verticalAlign: 'middle', paddingLeft: '8px', whiteSpace: 'nowrap' }}>
-                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  </span>
+                  <span style={{ fontSize: '24px', color: '#FBBC05', marginLeft: '8px', letterSpacing: '2px' }}>★★★★★</span>
                 </div>
                 <p style={{ fontSize: 13, color: '#9ca3af', margin: '8px 0 0', letterSpacing: '0.2px' }}>
                   Scan to share your experience
