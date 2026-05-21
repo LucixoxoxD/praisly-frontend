@@ -544,6 +544,7 @@ export default function Reviews() {
   const [insights, setInsights]             = useState(null)
   const [insightsLoading, setInsightsLoading] = useState(false)
   const [insightsFetched, setInsightsFetched] = useState(false)
+  const [error, setError] = useState(null)
 
   const biz = authService.getBusiness()
 
@@ -551,19 +552,17 @@ export default function Reviews() {
   useEffect(() => {
     api.get('/api/reviews/stats')
       .then(r => {
-        console.log('[Reviews] stats:', r.data)
+        setError(null)
         setStats(r.data)
       })
-      .catch(err => console.warn('[Reviews] stats fetch failed:', err))
+      .catch(() => setError('Failed to load data. Please try refreshing the page.'))
 
     api.get('/api/reviews/list?limit=50&page=1')
       .then(r => {
         const reviews = r.data?.reviews || r.data || []
-        console.log('[Reviews] allReviews sample:', reviews[0], 'total:', reviews.length)
-        console.log('[Reviews] status values in sample:', reviews.slice(0, 5).map(rv => ({ id: rv.id, status: rv.status, rating: rv.rating, is_positive: rv.is_positive })))
         setAllReviews(reviews)
       })
-      .catch(err => console.warn('[Reviews] allReviews fetch failed:', err))
+      .catch(() => setError('Failed to load data. Please try refreshing the page.'))
   }, [])
 
   // Fetch paginated list for the review list section
@@ -573,8 +572,8 @@ export default function Reviews() {
     const params = new URLSearchParams({ page, limit: 10 })
     if (tab) params.set('status', tab)
     api.get(`/api/reviews/list?${params}`)
-      .then((r) => setData(r.data))
-      .catch(() => {})
+      .then((r) => { setError(null); setData(r.data) })
+      .catch(() => setError('Failed to load data. Please try refreshing the page.'))
       .finally(() => setLoading(false))
   }, [tab, page])
 
@@ -654,6 +653,15 @@ export default function Reviews() {
   return (
     <div className="fade-up">
       <style>{PAGE_CSS}</style>
+
+      {error && (
+        <div style={{ padding: '12px 16px', backgroundColor: '#FEF2F2', color: '#DC2626', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+          {error}
+          <button onClick={() => { setError(null); window.location.reload() }} style={{ marginLeft: '12px', textDecoration: 'underline', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}>
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* ── Funnel header ── */}
       <div className="rv-funnel-header">
