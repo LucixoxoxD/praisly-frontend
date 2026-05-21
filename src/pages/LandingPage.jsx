@@ -882,7 +882,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="lp-hero-sub">
-              Praisly helps Indian local businesses — salons, clinics, gyms, restaurants, coaching centres — collect more Google reviews, track every competitor in your neighborhood, and climb the local pack. All on autopilot.
+              Your competitor across the street gets 4 new reviews every week. You get none. Praisly gives your customers a QR code, writes the review for them, and shows you exactly who to beat.
             </p>
 
             <div className="lp-hero-ctas">
@@ -911,7 +911,7 @@ export default function LandingPage() {
                 <div style={{ background: 'linear-gradient(135deg,#2a8c5e,#1a6843)' }}>GK</div>
                 <div style={{ background: 'linear-gradient(135deg,#EFC659,#C9971F)' }}>RC</div>
               </div>
-              <div><strong>237 Indian shops</strong> climbing rankings this week</div>
+              <div><strong>200+ Indian businesses</strong> climbing rankings this week</div>
             </div>
           </div>
 
@@ -1049,7 +1049,7 @@ export default function LandingPage() {
                   <div className="lp-t-av" style={{ background: 'linear-gradient(135deg,#2a8c5e,#1a6843)' }}>PS</div>
                   <div>
                     <div className="lp-t-name">Priya Sharma</div>
-                    <div className="lp-t-meta">Glow Beauty Salon · Indiranagar, Bengaluru</div>
+                    <div className="lp-t-meta">Radiance Salon & Spa · HSR Layout, Bengaluru</div>
                   </div>
                 </div>
               </article>
@@ -1585,6 +1585,7 @@ export default function LandingPage() {
           <div className="lp-faq-list">
             {[
               ['Is Praisly allowed by Google?', 'Yes. Customers write and post reviews themselves — Praisly only helps create an optional draft from what they tell us they liked. They can edit it, ignore it, or write their own. We never post on anyone\'s behalf.'],
+              ['Can I cancel anytime?', 'Yes, cancel anytime from your dashboard — no questions asked, no hidden fees. Your subscription stops at the end of your billing period and you keep access until then. We also offer a full refund within the first 14 days if Praisly isn\'t right for you.'],
               ['Do my customers need to download anything?', 'No app, no signup. They scan a QR code, tap what they liked, and tap once more to post on Google. The whole thing takes under 30 seconds.'],
               ['What if a customer is unhappy?', 'Smart Routing catches them before they hit Google. Customers who tap a low rating are sent to a private feedback form — straight to your dashboard inbox — so you can call, apologise, and fix it. Public reputation protected.'],
               ['How does competitor tracking work?', 'Tell us your business category and location. We automatically find your top 10 nearby competitors on Google and track their review count, rating, and growth every week. You\'ll see exactly who\'s gaining, who\'s stalled, and how far you are from #1.'],
