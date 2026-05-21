@@ -701,24 +701,35 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-price-card { padding: 28px 22px; }
 }
 @media (max-width: 768px) {
-  .lp-hero { overflow-x: hidden; }
-  /* Battle: switch from absolute-positioned overlap to vertical flex stack */
+  .lp-hero { overflow: hidden; }
+  /* Grid: force single column, prevent min-content size from expanding column */
+  .lp-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+  .lp-hero-grid > * { min-width: 0; }
+  /* Battle: vertical flex stack, hard-constrained to available width */
   .lp-battle {
+    position: relative !important;
     height: auto !important;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-    max-width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-    overflow: visible;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
   .lp-battle-card {
     position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
+    min-width: 0 !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
     top: auto !important; bottom: auto !important;
     left: 0 !important; right: auto !important;
     margin-left: 0 !important; margin-right: 0 !important;
@@ -726,25 +737,16 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
     animation: none !important;
     opacity: 1 !important;
   }
-  .lp-battle-card.them {
-    padding-top: 22px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
+  .lp-battle-card.them { padding-top: 22px !important; }
   .lp-battle-card.you {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
     box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1) !important;
     border-left: 3px solid var(--primary) !important;
   }
   .lp-preview-pill { display: none !important; }
-  /* Chase arrow: in-flow between the two cards, centered */
+  /* Chase arrow: in-flow, centered */
   .lp-chase-arrow {
     position: relative !important;
-    top: auto !important; right: auto !important;
-    left: auto !important;
+    top: auto !important; right: auto !important; left: auto !important;
     display: inline-flex !important;
     margin: 4px auto !important;
     z-index: 10;
@@ -754,13 +756,12 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-vs-connector {
     display: flex !important;
     position: relative !important;
-    top: auto !important; left: auto !important;
-    right: auto !important;
+    top: auto !important; left: auto !important; right: auto !important;
     transform: none !important;
-    flex-direction: row;
-    align-items: center;
-    margin: 4px auto;
-    width: 80px;
+    flex-direction: row !important;
+    align-items: center !important;
+    margin: 4px auto !important;
+    width: 80px !important;
     z-index: 10;
   }
   .lp-vs-connector::before,
@@ -768,7 +769,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
     height: 0 !important;
     width: 28px !important;
     border-left: none !important;
-    border-top: 1.5px dashed var(--line-2);
+    border-top: 1.5px dashed var(--line-2) !important;
   }
 }
 `
