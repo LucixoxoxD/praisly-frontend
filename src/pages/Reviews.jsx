@@ -663,7 +663,6 @@ export default function Reviews() {
         </div>
         <div className="rv-header-right">
           <span className="rv-period-pill">Last 30 days</span>
-          <button className="rv-export-btn">Export data ↓</button>
         </div>
       </div>
 
