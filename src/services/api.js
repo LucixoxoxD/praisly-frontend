@@ -32,6 +32,7 @@ api.interceptors.response.use(
     const isRefreshCall = original?.url?.includes('/api/auth/refresh')
 
     if (err.response?.status === 401 && !original._retry && !isReviewPage && !isRefreshCall) {
+      console.log('[401 interceptor fired]', original?.url)
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
@@ -127,6 +128,36 @@ export const authService = {
   setBusiness: (biz) => {
     localStorage.setItem('praisly_business', JSON.stringify(biz))
   },
+}
+
+// Standalone refresh — used by Protected route guard before any API call is made.
+// Uses raw axios (not `api`) to avoid triggering the interceptor.
+export async function refreshAuth() {
+  const refreshToken = localStorage.getItem('praisly_refresh_token')
+  if (!refreshToken) {
+    console.log('[refreshAuth] no refresh token found')
+    return false
+  }
+  try {
+    console.log('[refreshAuth] attempting token refresh')
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/refresh`,
+      { refresh_token: refreshToken },
+    )
+    const newToken = res.data.access_token
+    const newRefresh = res.data.refresh_token
+    localStorage.setItem('praisly_token', newToken)
+    if (newRefresh) localStorage.setItem('praisly_refresh_token', newRefresh)
+    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+    console.log('[refreshAuth] token refreshed successfully')
+    return true
+  } catch (e) {
+    console.log('[refreshAuth] refresh failed:', e?.response?.status, e?.message)
+    localStorage.removeItem('praisly_token')
+    localStorage.removeItem('praisly_refresh_token')
+    localStorage.removeItem('praisly_business')
+    return false
+  }
 }
 
 export default api

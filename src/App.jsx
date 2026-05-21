@@ -1,5 +1,6 @@
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { authService } from './services/api'
+import { authService, refreshAuth } from './services/api'
 import { ToastProvider } from './components/Toast'
 import DashboardLayout from './components/DashboardLayout'
 import CustomerReview from './pages/CustomerReview'
@@ -18,7 +19,33 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 
 function Protected({ children }) {
-  if (!authService.isAuthenticated()) return <Navigate to="/login" replace />
+  const hasToken = !!localStorage.getItem('praisly_token')
+  const hasRefresh = !!localStorage.getItem('praisly_refresh_token')
+
+  const [status, setStatus] = useState(hasToken ? 'ok' : hasRefresh ? 'checking' : 'redirect')
+
+  useEffect(() => {
+    if (status !== 'checking') return
+    refreshAuth().then((ok) => setStatus(ok ? 'ok' : 'redirect'))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (status === 'checking') {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <style>{'@keyframes _spin { to { transform: rotate(360deg); } }'}</style>
+        <div style={{
+          width: 28, height: 28,
+          border: '3px solid #e2e8f0',
+          borderTopColor: '#C4831A',
+          borderRadius: '50%',
+          animation: '_spin 0.8s linear infinite',
+        }} />
+      </div>
+    )
+  }
+
+  if (status === 'redirect') return <Navigate to="/login" replace />
+
   const biz = authService.getBusiness()
   if (biz && biz.onboarding_completed === false) return <Navigate to="/onboarding" replace />
   return children
