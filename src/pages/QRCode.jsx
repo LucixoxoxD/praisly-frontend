@@ -318,7 +318,7 @@ export default function QRCode() {
                     <span style={{ color: '#34A853' }}>l</span>
                     <span style={{ color: '#EA4335' }}>e</span>
                   </span>
-                  <span style={{ verticalAlign: 'middle', marginLeft: '8px', display: 'inline-block' }}>
+                  <span style={{ verticalAlign: 'middle', marginLeft: '8px', display: 'inline-block', position: 'relative', top: '2px' }}>
                     <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
