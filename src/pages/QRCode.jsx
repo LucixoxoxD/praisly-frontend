@@ -309,31 +309,22 @@ export default function QRCode() {
                 />
 
                 {/* Google wordmark + stars */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  marginTop: 16,
-                  marginBottom: 6,
-                  width: '100%',
-                  lineHeight: '1',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1px', fontSize: '28px', fontWeight: '700', fontFamily: 'Arial, sans-serif', letterSpacing: '-0.5px', lineHeight: '1' }}>
-                    <span style={{ color: '#4285F4', lineHeight: '1' }}>G</span>
-                    <span style={{ color: '#EA4335', lineHeight: '1' }}>o</span>
-                    <span style={{ color: '#FBBC05', lineHeight: '1' }}>o</span>
-                    <span style={{ color: '#4285F4', lineHeight: '1' }}>g</span>
-                    <span style={{ color: '#34A853', lineHeight: '1' }}>l</span>
-                    <span style={{ color: '#EA4335', lineHeight: '1' }}>e</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '3px', alignItems: 'center', flexShrink: 0 }}>
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05" style={{ display: 'block' }}>
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                      </svg>
-                    ))}
-                  </div>
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <span style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'Arial, sans-serif', letterSpacing: '-0.5px', verticalAlign: 'middle' }}>
+                    <span style={{ color: '#4285F4' }}>G</span>
+                    <span style={{ color: '#EA4335' }}>o</span>
+                    <span style={{ color: '#FBBC05' }}>o</span>
+                    <span style={{ color: '#4285F4' }}>g</span>
+                    <span style={{ color: '#34A853' }}>l</span>
+                    <span style={{ color: '#EA4335' }}>e</span>
+                  </span>
+                  <span style={{ verticalAlign: 'middle', marginLeft: '8px', display: 'inline-block' }}>
+                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg style={{ display: 'inline-block', verticalAlign: 'middle' }} width="22" height="22" viewBox="0 0 24 24" fill="#FBBC05"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  </span>
                 </div>
                 <p style={{ fontSize: 13, color: '#9ca3af', margin: '8px 0 0', letterSpacing: '0.2px' }}>
                   Scan to share your experience
