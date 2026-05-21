@@ -56,7 +56,7 @@ const LAYOUT_CSS = `
   }
   .sidebar-logout:hover { color: var(--ink-2); }
 
-  .content-area { padding: 28px 24px; }
+  .content-area { padding: 28px 24px; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: hidden; }
   @media (max-width: 767px) { .content-area { padding: 20px 16px 80px; } }
 
   .sidebar-inner { padding: 16px 12px; }
@@ -663,7 +663,7 @@ export default function DashboardLayout({ children }) {
       </div>
 
       {/* Main content */}
-      <div style={{ flex: 1, background: 'var(--bg)', minWidth: 0 }}>
+      <div style={{ flex: 1, background: 'var(--bg)', minWidth: 0, width: '100%', maxWidth: '100%', overflowX: 'hidden', boxSizing: 'border-box' }}>
 
         {/* Top bar */}
         <div
@@ -732,7 +732,7 @@ export default function DashboardLayout({ children }) {
 
         <PwaInstallBanner />
 
-        <div className="content-area" style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div className="content-area" style={{ maxWidth: 1100, margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowX: 'hidden' }}>
           {children}
         </div>
       </div>

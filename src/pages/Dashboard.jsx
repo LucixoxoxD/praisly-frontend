@@ -469,7 +469,11 @@ const PAGE_CSS = `
   .d-delta-pill.flat { background: var(--surface-tint); color: var(--ink-4); }
 
   /* ── Page-level overflow guard ── */
-  .d-page { max-width: 100vw; overflow-x: hidden; }
+  .d-page { max-width: 100%; width: 100%; overflow-x: hidden; box-sizing: border-box; }
+
+  /* ── Competitor / leaderboard section reset ── */
+  .d-lb-card, .d-lb-head, .d-lb-actions, .d-lb-wrap { max-width: 100%; box-sizing: border-box; }
+  .d-lb-wrap { overflow-x: auto; }
 
   /* ── Responsive ── */
   @media (max-width: 1024px) {
@@ -1380,7 +1384,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="d-page" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+    <div className="d-page" style={{ maxWidth: '100%', width: '100%', overflowX: 'hidden', boxSizing: 'border-box' }}>
       <style>{PAGE_CSS}</style>
 
       {/* Milestone celebration */}
