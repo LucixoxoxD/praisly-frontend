@@ -119,6 +119,22 @@ const STYLES = `
   font-size: 13px; color: #dc2626; margin-bottom: 14px;
 }
 .ag-divider { border: none; border-top: 1px solid #E8E0CC; margin: 20px 0; }
+.ag-place-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.ag-place-item {
+  padding: 12px 14px; border-radius: 11px;
+  border: 1.5px solid #E8E0CC; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s; background: white;
+}
+.ag-place-item:hover { background: #FBF6EB; border-color: #D89020; }
+.ag-place-item.selected { border-color: #D89020; background: #FFF8E8; }
+.ag-place-name { font-size: 14px; font-weight: 700; color: #1A1610; margin-bottom: 2px; }
+.ag-place-addr { font-size: 12px; color: #8C7E65; margin-bottom: 3px; }
+.ag-place-meta { font-size: 11.5px; color: #B8946B; }
+.ag-place-skip {
+  display: block; width: 100%; text-align: center; font-size: 12.5px; color: #8C7E65;
+  cursor: pointer; padding: 8px; text-decoration: underline;
+  background: none; border: none; font-family: inherit;
+}
 .ag-logout {
   background: none; border: none; cursor: pointer;
   font-size: 12px; color: #8C7E65; text-decoration: underline;
@@ -155,7 +171,20 @@ export default function AgentSignup() {
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
 
-  function setF(field, value) { setForm(f => ({ ...f, [field]: value })) }
+  // Google Places search state
+  const [placeResults, setPlaceResults] = useState([])
+  const [selectedPlace, setSelectedPlace] = useState(null)
+  const [placeSearching, setPlaceSearching] = useState(false)
+  const [placeSearched, setPlaceSearched] = useState(false)
+
+  function setF(field, value) {
+    setForm(f => ({ ...f, [field]: value }))
+    if (field === 'business_name' || field === 'city') {
+      setPlaceResults([])
+      setSelectedPlace(null)
+      setPlaceSearched(false)
+    }
+  }
 
   // ── Login ──────────────────────────────────────────────────────────────────
   async function handleLogin(e) {
@@ -191,6 +220,25 @@ export default function AgentSignup() {
     setError('')
   }
 
+  // ── Google Places search ───────────────────────────────────────────────────
+  async function handlePlaceSearch() {
+    setPlaceSearching(true)
+    setPlaceResults([])
+    setSelectedPlace(null)
+    setPlaceSearched(false)
+    try {
+      const res = await agentApi.post('/api/agent/search-places', {
+        query: `${form.business_name.trim()} ${form.city.trim()}`,
+      })
+      setPlaceResults(res.data.results || [])
+    } catch {
+      setPlaceResults([])
+    } finally {
+      setPlaceSearching(false)
+      setPlaceSearched(true)
+    }
+  }
+
   // ── Create business ────────────────────────────────────────────────────────
   async function handleSubmit(e) {
     e.preventDefault()
@@ -208,6 +256,8 @@ export default function AgentSignup() {
         area: form.area.trim() || null,
         owner_name: form.owner_name.trim() || null,
         owner_phone: form.owner_phone.trim(),
+        google_place_id: selectedPlace?.place_id || null,
+        google_business_url: selectedPlace?.google_review_url || null,
       })
       setResult(res.data)
     } catch (err) {
@@ -232,6 +282,7 @@ export default function AgentSignup() {
       ``,
       `Dashboard: https://praisly.in/login`,
       `Your QR code (share with customers): ${r.qr_url}`,
+      ...(r.google_business_url ? [``, `Google Review Link: ${r.google_business_url}`] : []),
       ``,
       `Setup takes 10 min. Any help, WhatsApp us back!`,
     ].join('\n')
@@ -242,6 +293,9 @@ export default function AgentSignup() {
     setResult(null)
     setError('')
     setForm(EMPTY_FORM)
+    setPlaceResults([])
+    setSelectedPlace(null)
+    setPlaceSearched(false)
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -361,6 +415,56 @@ export default function AgentSignup() {
 
                   <div style={{ marginTop: 15 }} />
 
+                  {/* Google Places search */}
+                  <div style={{ marginBottom: 14 }}>
+                    <button
+                      type="button"
+                      className="ag-btn-ghost"
+                      style={{ padding: '10px 14px', fontSize: 13.5 }}
+                      onClick={handlePlaceSearch}
+                      disabled={!form.business_name.trim() || !form.city.trim() || placeSearching}
+                    >
+                      {placeSearching ? 'Searching…' : '🔍 Find on Google Maps'}
+                    </button>
+                    {placeSearched && placeResults.length === 0 && (
+                      <p style={{ fontSize: 12, color: '#8C7E65', margin: '8px 0 0', textAlign: 'center' }}>
+                        No results found. Business will be created without Google tracking.
+                      </p>
+                    )}
+                  </div>
+
+                  {placeResults.length > 0 && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div className="ag-label" style={{ marginBottom: 8 }}>
+                        Select Google Business {selectedPlace ? '✓' : ''}
+                      </div>
+                      <div className="ag-place-list">
+                        {placeResults.map(p => (
+                          <div
+                            key={p.place_id}
+                            className={`ag-place-item${selectedPlace?.place_id === p.place_id ? ' selected' : ''}`}
+                            onClick={() => setSelectedPlace(prev => prev?.place_id === p.place_id ? null : p)}
+                          >
+                            <div className="ag-place-name">{p.name}</div>
+                            <div className="ag-place-addr">{p.formatted_address}</div>
+                            {p.rating != null && (
+                              <div className="ag-place-meta">★ {p.rating} · {p.user_ratings_total} reviews</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      {selectedPlace ? (
+                        <button type="button" className="ag-place-skip" onClick={() => setSelectedPlace(null)}>
+                          Clear selection
+                        </button>
+                      ) : (
+                        <button type="button" className="ag-place-skip" onClick={() => { setPlaceResults([]); setPlaceSearched(false); }}>
+                          Skip — set up Google later
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   <div className="ag-field">
                     <label className="ag-label">
                       Owner Name <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(opt)</span>
@@ -418,6 +522,19 @@ export default function AgentSignup() {
                       {result.qr_url}
                     </a>
                   </div>
+                  {result.google_business_url && (
+                    <div className="ag-result-row">
+                      <span className="ag-result-lbl">Google Review Link</span>
+                      <a
+                        href={result.google_business_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: 13.5, color: '#15803d', wordBreak: 'break-all' }}
+                      >
+                        {result.google_business_url}
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 <a href={buildWhatsAppUrl(result)} target="_blank" rel="noreferrer" className="ag-wa-btn">
