@@ -17,6 +17,7 @@ import SendRequest from './pages/SendRequest'
 import ForgotPassword from './pages/ForgotPassword'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import AgentSignup from './pages/AgentSignup'
 
 function Protected({ children }) {
   const hasToken = !!localStorage.getItem('praisly_token')
@@ -100,6 +101,7 @@ export default function App() {
           <Route path="/send"      element={<WithLayout><SendRequest /></WithLayout>} />
           <Route path="/settings"  element={<WithLayout><Settings /></WithLayout>} />
           <Route path="/billing"   element={<WithLayout><Billing /></WithLayout>} />
+          <Route path="/agent"    element={<WithLayout><AgentSignup /></WithLayout>} />
 
           <Route
             path="*"
