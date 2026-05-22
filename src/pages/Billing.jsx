@@ -137,7 +137,7 @@ export default function Billing() {
             }}
           >
             Yearly
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--win)' }}>Save ₹4,000 (33% off)</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--win)' }}>Save ~₹2,000 (17% off)</span>
           </button>
         </div>
       </div>
@@ -175,19 +175,19 @@ export default function Billing() {
           )}
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
             <span style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
-              {yearly ? '₹666' : '₹999'}
+              {yearly ? '₹833' : '₹999'}
             </span>
             <span style={{ fontSize: 16, color: '#94a3b8' }}>/month</span>
           </div>
           {yearly && (
-            <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹7,999 billed yearly</p>
+            <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹9,999 billed yearly</p>
           )}
         </div>
 
         {/* Comparison line */}
         <p style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', margin: '8px 0 0' }}>
           {yearly
-            ? 'Less than ₹23/day — cheaper than auto fare 🛺'
+            ? 'Less than ₹27/day — cheaper than auto fare 🛺'
             : "Less than ₹34/day — that's one samosa plate 🥟"}
         </p>
 
@@ -195,7 +195,7 @@ export default function Billing() {
         {yearly && (
           <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
             <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
-              You save ₹4,000/year — 33% off 🎉
+              You save ~₹2,000/year — 17% off 🎉
             </span>
           </div>
         )}

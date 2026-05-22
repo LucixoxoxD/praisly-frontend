@@ -1504,7 +1504,7 @@ export default function LandingPage() {
             <div className="lp-pricing-toggle">
               <button className={!lpYearly ? 'on' : ''} onClick={() => setLpYearly(false)}>Monthly</button>
               <button className={lpYearly ? 'on' : ''} onClick={() => setLpYearly(true)}>
-                Yearly <span className="lp-save-badge">SAVE 33%</span>
+                Yearly <span className="lp-save-badge">SAVE 17%</span>
               </button>
             </div>
           </Reveal>
@@ -1519,13 +1519,13 @@ export default function LandingPage() {
 
               <div className="lp-price-row">
                 <span className="lp-price-cur">₹</span>
-                <span className="lp-price-amt">{lpYearly ? '666' : '999'}</span>
+                <span className="lp-price-amt">{lpYearly ? '833' : '999'}</span>
                 <span className="lp-price-per">/ month</span>
               </div>
 
               <div className="lp-price-note">
                 {lpYearly
-                  ? <><strong>Billed ₹7,999/year.</strong> 7 days free · No card required.</>
+                  ? <><strong>Billed ₹9,999/year.</strong> 7 days free · No card required.</>
                   : <><strong>7 days free.</strong> No card required. Cancel anytime.</>
                 }
               </div>
