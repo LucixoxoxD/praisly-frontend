@@ -15,6 +15,7 @@ import Settings from './pages/Settings'
 import Billing from './pages/Billing'
 import SendRequest from './pages/SendRequest'
 import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import AgentSignup from './pages/AgentSignup'
@@ -74,6 +75,18 @@ function WithLayout({ children }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash && hash.includes('type=recovery')) {
+      const params = new URLSearchParams(hash.substring(1))
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+      if (accessToken) localStorage.setItem('praisly_token', accessToken)
+      if (refreshToken) localStorage.setItem('praisly_refresh_token', refreshToken)
+      window.location.replace('/reset-password')
+    }
+  }, [])
+
   return (
     <ToastProvider>
       <BrowserRouter>
@@ -85,6 +98,7 @@ export default function App() {
           <Route path="/login"           element={<AuthOnly><Login /></AuthOnly>} />
           <Route path="/signup"          element={<AuthOnly><Signup /></AuthOnly>} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password"  element={<ResetPassword />} />
           <Route path="/onboarding" element={<OnboardingRoute><Onboarding /></OnboardingRoute>} />
 
           {/* Public legal pages */}
