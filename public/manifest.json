@@ -2,7 +2,7 @@
   "name": "Praisly",
   "short_name": "Praisly",
   "description": "Get more Google reviews on autopilot",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1a1a2e",

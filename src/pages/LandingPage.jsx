@@ -800,7 +800,7 @@ export default function LandingPage() {
   }
 
   useEffect(() => {
-    document.title = 'Praisly — Beat the business next door on Google'
+    document.title = 'Praisly — Beat the Business Next Door on Google'
   }, [])
 
   useEffect(() => {

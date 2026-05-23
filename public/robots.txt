@@ -5,7 +5,7 @@ Disallow: /reviews
 Disallow: /settings
 Disallow: /billing
 Disallow: /onboarding
-Disallow: /qr-code
+Disallow: /qr
 Disallow: /whatsapp
 Disallow: /login
 Disallow: /signup
