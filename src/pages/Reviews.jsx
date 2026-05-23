@@ -308,10 +308,10 @@ function InsightsPanel({ data, biz }) {
       }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
         <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--ink)', margin: '0 0 10px' }}>
-          No negative reviews blocked yet
+          No private feedback received yet
         </p>
         <p style={{ fontSize: 14, color: 'var(--ink-3)', lineHeight: 1.7, margin: 0, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
-          When customers give 1–3 stars, their feedback comes to you privately instead of going to Google.
+          When customers give 1–3 stars, they can share feedback with you directly.
           Praisly will analyze the patterns and suggest improvements.
         </p>
       </div>
@@ -345,7 +345,7 @@ function InsightsPanel({ data, biz }) {
             </div>
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 600, marginTop: 10 }}>
-            Negative Reviews Blocked
+            Private Feedback Received
           </div>
           <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--danger)', lineHeight: 1.1 }}>
             {totalBlocked}
@@ -616,10 +616,10 @@ export default function Reviews() {
 
     // stats.negative_saved is authoritative (all reviews, not capped at 50)
     // fallback: count reviews where status === 'private' (list endpoint never returns is_positive)
-    const negativeBlocked = typeof stats?.negative_saved === 'number' && stats.negative_saved > 0
+    const privateFeedback = typeof stats?.negative_saved === 'number' && stats.negative_saved > 0
       ? stats.negative_saved
       : allReviews.filter(r => r.status === 'private').length
-    return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick, negativeBlocked }
+    return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick, privateFeedback }
   }, [stats, allReviews, data.total])
 
   const chartData = useMemo(() => {
@@ -675,10 +675,10 @@ export default function Reviews() {
         </div>
       </div>
 
-      {/* ── Row 1: Negative Reviews Blocked + Global Conversion ── */}
+      {/* ── Row 1: Private Feedback + Global Conversion ── */}
       <div className="rv-top-row">
 
-        {/* Blocked banner */}
+        {/* Private feedback banner */}
         <div style={{
           background: '#FEF2F2',
           borderRadius: 12,
@@ -694,23 +694,23 @@ export default function Reviews() {
             <div style={{ fontSize: 30, lineHeight: 1 }}>🛡️</div>
             <div>
               <div style={{ fontSize: 36, fontWeight: 800, color: '#DC2626', lineHeight: 1.1 }}>
-                {metrics.negativeBlocked}
+                {metrics.privateFeedback}
               </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginTop: 2 }}>
-                Negative Reviews Blocked
+                Private Feedback Received
               </div>
               <div style={{ fontSize: 12, color: '#6B7280', marginTop: 4, maxWidth: 340, lineHeight: 1.5 }}>
-                {metrics.negativeBlocked > 0
-                  ? 'These would have been 1–2 star Google reviews — Praisly caught them first'
-                  : 'When unhappy customers use your QR, their feedback comes to you privately — never to Google'}
+                {metrics.privateFeedback > 0
+                  ? 'Customers who had a less-than-perfect experience — you got a chance to resolve it directly'
+                  : 'When unhappy customers use your QR, their feedback comes to you first so you can resolve it directly'}
               </div>
             </div>
           </div>
-          {metrics.negativeBlocked > 0 && (
+          {metrics.privateFeedback > 0 && (
             <div style={{ textAlign: 'right', flexShrink: 0 }}>
               <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 2 }}>Estimated damage prevented</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#DC2626' }}>
-                {formatINR(metrics.negativeBlocked * 5000)}
+                {formatINR(metrics.privateFeedback * 5000)}
               </div>
               <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
                 Based on avg. revenue impact of a negative Google review
