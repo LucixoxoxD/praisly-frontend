@@ -473,6 +473,8 @@ function Sidebar({ onClose, mobileDrawer = false }) {
   const subtitle = formatSubtitle(biz)
   const plan     = biz?.plan
   const isPaid   = plan === 'monthly' || plan === 'yearly'
+  const isDemo   = biz?.business_name === 'Sharma Dental Clinic' || biz?.email === 'demo@praisly.in'
+  const logoHref = isDemo ? '/' : '/dashboard'
 
   return (
     <div className="sidebar-inner" style={{
@@ -488,18 +490,20 @@ function Sidebar({ onClose, mobileDrawer = false }) {
 
       {/* Brand */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 20px' }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #FF7C4F, #FF5B2E)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: 'white', fontSize: 18, fontWeight: 800, flexShrink: 0,
-        }}>P</div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--ink)', lineHeight: 1.2 }}>Praisly</div>
-          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 1 }}>
-            Rank · Review · Win
+        <Link to={logoHref} onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', cursor: 'pointer', flex: 1, minWidth: 0 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #FF7C4F, #FF5B2E)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'white', fontSize: 18, fontWeight: 800, flexShrink: 0,
+          }}>P</div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--ink)', lineHeight: 1.2 }}>Praisly</div>
+            <div style={{ fontSize: 10.5, color: 'var(--ink-4)', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 1 }}>
+              Rank · Review · Win
+            </div>
           </div>
-        </div>
+        </Link>
         {onClose && (
           <button onClick={onClose} style={{ marginLeft: 'auto', color: 'var(--ink-4)', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1, padding: 0, flexShrink: 0 }} aria-label="Close menu">
             ✕
