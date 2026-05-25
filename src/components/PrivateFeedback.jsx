@@ -15,6 +15,7 @@ export default function PrivateFeedback({ businessName, onSubmit, loading }) {
         onChange={(e) => setText(e.target.value)}
         placeholder="What could we have done better?"
         rows={4}
+        maxLength={2000}
         className="w-full p-3 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 resize-none focus:outline-none focus:border-gray-400"
       />
       <button

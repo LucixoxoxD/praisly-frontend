@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import api from '../../services/api'
 
@@ -31,6 +32,7 @@ function CheckCircle() {
 
 export default function StepComplete({ biz, data }) {
   const cardRef = useRef(null)
+  const qrUrlRef = useRef(null)
   const [qrObjectUrl, setQrObjectUrl] = useState(null)
   const [reviewUrl, setReviewUrl] = useState('')
   const [qrLoading, setQrLoading] = useState(true)
@@ -43,7 +45,8 @@ export default function StepComplete({ biz, data }) {
       api.get('/api/qr/info'),
     ])
       .then(([imgRes, infoRes]) => {
-        setQrObjectUrl(URL.createObjectURL(imgRes.data))
+        qrUrlRef.current = URL.createObjectURL(imgRes.data)
+        setQrObjectUrl(qrUrlRef.current)
         const base = import.meta.env.VITE_APP_URL || window.location.origin
         setReviewUrl(`${base}/review/${infoRes.data.business_id}`)
       })
@@ -51,7 +54,7 @@ export default function StepComplete({ biz, data }) {
       .finally(() => setQrLoading(false))
 
     return () => {
-      if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl)
+      if (qrUrlRef.current) URL.revokeObjectURL(qrUrlRef.current)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -168,8 +171,8 @@ export default function StepComplete({ biz, data }) {
       ) : null}
 
       {/* Go to dashboard */}
-      <a
-        href="/dashboard"
+      <Link
+        to="/dashboard"
         style={{
           display: 'block', width: '100%', padding: '13px',
           background: '#10b981', color: 'white',
@@ -178,8 +181,8 @@ export default function StepComplete({ biz, data }) {
           textDecoration: 'none', boxSizing: 'border-box',
         }}
       >
-        Go to Dashboard &rarr;
-      </a>
+        Go to Dashboard →
+      </Link>
     </div>
   )
 }
