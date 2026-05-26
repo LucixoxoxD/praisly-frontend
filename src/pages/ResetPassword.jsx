@@ -24,7 +24,7 @@ export default function ResetPassword() {
 
     setLoading(true)
     try {
-      await api.put('/api/auth/reset-password', { password })
+      await api.put('/api/auth/reset-password', { new_password: password })
       // Clear recovery tokens after successful reset
       localStorage.removeItem('praisly_token')
       localStorage.removeItem('praisly_refresh_token')
