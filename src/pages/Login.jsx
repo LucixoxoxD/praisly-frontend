@@ -37,6 +37,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [incompleteAccount, setIncompleteAccount] = useState(false)
   const navigate = useNavigate()
 
   const onFocus = (e) => (e.target.style.borderColor = 'var(--primary)')
@@ -50,6 +51,7 @@ export default function Login() {
     }
     setLoading(true)
     setError('')
+    setIncompleteAccount(false)
     try {
       const creds = tab === 'phone'
         ? { phone: '+91' + phone, password }
@@ -58,7 +60,11 @@ export default function Login() {
       const dest = data.business?.onboarding_completed === false ? '/onboarding' : '/dashboard'
       navigate(dest, { replace: true })
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed. Check your credentials.')
+      if (err.response?.status === 409) {
+        setIncompleteAccount(true)
+      } else {
+        setError(err.response?.data?.detail || 'Login failed. Check your credentials.')
+      }
     } finally {
       setLoading(false)
     }
@@ -250,6 +256,42 @@ export default function Login() {
                 }}
               >
                 <p style={{ color: 'var(--danger)', fontSize: 13, margin: 0 }}>{error}</p>
+              </div>
+            )}
+
+            {incompleteAccount && (
+              <div
+                style={{
+                  background: '#fff7ed',
+                  border: '1px solid #fed7aa',
+                  borderRadius: 8,
+                  padding: '12px 14px',
+                  marginBottom: 12,
+                }}
+              >
+                <p style={{ color: '#92400e', fontSize: 13, fontWeight: 600, margin: '0 0 6px' }}>
+                  Account setup was incomplete
+                </p>
+                <p style={{ color: '#78350f', fontSize: 13, margin: '0 0 8px' }}>
+                  Please sign up again or contact us on WhatsApp for help.
+                </p>
+                <a
+                  href="https://wa.me/917977188651?text=Hi%2C+my+Praisly+account+setup+was+incomplete+and+I+need+help+logging+in."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-block',
+                    background: '#25D366',
+                    color: 'white',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    padding: '6px 14px',
+                    borderRadius: 6,
+                    textDecoration: 'none',
+                  }}
+                >
+                  WhatsApp Support
+                </a>
               </div>
             )}
 
