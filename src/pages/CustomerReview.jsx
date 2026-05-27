@@ -194,6 +194,7 @@ export default function CustomerReview() {
   const [draft, setDraft]             = useState('')
   const [reviewId, setReviewId]       = useState(null)
   const [googleReviewUrl, setGoogleReviewUrl] = useState(null)
+  const [isFallback, setIsFallback]       = useState(false)
   const [regenerating, setRegenerating] = useState(false)
   const [regenFailed, setRegenFailed]   = useState(false)
   const [copied, setCopied]           = useState(false)
@@ -260,6 +261,7 @@ export default function CustomerReview() {
       if (isPositive) {
         setDraft(res.data.draft || '')
         setReviewId(res.data.review_id || null)
+        setIsFallback(res.data.is_fallback || false)
         if (res.data.google_review_url) setGoogleReviewUrl(res.data.google_review_url)
         setScreen('ai_draft')
       } else {
@@ -452,14 +454,25 @@ export default function CustomerReview() {
 
               {/* Badge */}
               <div style={{ marginTop: 28, marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  background: '#f0fdf4', border: '1px solid #bbf7d0',
-                  color: '#15803d', fontSize: 12, fontWeight: 700,
-                  padding: '5px 14px', borderRadius: 100,
-                }}>
-                  ✨ Your review is ready!
-                </span>
+                {isFallback ? (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    background: '#fefce8', border: '1px solid #fde68a',
+                    color: '#92400e', fontSize: 12, fontWeight: 700,
+                    padding: '5px 14px', borderRadius: 100,
+                  }}>
+                    ✏️ Edit this review before posting
+                  </span>
+                ) : (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    background: '#f0fdf4', border: '1px solid #bbf7d0',
+                    color: '#15803d', fontSize: 12, fontWeight: 700,
+                    padding: '5px 14px', borderRadius: 100,
+                  }}>
+                    ✨ Your review is ready!
+                  </span>
+                )}
               </div>
 
               {/* 2-step instruction bar */}
