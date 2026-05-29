@@ -882,7 +882,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="lp-hero-sub">
-              Your competitor across the street gets 4 new reviews every week. You get none. Praisly gives your customers a QR code, writes the review for them, and shows you exactly who to beat.
+              Your competitor across the street gets 4 new reviews every week. You get none. Praisly gives your customers a QR code, helps them draft a review they edit and post, and shows you exactly who to beat.
             </p>
 
             <div className="lp-hero-ctas">
@@ -1084,7 +1084,7 @@ export default function LandingPage() {
             <div className="lp-section-head">
               <span className="lp-section-eyebrow">How it works</span>
               <h2>Three steps. No tech. Real reviews.</h2>
-              <p>Set up in 10 minutes. Your customers do the rest — Praisly just makes it stupidly easy for them to say something nice.</p>
+              <p>Set up in 10 minutes. Your customers do the rest — Praisly just makes it stupidly easy for them to share their experience.</p>
             </div>
           </Reveal>
 
@@ -1098,7 +1098,7 @@ export default function LandingPage() {
                 <div className="lp-step-visual">
                   <div className="lp-tent-card">
                     <div className="lp-tent-text">
-                      <small>Scan to leave a review</small>
+                      <small>Scan to share your experience</small>
                       Sharma Dental Clinic
                     </div>
                     <div className="lp-qr"><QrSvg /></div>
@@ -1111,8 +1111,8 @@ export default function LandingPage() {
             <Reveal delay={100}>
               <div className="lp-step">
                 <span className="lp-step-num"><span className="nc">2</span>STEP 02</span>
-                <h3>AI writes the review</h3>
-                <p>Customer taps what they liked. Our AI drafts a natural-sounding review they can edit and post — in 30 seconds.</p>
+                <h3>Smart writing assist</h3>
+                <p>Customer taps what they liked. Our AI drafts a starting point they can edit and post — in 30 seconds. Their words, their account.</p>
                 <div className="lp-step-visual" style={{ background: 'linear-gradient(180deg,#FDF7E4,#FBEED0)' }}>
                   <div className="lp-phone-stack">
                     <div className="lp-chip-row">
@@ -1122,7 +1122,7 @@ export default function LandingPage() {
                       <span className="lp-tagchip on">On-time</span>
                     </div>
                     <div className="lp-ai-bubble">
-                      Got my root canal here last week. Zero pain, Dr. Sharma explained everything, and they ran on time. Front desk was super polite. Highly recommend 👍
+                      Got my root canal here last week. Zero pain, Dr. Sharma explained everything, and they ran on time. Front desk was super polite too. Will def be back 👍
                     </div>
                   </div>
                 </div>
@@ -1214,7 +1214,7 @@ export default function LandingPage() {
             <div className="lp-section-head">
               <span className="lp-section-eyebrow">Everything you need</span>
               <h2>The only review tool built around <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>competition</em>.</h2>
-              <p>Other tools collect reviews. Praisly makes you win the local game — with rankings, AI moves, and protection for your reputation.</p>
+              <p>Other tools collect reviews. Praisly captures authentic customer voices and makes you win the local game — with rankings, AI writing assists, and direct feedback channels for service recovery.</p>
             </div>
           </Reveal>
 
@@ -1264,7 +1264,7 @@ export default function LandingPage() {
               <div className="lp-feat">
                 <div className="lp-feat-icon red"><Split /></div>
                 <h3>Smart Review Routing</h3>
-                <p>Happy customers go to Google. Unhappy ones come to you privately — so you can fix it before it becomes a 2-star review.</p>
+                <p>Happy customers can share publicly. Unhappy customers get a direct line to you privately — so you can resolve issues before they go unheard.</p>
                 <div className="lp-feat-art">
                   <div className="lp-routing">
                     <div className="lp-route happy">
