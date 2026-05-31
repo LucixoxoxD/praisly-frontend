@@ -882,19 +882,24 @@ export default function LandingPage() {
             </h1>
 
             <p className="lp-hero-sub">
-              Your competitor across the street gets 4 new reviews every week. You get none. Praisly gives your customers a QR code, helps them draft a review they edit and post, and shows you exactly who to beat.
+              Your competitor gets 4 new Google reviews every week. You get none. Praisly gives you a simple QR code — customers scan, review, done. All you do is stick the QR.
             </p>
 
             <div className="lp-hero-ctas">
               <Link to="/signup" className="lp-btn lp-btn-primary lp-btn-lg">
-                Start free trial <Arrow />
+                Start free — no card needed <Arrow />
               </Link>
+              <a href={import.meta.env.VITE_SUPPORT_PHONE ? `https://wa.me/${import.meta.env.VITE_SUPPORT_PHONE}?text=${encodeURIComponent('Hi, I want to know more about Praisly')}` : '#'} className="lp-btn lp-btn-outline lp-btn-lg" target="_blank" rel="noopener noreferrer">
+                Talk to us on WhatsApp
+              </a>
+            </div>
+            <div className="lp-hero-ctas" style={{ marginTop: 8 }}>
               {DEMO_EMAIL && DEMO_PASSWORD ? (
-                <button onClick={handleDemoLogin} disabled={demoLoading} className="lp-btn lp-btn-outline lp-btn-lg">
-                  {demoLoading ? 'Loading…' : 'See live demo'}
+                <button onClick={handleDemoLogin} disabled={demoLoading} className="lp-btn lp-btn-outline lp-btn-lg" style={{ fontSize: 14, padding: '10px 20px' }}>
+                  {demoLoading ? 'Loading…' : 'See live demo (2 min)'}
                 </button>
               ) : (
-                <a href="#dashboard" className="lp-btn lp-btn-outline lp-btn-lg">See live demo</a>
+                <a href="#dashboard" className="lp-btn lp-btn-outline lp-btn-lg" style={{ fontSize: 14, padding: '10px 20px' }}>See live demo (2 min)</a>
               )}
             </div>
 
@@ -911,7 +916,7 @@ export default function LandingPage() {
                 <div style={{ background: 'linear-gradient(135deg,#2a8c5e,#1a6843)' }}>GK</div>
                 <div style={{ background: 'linear-gradient(135deg,#EFC659,#C9971F)' }}>RC</div>
               </div>
-              <div><strong>200+ Indian businesses</strong> climbing rankings this week</div>
+              <div><strong>200+ dentists, salons & restaurants</strong> across India trust Praisly</div>
             </div>
           </div>
 
@@ -1016,7 +1021,7 @@ export default function LandingPage() {
           <Reveal>
             <div className="lp-section-head">
               <span className="lp-section-eyebrow">Real shops · Real ranks</span>
-              <h2>From "we're invisible on Google" to <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>#1 in the local pack</em>.</h2>
+              <h2>From "we're invisible on Google" to <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>#1 on Google Maps</em>.</h2>
             </div>
           </Reveal>
           <div className="lp-tg">
@@ -1111,8 +1116,8 @@ export default function LandingPage() {
             <Reveal delay={100}>
               <div className="lp-step">
                 <span className="lp-step-num"><span className="nc">2</span>STEP 02</span>
-                <h3>Smart writing assist</h3>
-                <p>Customer taps what they liked. Our AI drafts a starting point they can edit and post — in 30 seconds. Their words, their account.</p>
+                <h3>Customer writes, we just help</h3>
+                <p>Customer taps what they liked. A draft is ready in seconds — they edit it in their own words and post from their own Google account. No fake reviews, no risk to your business.</p>
                 <div className="lp-step-visual" style={{ background: 'linear-gradient(180deg,#FDF7E4,#FBEED0)' }}>
                   <div className="lp-phone-stack">
                     <div className="lp-chip-row">
@@ -1183,7 +1188,7 @@ export default function LandingPage() {
                 </div>
                 <div className="lp-story-rank"><span className="hash">#</span>3</div>
                 <div className="lp-story-rank-meta">Climbed past 2 competitors</div>
-                <div className="lp-story-line">QR at billing counter. 2 in 3 happy customers leave a review.</div>
+                <div className="lp-story-line">QR at billing counter. 2 in 3 happy customers leave a review. One bad review came in — doctor called the patient, issue resolved same day.</div>
                 <div className="lp-story-stat"><span className="lbl">Reviews</span><span className="val up">+33 (61)</span></div>
                 <div className="lp-story-stat"><span className="lbl">Rating</span><span className="val up">4.5★</span></div>
               </article>
@@ -1214,7 +1219,7 @@ export default function LandingPage() {
             <div className="lp-section-head">
               <span className="lp-section-eyebrow">Everything you need</span>
               <h2>The only review tool built around <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>competition</em>.</h2>
-              <p>Other tools collect reviews. Praisly captures authentic customer voices and makes you win the local game — with rankings, AI writing assists, and direct feedback channels for service recovery.</p>
+              <p>Other tools just collect reviews. Praisly shows you exactly who's beating you on Google — and helps you overtake them.</p>
             </div>
           </Reveal>
 
@@ -1244,7 +1249,7 @@ export default function LandingPage() {
               <div className="lp-feat">
                 <div className="lp-feat-icon"><Sparkle /></div>
                 <h3>AI Review Drafts</h3>
-                <p>Customers tap what they liked. Praisly drafts a natural review in their voice — ready to post in 30 seconds. They edit, they own it.</p>
+                <p>Customer taps what they liked, a draft appears in seconds. They edit it, post it from their own Google account. 100% real, 100% Google-safe.</p>
                 <div className="lp-feat-art">
                   <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 10 }}>
                     <span className="lp-tagchip on">Quick service</span>
@@ -1426,15 +1431,15 @@ export default function LandingPage() {
       <section className="lp-section lp-local-pack-section" id="sec-local-pack">
         <div className="lp-wrap lp-lpwrap">
           <div className="lp-lp-copy">
-            <span className="lp-section-eyebrow">The local pack is the game</span>
+            <span className="lp-section-eyebrow">Google Maps is the real game</span>
             <h2>Top 3 on Google Maps gets <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>76% of all calls</em> in your area.</h2>
-            <p>The "Map Pack" — those 3 businesses Google shows at the top of every "near me" search — is where 76% of local calls go. Praisly's whole job is getting you in there.</p>
+            <p>When someone searches "dentist near me" or "salon near me," Google shows only 3 businesses at the top. 76% of calls go to those 3. Praisly's whole job is getting you in there.</p>
             <ul className="lp-lp-bullets">
               {[
-                'Track your live position in the local pack, every day',
-                'See which competitors are inside the top 3 right now',
-                'Get the exact review count needed to break in',
-                'WhatsApp alert the moment you climb or drop',
+                'See your live Google Maps position — updated daily',
+                'Know which competitors are in the top 3 right now',
+                'Get the exact review count you need to overtake them',
+                'WhatsApp alert the moment your rank changes',
               ].map(item => (
                 <li key={item}><span className="ck">✓</span>{item}</li>
               ))}
@@ -1525,8 +1530,8 @@ export default function LandingPage() {
 
               <div className="lp-price-note">
                 {lpYearly
-                  ? <><strong>Billed ₹9,999/year.</strong> 7 days free · No card required.</>
-                  : <><strong>7 days free.</strong> No card required. Cancel anytime.</>
+                  ? <><strong>Billed ₹9,999/year.</strong> Just ₹27/day — less than a chai. 7 days free · No card required.</>
+                  : <><strong>Just ₹33/day</strong> — less than your daily chai. 7 days free · No card required. Cancel anytime.</>
                 }
               </div>
 
@@ -1560,13 +1565,57 @@ export default function LandingPage() {
               <div className="lp-roi-icon">₹</div>
               <div className="lp-roi-content">
                 <div className="lbl">Quick math · Pays for itself</div>
-                <div className="body">Average local business gains <strong>5 extra walk-ins / week</strong> from Praisly. <strong>1 customer covers the whole month.</strong></div>
+                <div className="body">Average local business gains <strong>5 extra walk-ins / week</strong> from better Google ranking. <strong>Just 1 extra customer pays for the whole month.</strong> The rest is pure profit.</div>
               </div>
               <Link to="/signup" className="lp-btn lp-btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
                 Start free trial <Arrow />
               </Link>
             </div>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          WHAT HAPPENS AFTER SIGNUP
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="lp-section" id="after-signup" style={{ paddingTop: 20, paddingBottom: 40 }}>
+        <div className="lp-wrap">
+          <Reveal>
+            <div className="lp-section-head">
+              <span className="lp-section-eyebrow">What happens after you sign up?</span>
+              <h2>We set everything up for you.</h2>
+              <p>No tech skills needed. Seriously.</p>
+            </div>
+          </Reveal>
+          <div className="lp-steps" style={{ maxWidth: 800, margin: '0 auto' }}>
+            <Reveal delay={0}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '18px 24px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 14, marginBottom: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--primary-soft)', display: 'grid', placeItems: 'center', flexShrink: 0, fontWeight: 800, fontSize: 15, color: 'var(--primary-ink)' }}>1</div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>We call you on WhatsApp within 1 hour</div>
+                  <div style={{ color: 'var(--ink-2)', fontSize: 14 }}>Our team walks you through everything — in whatever language you're comfortable with.</div>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={80}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '18px 24px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 14, marginBottom: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--primary-soft)', display: 'grid', placeItems: 'center', flexShrink: 0, fontWeight: 800, fontSize: 15, color: 'var(--primary-ink)' }}>2</div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Your QR code is ready — we send the printable PDF</div>
+                  <div style={{ color: 'var(--ink-2)', fontSize: 14 }}>Just print it at any nearby shop (₹10) and stick it on your counter or billing desk.</div>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={160}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '18px 24px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 14 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--primary-soft)', display: 'grid', placeItems: 'center', flexShrink: 0, fontWeight: 800, fontSize: 15, color: 'var(--primary-ink)' }}>3</div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Reviews start coming in — we track everything for you</div>
+                  <div style={{ color: 'var(--ink-2)', fontSize: 14 }}>Open your dashboard anytime to see your Google rank, competitor positions, and new reviews. You'll get WhatsApp alerts too.</div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
         </div>
       </section>
 
@@ -1584,12 +1633,12 @@ export default function LandingPage() {
 
           <div className="lp-faq-list">
             {[
-              ['Is Praisly allowed by Google?', 'Yes. Every customer who scans your QR can leave a Google review. Praisly simply makes the process easier by drafting a review they can edit and post. Customers who had a less-than-perfect experience also get a private feedback option so you can resolve issues directly.'],
+              ['Is this allowed by Google? Will my listing get banned?', 'Absolutely safe. Your customers post reviews from their own Google accounts, in their own words. Praisly just makes it easy for them — like a pen and paper. Google has zero issues with this because every review is real, written by a real customer. 200+ businesses use Praisly with zero problems.'],
               ['Can I cancel anytime?', 'Yes, cancel anytime from your dashboard — no questions asked, no hidden fees. Your subscription stops at the end of your billing period and you keep access until then. We also offer a full refund within the first 14 days if Praisly isn\'t right for you.'],
               ['Do my customers need to download anything?', 'No app, no signup. They scan a QR code, tap what they liked, and tap once more to post on Google. The whole thing takes under 30 seconds.'],
               ['What if a customer is unhappy?', 'Unhappy customers get a private feedback form — straight to your dashboard inbox — so you can call, apologise, and fix the issue directly. All customers can still leave a Google review. You just get an early heads-up when someone had a bad experience.'],
               ['How does competitor tracking work?', 'Tell us your business category and location. We automatically find your top 10 nearby competitors on Google and track their review count, rating, and growth every week. You\'ll see exactly who\'s gaining, who\'s stalled, and how far you are from #1.'],
-              ['Do I need a website or technical skills?', 'No technical skills needed. If you can use WhatsApp, you can use Praisly. Setup is one form, your QR code is generated instantly, and our team helps you go live the same day.'],
+              ['Do I need a website or technical skills?', 'Not at all. If you can use WhatsApp, you can use Praisly. Sign up, and our team will call you on WhatsApp to set everything up — same day. No website needed, no app needed.'],
               ['What\'s included in the 7-day free trial?', 'Everything. Unlimited reviews, AI drafts, competitor tracking, the full dashboard. No card required. If you don\'t see your rank climb in the first week, just close the tab — no charge, no hassle.'],
             ].map(([q, a], i) => (
               <Reveal key={i} delay={i * 50}>
@@ -1607,20 +1656,16 @@ export default function LandingPage() {
         <div className="lp-wrap">
           <Reveal>
             <div className="lp-cta-card">
-              <span className="lp-cta-eyebrow">★ Ready when you are</span>
-              <h2>Ready to outrank<br/>your competitors?</h2>
-              <p>Join 200+ Indian shops climbing local Google rankings with Praisly. 7 days free, no card required, set up in 10 minutes.</p>
+              <span className="lp-cta-eyebrow">★ Your competitor isn't waiting</span>
+              <h2>Start today.<br/>See results next week.</h2>
+              <p>Your competitor got new reviews this week. You got none. 200+ businesses across India already started — 7 days free, no card, set up in 10 minutes.</p>
               <div className="lp-btn-row">
                 <Link to="/signup" className="lp-btn lp-btn-primary lp-btn-lg">
-                  Start free trial <Arrow />
+                  Start free — no card needed <Arrow />
                 </Link>
-                {DEMO_EMAIL && DEMO_PASSWORD ? (
-                  <button onClick={handleDemoLogin} disabled={demoLoading} className="lp-btn lp-btn-outline-ghost lp-btn-lg">
-                    {demoLoading ? 'Loading…' : 'See live demo'}
-                  </button>
-                ) : (
-                  <a href="#dashboard" className="lp-btn lp-btn-outline-ghost lp-btn-lg">See live demo</a>
-                )}
+                <a href={import.meta.env.VITE_SUPPORT_PHONE ? `https://wa.me/${import.meta.env.VITE_SUPPORT_PHONE}?text=${encodeURIComponent('Hi, I want to know more about Praisly')}` : '#'} className="lp-btn lp-btn-outline-ghost lp-btn-lg" target="_blank" rel="noopener noreferrer">
+                  Talk to us on WhatsApp
+                </a>
               </div>
             </div>
           </Reveal>
