@@ -137,14 +137,131 @@ const CSS = `
   .adm-mini-table td { padding: 7px 10px; border-bottom: 1px solid var(--line, #e8e4de); }
   .adm-mini-table tbody tr:last-child td { border-bottom: none; }
 
+  /* Detail charts */
+  .adm-kpi-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px;
+  }
+  .adm-kpi {
+    background: var(--surface-tint, #f5f3ef); border-radius: 12px; padding: 12px 14px;
+    text-align: center;
+  }
+  .adm-kpi-val { font-size: 22px; font-weight: 800; color: var(--ink, #1A1610); line-height: 1; }
+  .adm-kpi-label { font-size: 10.5px; color: var(--ink-3, #6b5e4f); font-weight: 600; margin-top: 4px; }
+
+  .adm-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .adm-chart-box {
+    background: var(--surface-tint, #f5f3ef); border-radius: 12px; padding: 14px 16px;
+  }
+  .adm-chart-title { font-size: 11px; font-weight: 700; color: var(--ink-3, #6b5e4f); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; }
+
+  .adm-rating-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .adm-rating-bar-label { font-size: 11px; font-weight: 700; color: var(--ink-3, #6b5e4f); width: 18px; text-align: right; flex-shrink: 0; }
+  .adm-rating-bar-track { flex: 1; height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+  .adm-rating-bar-fill { height: 100%; border-radius: 99px; background: #F5B945; transition: width 0.4s ease; }
+  .adm-rating-bar-count { font-size: 11px; color: var(--ink-4, #9e9189); width: 22px; text-align: right; flex-shrink: 0; }
+
   @media (max-width: 640px) {
     .adm-detail-grid { grid-template-columns: 1fr; }
     .adm-stats { grid-template-columns: repeat(2, 1fr); }
+    .adm-kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .adm-charts-row { grid-template-columns: 1fr; }
   }
 `
 
 function Skel({ style }) {
   return <div style={{ background: '#e2e8f0', borderRadius: 8, animation: 'skelpulse 1.5s ease-in-out infinite', ...style }} />
+}
+
+function RatingDistribution({ reviews }) {
+  const counts = [5, 4, 3, 2, 1].map(star => ({
+    star,
+    count: reviews.filter(r => r.rating === star).length,
+  }))
+  const max = Math.max(...counts.map(c => c.count), 1)
+  return (
+    <div>
+      {counts.map(({ star, count }) => (
+        <div key={star} className="adm-rating-bar-row">
+          <span className="adm-rating-bar-label">{'★'.repeat(star)}</span>
+          <div className="adm-rating-bar-track">
+            <div className="adm-rating-bar-fill" style={{ width: `${(count / max) * 100}%` }} />
+          </div>
+          <span className="adm-rating-bar-count">{count}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ActivityChart({ reviews }) {
+  // bucket reviews into last 30 days
+  const now = Date.now()
+  const days = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(now - (29 - i) * 86400000)
+    return d.toISOString().slice(0, 10)
+  })
+  const countMap = {}
+  reviews.forEach(r => {
+    const day = (r.created_at || '').slice(0, 10)
+    countMap[day] = (countMap[day] || 0) + 1
+  })
+  const vals = days.map(d => countMap[d] || 0)
+  const max = Math.max(...vals, 1)
+  const W = 240, H = 52
+  const bw = W / vals.length - 1
+
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: 'block' }}>
+        {vals.map((v, i) => {
+          const h = Math.max(2, (v / max) * (H - 4))
+          return (
+            <rect
+              key={i}
+              x={i * (W / vals.length)}
+              y={H - h}
+              width={Math.max(bw, 1)}
+              height={h}
+              rx="1.5"
+              fill={v > 0 ? '#D89020' : '#e2e8f0'}
+            />
+          )
+        })}
+      </svg>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+        <span style={{ fontSize: 10, color: '#9e9189' }}>30 days ago</span>
+        <span style={{ fontSize: 10, color: '#9e9189' }}>Today</span>
+      </div>
+    </div>
+  )
+}
+
+function StatusBreakdown({ requests }) {
+  const statusColors = {
+    review_drafted:    '#D89020',
+    review_posted:     '#1f8a5b',
+    feedback_received: '#3b82f6',
+    rating_received:   '#8b5cf6',
+    pending:           '#e2e8f0',
+    sent:              '#f59e0b',
+    expired:           '#ef4444',
+  }
+  const counts = {}
+  requests.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1 })
+  const total = requests.length || 1
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1])
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {entries.map(([status, count]) => (
+        <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: statusColors[status] || '#94a3b8', flexShrink: 0 }} />
+          <span style={{ fontSize: 12, color: '#3d3529', flex: 1 }}>{status.replace(/_/g, ' ')}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#1A1610' }}>{count}</span>
+          <span style={{ fontSize: 11, color: '#9e9189', width: 32, textAlign: 'right' }}>{Math.round((count / total) * 100)}%</span>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 function formatDate(iso) {
@@ -205,6 +322,15 @@ function BusinessDetail({ businessId, onClose }) {
   const requests = data.review_requests || []
   const status = trialStatus(b)
 
+  const avgRating = reviews.length
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : '—'
+  const postedCount = reviews.filter(r => r.is_posted_to_google).length
+  const positiveCount = reviews.filter(r => r.rating >= 4).length
+  const convRate = requests.length
+    ? Math.round((reviews.length / requests.length) * 100)
+    : 0
+
   return (
     <div className="adm-overlay" onClick={onClose}>
       <div className="adm-detail" onClick={e => e.stopPropagation()}>
@@ -233,6 +359,47 @@ function BusinessDetail({ businessId, onClose }) {
           <div className="adm-detail-field" style={{ marginBottom: 16 }}>
             <label>Google review URL</label>
             <p><a href={b.google_business_url} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', wordBreak: 'break-all' }}>{b.google_business_url}</a></p>
+          </div>
+        )}
+
+        {/* KPI row */}
+        <div className="adm-kpi-row">
+          <div className="adm-kpi">
+            <div className="adm-kpi-val">{reviews.length}</div>
+            <div className="adm-kpi-label">Total Reviews</div>
+          </div>
+          <div className="adm-kpi">
+            <div className="adm-kpi-val">{avgRating}</div>
+            <div className="adm-kpi-label">Avg Rating</div>
+          </div>
+          <div className="adm-kpi">
+            <div className="adm-kpi-val">{convRate}%</div>
+            <div className="adm-kpi-label">Conversion</div>
+          </div>
+          <div className="adm-kpi">
+            <div className="adm-kpi-val">{positiveCount}</div>
+            <div className="adm-kpi-label">4–5 Star</div>
+          </div>
+        </div>
+
+        {/* Charts */}
+        {reviews.length > 0 && (
+          <div className="adm-charts-row">
+            <div className="adm-chart-box">
+              <div className="adm-chart-title">Rating Distribution</div>
+              <RatingDistribution reviews={reviews} />
+            </div>
+            <div className="adm-chart-box">
+              <div className="adm-chart-title">Activity — Last 30 Days</div>
+              <ActivityChart reviews={reviews} />
+            </div>
+          </div>
+        )}
+
+        {requests.length > 0 && (
+          <div className="adm-chart-box" style={{ marginBottom: 18 }}>
+            <div className="adm-chart-title">Request Status Breakdown</div>
+            <StatusBreakdown requests={requests} />
           </div>
         )}
 
