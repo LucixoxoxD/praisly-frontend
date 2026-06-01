@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import WhatsAppButton from '../components/WhatsAppButton'
+import AnimatedMapMockup from '../components/AnimatedMapMockup'
 
 // ─── Scroll-reveal hook ───────────────────────────────────────────────────────
 function useInView(options = {}) {
@@ -237,80 +238,6 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 }
 .lp-stack-avatars > div:first-child { margin-left: 0; }
 .lp-hero-trust strong { color: var(--ink); font-weight: 700; }
-
-/* ── BATTLE CARDS ── */
-.lp-battle { position: relative; height: 540px; overflow: visible; width: 100%; max-width: 100%; box-sizing: border-box; }
-.lp-battle-card {
-  position: absolute; background: var(--surface); border: 1px solid var(--line);
-  border-radius: 24px; padding: 22px 24px; box-shadow: var(--shadow-md); width: 100%; max-width: 100%; box-sizing: border-box;
-}
-.lp-battle-card.them {
-  top: 0; right: 0; width: 78%; transform: rotate(-1.5deg); opacity: 0.85;
-  box-shadow: var(--shadow-sm); padding-top: 38px;
-  animation: cardSlideUpThem 0.6s ease-out;
-}
-.lp-battle-card.you {
-  top: 195px; bottom: auto; left: 0; width: 88%; transform: rotate(1deg);
-  box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1);
-  border-left: 3px solid var(--primary); border-color: rgba(216,144,32,0.4); z-index: 2;
-  animation: cardSlideUpYou 0.8s ease-out 0.2s both, glowPulse 4s ease-in-out 1s infinite;
-}
-.lp-bc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.lp-bc-where {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--ink-3);
-  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
-}
-.lp-bc-flag {
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
-  padding: 3px 9px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
-}
-.lp-bc-flag.stalled { background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; }
-.lp-bc-flag.climbing { background: var(--ink); color: var(--primary); }
-.lp-bc-name {
-  font-family: var(--font-display); font-size: 22px; font-weight: 700;
-  letter-spacing: -0.015em; color: var(--ink);
-}
-.lp-bc-meta { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
-.lp-bc-row { display: flex; align-items: center; gap: 22px; margin-top: 18px; }
-.lp-bc-rank { display: flex; align-items: baseline; gap: 4px; }
-.lp-bc-rank .hash { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--ink-3); }
-.lp-bc-rank .n { font-family: var(--font-display); font-size: 64px; font-weight: 800; line-height: 0.9; letter-spacing: -0.05em; color: var(--ink); }
-.lp-battle-card.you .lp-bc-rank .n { color: var(--primary-ink); }
-.lp-battle-card.you .lp-bc-rank .hash { color: var(--primary); }
-.lp-bc-stats { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.lp-bc-stat-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
-.lp-bc-stat-row .lbl { color: var(--ink-3); }
-.lp-bc-stat-row .val { font-family: var(--font-display); font-weight: 700; color: var(--ink); }
-.lp-bc-stat-row .val.up { color: var(--win); }
-.lp-bc-stat-row .val.flat { color: var(--ink-3); }
-.lp-bc-foot {
-  margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line-2);
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-}
-.lp-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 11.5px; }
-.lp-pill.up { background: var(--win-soft); color: var(--win); box-shadow: 0 0 8px rgba(31,138,91,0.18); }
-.lp-pill.flat { background: var(--surface-2); color: var(--ink-3); border: 1px solid var(--line); }
-.lp-chase-arrow {
-  position: absolute; top: 192px; right: 14%; z-index: 10;
-  background: var(--ink); color: var(--primary);
-  padding: 9px 14px 9px 12px; border-radius: 999px;
-  font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
-  display: inline-flex; align-items: center; gap: 6px;
-  box-shadow: 0 8px 20px -8px rgba(26,22,16,0.4);
-  animation: subtlePulse 3s ease-in-out infinite;
-}
-.lp-chase-caret {
-  position: absolute; top: 228px; right: calc(14% + 14px); z-index: 10;
-  font-size: 9px; color: var(--primary-ink); opacity: 0.65; line-height: 1;
-}
-.lp-preview-pill {
-  position: absolute; top: 4%; left: 8%; z-index: 4;
-  background: var(--primary); color: #2c1e07;
-  font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 5px 11px; border-radius: 999px; transform: rotate(-3deg);
-  box-shadow: 0 6px 14px -4px rgba(216,144,32,0.5); white-space: nowrap;
-}
 
 /* ── SOCIAL PROOF ── */
 .lp-proof { padding: 30px 0 60px; border-top: 1px solid var(--line); }
@@ -580,28 +507,9 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   box-shadow: 0 2px 8px rgba(26,22,16,0.3); flex-shrink: 0;
 }
 
-/* ── BATTLE ANIMATIONS ── */
-@keyframes cardSlideUpThem {
-  from { transform: rotate(-1.5deg) translateY(30px); opacity: 0; }
-  to { transform: rotate(-1.5deg) translateY(0); opacity: 1; }
-}
-@keyframes cardSlideUpYou {
-  from { transform: rotate(1deg) translateY(30px); opacity: 0; }
-  to { transform: rotate(1deg) translateY(0); opacity: 1; }
-}
-@keyframes subtlePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1); }
-  50% { box-shadow: 0 0 32px rgba(216,144,32,0.28), 0 8px 24px rgba(0,0,0,0.12); }
-}
-
 /* ── RESPONSIVE ── */
 @media (max-width: 1080px) {
   .lp-hero-grid { grid-template-columns: 1fr; gap: 48px; }
-  .lp-battle { max-width: 520px; margin: 0 auto; }
   .lp-features { grid-template-columns: 1fr; }
   .lp-tg { grid-template-columns: 1fr; }
   .lp-lpwrap { grid-template-columns: 1fr; gap: 32px; }
@@ -630,50 +538,6 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
     gap: 40px !important;
   }
   .lp-hero-grid > * { min-width: 0; }
-  /* Battle: vertical flex stack, hard-constrained to available width */
-  .lp-battle {
-    position: relative !important;
-    height: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-  }
-  .lp-battle-card {
-    position: relative !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    top: auto !important; bottom: auto !important;
-    left: 0 !important; right: auto !important;
-    margin-left: 0 !important; margin-right: 0 !important;
-    transform: none !important;
-    animation: none !important;
-    opacity: 1 !important;
-  }
-  .lp-battle-card.them { padding-top: 22px !important; }
-  .lp-battle-card.you {
-    box-shadow: 0 0 20px rgba(216,144,32,0.15), 0 8px 24px rgba(0,0,0,0.1) !important;
-    border-left: 3px solid var(--primary) !important;
-  }
-  .lp-preview-pill { display: none !important; }
-  /* Chase arrow: in-flow, centered */
-  .lp-chase-arrow {
-    position: relative !important;
-    top: auto !important; right: auto !important; left: auto !important;
-    display: inline-flex !important;
-    margin: 4px auto !important;
-    z-index: 10;
-  }
-  .lp-chase-caret { display: none !important; }
   /* VS connector: horizontal divider, centered */
   .lp-vs-connector {
     display: flex !important;
@@ -842,72 +706,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right: Battle scene */}
-          <div className="lp-battle">
-            <span className="lp-preview-pill">Live · You vs them</span>
-
-            {/* Competitor card */}
-            <div className="lp-battle-card them">
-              <div className="lp-bc-head">
-                <span className="lp-bc-where">Koramangala · Bengaluru</span>
-                <span className="lp-bc-flag stalled">Stalled · 4w</span>
-              </div>
-              <div className="lp-bc-name">Star Hair Studio</div>
-              <div className="lp-bc-meta">Currently #2 · Established 2014</div>
-              <div className="lp-bc-row">
-                <div className="lp-bc-rank"><span className="hash">#</span><span className="n">2</span></div>
-                <div className="lp-bc-stats">
-                  <div className="lp-bc-stat-row"><span className="lbl">Reviews</span><span className="val">147</span></div>
-                  <div className="lp-bc-stat-row"><span className="lbl">Rating</span><span className="val">4.1 <span style={{ color: '#F5B945' }}>★</span></span></div>
-                  <div className="lp-bc-stat-row"><span className="lbl">This month</span><span className="val flat">+5</span></div>
-                </div>
-              </div>
-              <div className="lp-bc-foot">
-                <span className="lp-pill flat" style={{ color: '#DC2626', background: '#FEE2E2', border: '1px solid #FCA5A5' }}>▬ No movement</span>
-                <svg className="spark" viewBox="0 0 88 24" preserveAspectRatio="none" style={{ height: 24, width: 88 }}>
-                  <polyline fill="none" stroke="#B8AFA4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points="0,10 8,11 16,11 24,12 32,12 40,13 48,13 56,14 64,14 72,15 80,15 88,16"/>
-                </svg>
-              </div>
-            </div>
-
-            {/* Chase pill — sibling of both cards so it clears the YOU card's stacking context */}
-            <div className="lp-chase-arrow">
-              <ArrowUp /> 15 to overtake
-            </div>
-            <div className="lp-chase-caret">▼</div>
-
-            {/* VS bridge */}
-            <div className="lp-vs-connector" aria-hidden="true">
-              <div className="lp-vs-badge">VS</div>
-            </div>
-
-            {/* Your card */}
-            <div className="lp-battle-card you">
-              <div className="lp-bc-head">
-                <span className="lp-bc-where">Indiranagar · Bengaluru</span>
-                <span className="lp-bc-flag climbing">🔥 Climbing · +18 this month</span>
-              </div>
-              <div className="lp-bc-name">
-                Glow Beauty Salon{' '}
-                <span style={{ fontSize: 11, background: 'var(--primary)', color: '#2c1e07', padding: '2px 7px', borderRadius: 6, marginLeft: 6, fontWeight: 800, letterSpacing: '.06em', fontFamily: 'var(--font-body)', verticalAlign: 'middle' }}>YOU</span>
-              </div>
-              <div className="lp-bc-meta">Currently #3 · Established 2019</div>
-              <div className="lp-bc-row">
-                <div className="lp-bc-rank"><span className="hash">#</span><span className="n">3</span></div>
-                <div className="lp-bc-stats">
-                  <div className="lp-bc-stat-row"><span className="lbl">Reviews</span><span className="val">132</span></div>
-                  <div className="lp-bc-stat-row"><span className="lbl">Rating</span><span className="val">4.5 <span style={{ color: '#F5B945' }}>★</span></span></div>
-                  <div className="lp-bc-stat-row"><span className="lbl">This month</span><span className="val up">+18</span></div>
-                </div>
-              </div>
-              <div className="lp-bc-foot">
-                <span className="lp-pill up">↗ Trending up · 6w streak</span>
-                <svg viewBox="0 0 88 24" preserveAspectRatio="none" style={{ height: 24, width: 88 }}>
-                  <polyline fill="none" stroke="#1F8A5B" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" points="0,18 8,17 16,16 24,14 32,15 40,12 48,10 56,11 64,8 72,7 80,5 88,4"/>
-                </svg>
-              </div>
-            </div>
-          </div>
+          {/* Right: Animated Google Maps mockup */}
+          <AnimatedMapMockup />
         </div>
       </section>
 
