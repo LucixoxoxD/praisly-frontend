@@ -284,6 +284,7 @@ function BusinessDetail({ businessId, onClose }) {
 
 export default function Admin() {
   const navigate = useNavigate()
+  const isAuthed = authService.isAuthenticated()
   const [stats, setStats] = useState(null)
   const [businesses, setBusinesses] = useState([])
   const [search, setSearch] = useState('')
@@ -292,6 +293,7 @@ export default function Admin() {
   const [selectedBiz, setSelectedBiz] = useState(null)
 
   useEffect(() => {
+    if (!isAuthed) { navigate('/login', { replace: true }); return }
     document.title = 'Praisly Admin'
     setLoading(true)
     Promise.all([

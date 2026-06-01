@@ -118,7 +118,7 @@ export default function App() {
           <Route path="/settings"  element={<WithLayout><Settings /></WithLayout>} />
           <Route path="/billing"   element={<WithLayout><Billing /></WithLayout>} />
           <Route path="/agent"    element={<AgentSignup />} />
-          <Route path="/admin"   element={<Protected><Admin /></Protected>} />
+          <Route path="/admin"   element={<Admin />} />
 
           <Route
             path="*"
