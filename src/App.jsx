@@ -50,7 +50,8 @@ function Protected({ children }) {
   if (status === 'redirect') return <Navigate to="/login" replace />
 
   const biz = authService.getBusiness()
-  if (biz && biz.onboarding_completed === false) return <Navigate to="/onboarding" replace />
+  if (!biz) return <Navigate to="/admin" replace />
+  if (biz.onboarding_completed === false) return <Navigate to="/onboarding" replace />
   return children
 }
 
