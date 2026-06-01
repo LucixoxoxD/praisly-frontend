@@ -432,47 +432,6 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-gt-meta { font-size: 11.5px; color: var(--ink-3); margin-top: 3px; font-weight: 600; }
 .lp-gt-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; background: var(--win-soft); color: var(--win); font-size: 11px; font-weight: 700; margin-top: 4px; }
 
-/* ── DASHBOARD PREVIEW ── */
-.lp-dash-frame { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-md); position: relative; }
-.lp-dash-chrome { display: flex; align-items: center; gap: 8px; padding: 14px 18px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
-.lp-dash-chrome .dot { width: 11px; height: 11px; border-radius: 50%; background: #E4DCC8; }
-.lp-dash-chrome .url { margin-left: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 5px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); flex: 1; max-width: 320px; }
-.lp-dash-chrome .url strong { color: var(--ink); font-weight: 600; }
-.lp-dash-body { padding: 28px; background: var(--bg); }
-.lp-dash-hero { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 26px 30px; display: grid; grid-template-columns: 1fr 360px; gap: 28px; align-items: center; position: relative; overflow: hidden; box-shadow: var(--shadow-sm); }
-.lp-dash-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 100% at 0% 100%,rgba(216,144,32,0.10),transparent 60%),radial-gradient(50% 80% at 100% 0%,rgba(225,59,59,0.06),transparent 60%); pointer-events: none; }
-.lp-dh-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #B26A3C; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.lp-dh-eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #B26A3C; }
-.lp-dh-rank-row { display: flex; align-items: flex-start; gap: 14px; }
-.lp-dh-rank-num { font-family: var(--font-display); font-weight: 800; font-size: 100px; line-height: 0.85; letter-spacing: -0.06em; }
-.lp-dh-rank-num .hash { font-size: 38px; color: #B26A3C; font-weight: 700; margin-right: 2px; }
-.lp-dh-context { font-family: var(--font-display); font-size: 17px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; padding-top: 8px; }
-.lp-dh-context .of { color: var(--ink-3); font-weight: 500; }
-.lp-dh-sub { color: var(--ink-3); font-size: 12px; margin-top: 5px; }
-.lp-dh-momentum { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
-.lp-dh-pill { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
-.lp-dh-pill.win { background: var(--win-soft); color: var(--win); }
-.lp-dh-pill.gold { background: var(--primary-soft); color: var(--primary-ink); }
-.lp-dh-podium { background: linear-gradient(180deg,var(--surface-2),var(--surface)); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
-.lp-dh-podium-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
-.lp-dh-podium-head .tag { background: var(--ink); color: white; padding: 3px 9px; border-radius: 999px; text-transform: none; letter-spacing: 0; font-size: 10.5px; white-space: nowrap; }
-.lp-dh-podium-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: end; gap: 8px; height: 130px; }
-.lp-dh-pod { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
-.lp-dh-pod-name { font-size: 10.5px; font-weight: 600; color: var(--ink-2); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
-.lp-dh-pod-rev { font-size: 10px; color: var(--ink-3); }
-.lp-dh-pod-block { width: 100%; border-radius: 8px 8px 0 0; display: grid; place-items: start center; padding-top: 6px; font-family: var(--font-display); font-weight: 800; font-size: 18px; color: white; position: relative; }
-.lp-dh-pod.p1 .lp-dh-pod-block { background: linear-gradient(180deg,#EFC659,#C9971F); height: 100px; }
-.lp-dh-pod.p2 .lp-dh-pod-block { background: linear-gradient(180deg,#C8CDD3,#9098A3); height: 78px; }
-.lp-dh-pod.p3 .lp-dh-pod-block { background: linear-gradient(180deg,#DA9263,#B26A3C); height: 62px; }
-.lp-dh-pod.you .lp-dh-pod-block::after { content: "YOU"; position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--primary); font-size: 9px; font-weight: 800; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 999px; font-family: var(--font-body); }
-.lp-dash-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 14px; }
-.lp-ds { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
-.lp-ds-lbl { font-size: 12px; font-weight: 600; color: var(--ink-3); }
-.lp-ds-val { font-family: var(--font-display); font-weight: 800; font-size: 32px; letter-spacing: -0.02em; line-height: 1; }
-.lp-ds-val .unit { font-size: 16px; color: var(--ink-3); font-weight: 600; margin-left: 1px; }
-.lp-ds-meta { font-size: 11.5px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
-.lp-ds-meta .up { color: var(--win); font-weight: 700; }
-
 /* ── PRICING ── */
 .lp-pricing-section { background: var(--surface-2); position: relative; }
 .lp-pricing-section::before { content: ""; position: absolute; inset: 0; background: radial-gradient(50% 50% at 50% 0%,rgba(216,144,32,0.08),transparent 60%); pointer-events: none; }
@@ -556,38 +515,6 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 .lp-t-rank .arr { color: var(--win); font-weight: 800; }
 .lp-t-rank .to { color: var(--primary-ink); font-size: 18px; }
 .lp-t-rank .label { margin-left: auto; font-family: inherit; font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
-
-/* ── STORY ── */
-.lp-story-section { padding-top: 30px; }
-.lp-story-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; position: relative; }
-.lp-story-grid::before { content: ""; position: absolute; top: 78px; left: 16%; right: 16%; height: 2px; background: repeating-linear-gradient(90deg, var(--ink-4) 0, var(--ink-4) 4px, transparent 4px, transparent 9px); z-index: 0; }
-.lp-story-card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
-.lp-story-card.win { background: linear-gradient(180deg, #FBEED0 0%, #F8DFA1 100%); border-color: rgba(155,102,16,0.25); box-shadow: var(--shadow-gold); }
-.lp-story-week { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
-.lp-story-card.win .lp-story-week { color: var(--primary-ink); }
-.lp-story-rank { font-family: var(--font-display); font-weight: 800; font-size: 88px; line-height: 0.85; letter-spacing: -0.05em; color: var(--ink); }
-.lp-story-rank .hash { font-size: 36px; color: var(--ink-3); font-weight: 700; margin-right: 2px; }
-.lp-story-card.win .lp-story-rank .hash { color: var(--primary-ink); }
-.lp-story-rank-meta { font-size: 13px; color: var(--ink-3); font-weight: 600; margin-top: -8px; }
-.lp-story-line { font-family: var(--font-display); font-size: 16px; line-height: 1.25; font-weight: 600; letter-spacing: -0.012em; color: var(--ink); margin-top: 4px; }
-.lp-story-stat { display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; border-top: 1px solid rgba(26,22,16,0.10); font-size: 13px; }
-.lp-story-stat .lbl { color: var(--ink-3); font-weight: 500; }
-.lp-story-stat .val { font-family: var(--font-display); font-weight: 700; color: var(--ink); }
-.lp-story-stat .val.up { color: var(--win); }
-.lp-story-card.win .lp-story-stat .val { color: var(--primary-ink); }
-
-/* ── DASHBOARD CALLOUTS ── */
-.lp-callout { position: absolute; background: var(--ink); color: white; padding: 10px 14px 10px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 600; line-height: 1.3; max-width: 220px; box-shadow: 0 12px 24px -10px rgba(26,22,16,0.4); z-index: 2; }
-.lp-callout strong { color: var(--primary); font-weight: 700; }
-.lp-callout .pin { position: absolute; width: 22px; height: 22px; background: var(--primary); border: 3px solid var(--ink); border-radius: 50%; }
-.lp-callout .pin::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--primary); animation: lp-ping 2s ease-out infinite; }
-@keyframes lp-ping { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(2.5); opacity: 0; } }
-.lp-callout.c1 { top: 28%; left: -40px; transform: translate(-30%, -50%); }
-.lp-callout.c1 .pin { right: -32px; top: 50%; transform: translateY(-50%); }
-.lp-callout.c2 { top: 12%; right: -40px; transform: translate(20%, 0); }
-.lp-callout.c2 .pin { left: -32px; top: 50%; transform: translateY(-50%); }
-.lp-callout.c3 { bottom: 14%; right: -50px; transform: translate(20%, 0); }
-.lp-callout.c3 .pin { left: -32px; top: 50%; transform: translateY(-50%); }
 
 /* ── ROI STRIP ── */
 .lp-roi-strip { max-width: 760px; margin: 28px auto 0; background: var(--ink); color: white; border-radius: 16px; padding: 18px 22px; display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; position: relative; overflow: hidden; }
@@ -676,22 +603,17 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   .lp-hero-grid { grid-template-columns: 1fr; gap: 48px; }
   .lp-battle { max-width: 520px; margin: 0 auto; }
   .lp-features { grid-template-columns: 1fr; }
-  .lp-dash-hero { grid-template-columns: 1fr; }
   .lp-tg { grid-template-columns: 1fr; }
-  .lp-callout { display: none; }
   .lp-lpwrap { grid-template-columns: 1fr; gap: 32px; }
   .lp-maps-floater { display: none; }
-  .lp-story-grid::before { display: none; }
 }
 @media (max-width: 760px) {
   .lp-nav-links { display: none !important; }
   .lp-hero { padding: 40px 0 50px; }
   .lp-section { padding: 60px 0; }
   .lp-steps { grid-template-columns: 1fr; }
-  .lp-dash-stats { grid-template-columns: 1fr; }
   .lp-cta-card { padding: 40px 28px; }
   .lp-hero h1 { font-size: 40px; }
-  .lp-story-grid { grid-template-columns: 1fr; }
   .lp-roi-strip { grid-template-columns: 1fr; text-align: center; }
   .lp-roi-icon { margin: 0 auto; }
 }
@@ -899,7 +821,7 @@ export default function LandingPage() {
                   {demoLoading ? 'Loading…' : 'See live demo (2 min)'}
                 </button>
               ) : (
-                <a href="#dashboard" className="lp-btn lp-btn-outline lp-btn-lg" style={{ fontSize: 14, padding: '10px 20px' }}>See live demo (2 min)</a>
+                <a href="#features" className="lp-btn lp-btn-outline lp-btn-lg" style={{ fontSize: 14, padding: '10px 20px' }}>See how it works</a>
               )}
             </div>
 
@@ -1155,62 +1077,6 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
-          8-WEEK STORY
-      ══════════════════════════════════════════════════════════════ */}
-      <section className="lp-section lp-story-section" id="sec-story">
-        <div className="lp-wrap">
-          <Reveal>
-            <div className="lp-section-head">
-              <span className="lp-section-eyebrow">A real climb · Gupta Dental, Noida</span>
-              <h2>From #5 to #1 in 8 weeks.<br/><em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>Here's exactly what happened.</em></h2>
-              <p>One business, one QR code, one dashboard. Anonymized rank journey from a real Praisly customer.</p>
-            </div>
-          </Reveal>
-          <div className="lp-story-grid">
-            <Reveal delay={0}>
-              <article className="lp-story-card">
-                <div className="lp-story-week">
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--ink-3)', display: 'inline-block', flexShrink: 0 }} />
-                  Week 1 · Starting line
-                </div>
-                <div className="lp-story-rank"><span className="hash">#</span>5</div>
-                <div className="lp-story-rank-meta">of 14 dentists in Sector 18</div>
-                <div className="lp-story-line">"Customers say we're good. But nobody finds us on Google."</div>
-                <div className="lp-story-stat"><span className="lbl">Reviews</span><span className="val">28</span></div>
-                <div className="lp-story-stat"><span className="lbl">Rating</span><span className="val">4.2★</span></div>
-              </article>
-            </Reveal>
-            <Reveal delay={80}>
-              <article className="lp-story-card">
-                <div className="lp-story-week">
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--win)', display: 'inline-block', flexShrink: 0 }} />
-                  Week 4 · QR live, AI drafts on
-                </div>
-                <div className="lp-story-rank"><span className="hash">#</span>3</div>
-                <div className="lp-story-rank-meta">Climbed past 2 competitors</div>
-                <div className="lp-story-line">QR at billing counter. 2 in 3 happy customers leave a review. One bad review came in — doctor called the patient, issue resolved same day.</div>
-                <div className="lp-story-stat"><span className="lbl">Reviews</span><span className="val up">+33 (61)</span></div>
-                <div className="lp-story-stat"><span className="lbl">Rating</span><span className="val up">4.5★</span></div>
-              </article>
-            </Reveal>
-            <Reveal delay={160}>
-              <article className="lp-story-card win">
-                <div className="lp-story-week">
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-ink)', display: 'inline-block', flexShrink: 0 }} />
-                  Week 8 · Local pack, position #1
-                </div>
-                <div className="lp-story-rank"><span className="hash">#</span>1</div>
-                <div className="lp-story-rank-meta">Top of Maps for "dentist near me"</div>
-                <div className="lp-story-line">"3 walk-ins this week said they found us on Google Maps."</div>
-                <div className="lp-story-stat"><span className="lbl">Reviews</span><span className="val">128</span></div>
-                <div className="lp-story-stat"><span className="lbl">Rating</span><span className="val">4.7★</span></div>
-              </article>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════
           FEATURES
       ══════════════════════════════════════════════════════════════ */}
       <section className="lp-section" id="features" style={{ paddingTop: 20, background: 'var(--surface-2)' }}>
@@ -1264,31 +1130,8 @@ export default function LandingPage() {
               </div>
             </Reveal>
 
-            {/* Feature 3: Smart Routing */}
+            {/* Feature 3: Google Tracking */}
             <Reveal delay={160}>
-              <div className="lp-feat">
-                <div className="lp-feat-icon red"><Split /></div>
-                <h3>Smart Review Routing</h3>
-                <p>Happy customers can share publicly. Unhappy customers get a direct line to you privately — so you can resolve issues before they go unheard.</p>
-                <div className="lp-feat-art">
-                  <div className="lp-routing">
-                    <div className="lp-route happy">
-                      <div className="stars">★★★★★</div>
-                      <div className="label">Public</div>
-                      <div className="arrow">→ Google</div>
-                    </div>
-                    <div className="lp-route unhappy">
-                      <div className="stars" style={{ color: '#B8AFA4' }}>★★☆☆☆</div>
-                      <div className="label">Private</div>
-                      <div className="arrow">→ Your inbox</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Feature 4: Google Tracking */}
-            <Reveal delay={240}>
               <div className="lp-feat">
                 <div className="lp-feat-icon green"><Chart /></div>
                 <h3>Google Tracking</h3>
@@ -1315,113 +1158,6 @@ export default function LandingPage() {
               </div>
             </Reveal>
           </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          DASHBOARD PREVIEW
-      ══════════════════════════════════════════════════════════════ */}
-      <section className="lp-section" id="dashboard">
-        <div className="lp-wrap">
-          <Reveal>
-            <div className="lp-section-head">
-              <span className="lp-section-eyebrow">Your battle dashboard</span>
-              <h2>Rankings, stats, and AI insights — all in one place.</h2>
-              <p>Every Monday morning, open Praisly. See your rank, your competitors' moves, and your next play.</p>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="lp-dash-frame" style={{ maxWidth: 1080, margin: '0 auto' }}>
-              {/* Callout bubbles */}
-              <div className="lp-callout c1">
-                <div className="pin" />
-                See your <strong>live rank</strong> updated every 12 minutes
-              </div>
-              <div className="lp-callout c2">
-                <div className="pin" />
-                <strong>Podium view</strong> shows the top 3 in your area
-              </div>
-              <div className="lp-callout c3">
-                <div className="pin" />
-                AI tells you <strong>exactly</strong> who to chase
-              </div>
-
-              {/* Browser chrome */}
-              <div className="lp-dash-chrome">
-                <div className="dot" style={{ background: '#FF9F8B' }} />
-                <div className="dot" style={{ background: '#F5C56A' }} />
-                <div className="dot" style={{ background: '#9BD3A8' }} />
-                <div className="url"><strong>praisly.in</strong>/dashboard</div>
-              </div>
-
-              {/* Dashboard body */}
-              <div className="lp-dash-body">
-                {/* Hero rank + podium */}
-                <div className="lp-dash-hero">
-                  <div style={{ position: 'relative' }}>
-                    <span className="lp-dh-eyebrow">Your standing · Restaurants · Bandra West</span>
-                    <div className="lp-dh-rank-row">
-                      <div className="lp-dh-rank-num"><span className="hash">#</span>3</div>
-                      <div className="lp-dh-context">
-                        You're <span style={{ color: '#B26A3C' }}>#3 of 18</span> restaurants<br/>
-                        <span className="of">in</span> Bandra West
-                        <div className="lp-dh-sub">Tracked weekly · Last updated 12 min ago</div>
-                      </div>
-                    </div>
-                    <div className="lp-dh-momentum">
-                      <span className="lp-dh-pill win">↗ +24 reviews this month</span>
-                      <span className="lp-dh-pill gold">🔥 6-week streak</span>
-                    </div>
-                  </div>
-
-                  {/* Podium */}
-                  <div className="lp-dh-podium">
-                    <div className="lp-dh-podium-head">
-                      <span>Top 3 · Restaurants</span>
-                      <span className="tag">📍 Bandra</span>
-                    </div>
-                    <div className="lp-dh-podium-grid">
-                      <div className="lp-dh-pod p2">
-                        <div className="lp-dh-pod-name">Curry House</div>
-                        <div className="lp-dh-pod-rev">312</div>
-                        <div className="lp-dh-pod-block">2</div>
-                      </div>
-                      <div className="lp-dh-pod p1">
-                        <div className="lp-dh-pod-name">Bombay Bistro</div>
-                        <div className="lp-dh-pod-rev">847</div>
-                        <div className="lp-dh-pod-block">1</div>
-                      </div>
-                      <div className="lp-dh-pod p3 you">
-                        <div className="lp-dh-pod-name" style={{ color: 'var(--ink)', fontWeight: 700 }}>Spice Junction</div>
-                        <div className="lp-dh-pod-rev">208</div>
-                        <div className="lp-dh-pod-block">3</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stats row */}
-                <div className="lp-dash-stats">
-                  <div className="lp-ds">
-                    <div className="lp-ds-lbl">Reviews gained</div>
-                    <div className="lp-ds-val">24<span className="unit">/mo</span></div>
-                    <div className="lp-ds-meta"><span className="up">↗ +33%</span> · 184 → 208</div>
-                  </div>
-                  <div className="lp-ds">
-                    <div className="lp-ds-lbl">Google rating</div>
-                    <div className="lp-ds-val">4.6<span className="unit">★</span></div>
-                    <div className="lp-ds-meta"><span className="up">↗ +0.2</span> · vs last month</div>
-                  </div>
-                  <div className="lp-ds">
-                    <div className="lp-ds-lbl">QR scans → reviews</div>
-                    <div className="lp-ds-val">71<span className="unit">%</span></div>
-                    <div className="lp-ds-meta">62 reviews · 14 this week</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </section>
 
