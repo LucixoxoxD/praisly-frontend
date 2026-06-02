@@ -111,6 +111,7 @@ export default function LocationSwitcher() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
   const ref = useRef(null)
 
   const current = authService.getBusiness()
@@ -166,6 +167,33 @@ export default function LocationSwitcher() {
     window.location.href = '/onboarding'
   }
 
+  async function handleDelete(loc, e) {
+    e.stopPropagation()
+    const label = loc.location_label || loc.business_name || 'this location'
+    if (!window.confirm(`Remove "${label}"? Its review history is kept but it will be hidden from your dashboard.`)) {
+      return
+    }
+    setDeletingId(loc.id)
+    try {
+      await api.delete(`/api/locations/${loc.id}`)
+      const updated = locations.filter(l => l.id !== loc.id)
+      setLocations(updated)
+      authService.setLocations(updated)
+      // If we just deleted the active location, switch to the primary/first remaining one
+      if (loc.id === currentId) {
+        const fallback = updated.find(l => l.is_primary) || updated[0]
+        if (fallback) {
+          authService.switchLocation(fallback)
+          window.location.reload()
+        }
+      }
+    } catch (err) {
+      window.alert(err.response?.data?.detail || 'Could not remove location')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const activeLocations = locations.filter(l => l.is_active !== false)
 
   return (
@@ -205,43 +233,74 @@ export default function LocationSwitcher() {
             animation: 'dropIn 0.15s ease both',
           }}>
             {activeLocations.map(loc => (
-              <button
+              <div
                 key={loc.id}
-                onClick={() => handleSwitch(loc)}
-                disabled={loading}
                 style={{
-                  width: '100%', padding: '10px 12px',
+                  width: '100%',
                   background: loc.id === currentId ? 'var(--primary-soft)' : 'transparent',
-                  border: 'none', borderBottom: '1px solid var(--line)',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                  fontFamily: 'inherit', textAlign: 'left',
+                  borderBottom: '1px solid var(--line)',
+                  display: 'flex', alignItems: 'center',
                   transition: 'background 0.1s',
                 }}
                 onMouseEnter={e => { if (loc.id !== currentId) e.currentTarget.style.background = 'var(--surface-tint)' }}
                 onMouseLeave={e => { if (loc.id !== currentId) e.currentTarget.style.background = 'transparent' }}
               >
-                <span style={{
-                  width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-                  background: loc.id === currentId ? 'var(--primary-ink)' : 'var(--ink-4)',
-                }} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: 12.5, fontWeight: loc.id === currentId ? 700 : 500,
-                    color: loc.id === currentId ? 'var(--primary-ink)' : 'var(--ink)',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {loc.location_label || loc.business_name}
+                <button
+                  onClick={() => handleSwitch(loc)}
+                  disabled={loading || deletingId === loc.id}
+                  style={{
+                    flex: 1, minWidth: 0, padding: '10px 4px 10px 12px',
+                    background: 'transparent', border: 'none',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                    fontFamily: 'inherit', textAlign: 'left',
+                  }}
+                >
+                  <span style={{
+                    width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                    background: loc.id === currentId ? 'var(--primary-ink)' : 'var(--ink-4)',
+                  }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: 12.5, fontWeight: loc.id === currentId ? 700 : 500,
+                      color: loc.id === currentId ? 'var(--primary-ink)' : 'var(--ink)',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {loc.location_label || loc.business_name}
+                    </div>
+                    <div style={{ fontSize: 10.5, color: 'var(--ink-3)', marginTop: 1 }}>
+                      {loc.city || ''}{loc.business_type ? ` · ${loc.business_type}` : ''}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 10.5, color: 'var(--ink-3)', marginTop: 1 }}>
-                    {loc.city || ''}{loc.business_type ? ` · ${loc.business_type}` : ''}
-                  </div>
-                </div>
-                {loc.id === currentId && (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary-ink)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                    <path d="m5 12 5 5L20 7" />
-                  </svg>
+                  {loc.id === currentId && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary-ink)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                      <path d="m5 12 5 5L20 7" />
+                    </svg>
+                  )}
+                </button>
+                {/* Delete — only for non-primary locations */}
+                {!loc.is_primary && (
+                  <button
+                    onClick={e => handleDelete(loc, e)}
+                    disabled={deletingId === loc.id}
+                    title="Remove location"
+                    style={{
+                      flexShrink: 0, padding: '8px 10px', marginRight: 2,
+                      background: 'transparent', border: 'none',
+                      cursor: deletingId === loc.id ? 'wait' : 'pointer',
+                      display: 'grid', placeItems: 'center', borderRadius: 6,
+                      color: 'var(--ink-4)', opacity: deletingId === loc.id ? 0.5 : 1,
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#c5221f'; e.currentTarget.style.background = 'rgba(197,34,31,0.08)' }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--ink-4)'; e.currentTarget.style.background = 'transparent' }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                      <line x1="10" y1="11" x2="10" y2="17" />
+                      <line x1="14" y1="11" x2="14" y2="17" />
+                    </svg>
+                  </button>
                 )}
-              </button>
+              </div>
             ))}
 
             {/* Add location button */}
