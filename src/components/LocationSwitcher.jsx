@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import api, { authService } from '../services/api'
 
 const VALID_TYPES = [
@@ -269,11 +270,12 @@ export default function LocationSwitcher() {
         )}
       </div>
 
-      {showAdd && (
+      {showAdd && createPortal(
         <AddLocationModal
           onClose={() => setShowAdd(false)}
           onAdded={handleAdded}
-        />
+        />,
+        document.body
       )}
     </>
   )
