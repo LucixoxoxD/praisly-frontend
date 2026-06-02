@@ -48,15 +48,16 @@ function DemoEmbed() {
       style={{
         marginTop: 48,
         width: '100%',
-        maxWidth: 800,
+        maxWidth: 880,
         marginLeft: 'auto',
         marginRight: 'auto',
-        borderRadius: 16,
+        borderRadius: 18,
         overflow: 'hidden',
-        boxShadow: '0 24px 60px rgba(0,0,0,0.10)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06)',
+        border: '1px solid var(--line)',
         background: '#faf6ec',
         position: 'relative',
-        paddingBottom: '56.25%',
+        paddingBottom: '52%',
       }}
     >
       {/* Poster / loading state */}
@@ -65,43 +66,43 @@ function DemoEmbed() {
           position: 'absolute', inset: 0, zIndex: 2,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           background: '#faf6ec',
-          gap: 16,
+          gap: 14,
         }}>
-          {/* Praisly logo mark */}
           <div style={{
-            width: 56, height: 56, borderRadius: 14,
-            background: '#1A1610', border: '2px solid rgba(216,144,32,0.3)',
+            width: 48, height: 48, borderRadius: 12,
+            background: '#1A1610', border: '1.5px solid rgba(216,144,32,0.25)',
             display: 'grid', placeItems: 'center', position: 'relative', overflow: 'hidden',
           }}>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%', background: '#D89020' }} />
-            <span style={{ position: 'relative', zIndex: 1, fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'white' }}>P</span>
+            <span style={{ position: 'relative', zIndex: 1, fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'white' }}>P</span>
           </div>
           {loaded ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{
-                width: 8, height: 8, borderRadius: '50%', background: '#D89020',
+                width: 6, height: 6, borderRadius: '50%', background: '#D89020',
                 animation: 'demoPulse 1s ease-in-out infinite',
               }} />
-              <span style={{ color: 'rgba(26,22,16,0.45)', fontSize: 13, fontWeight: 600 }}>Loading demo...</span>
+              <span style={{ color: 'var(--ink-3)', fontSize: 13, fontWeight: 600 }}>Loading demo...</span>
             </div>
           ) : (
-            <span style={{ color: 'rgba(26,22,16,0.35)', fontSize: 13, fontWeight: 500 }}>
+            <span style={{ color: 'var(--ink-4)', fontSize: 13, fontWeight: 500 }}>
               See how Praisly works
             </span>
           )}
         </div>
       )}
 
-      {/* Iframe — src only set once visible */}
+      {/* Iframe — crops the demo's top/bottom chrome bars */}
       {loaded && (
         <iframe
           src="/demo.html"
           onLoad={() => setReady(true)}
           style={{
             position: 'absolute',
-            top: 0, left: 0,
+            top: '-6%',
+            left: 0,
             width: '100%',
-            height: '100%',
+            height: '112%',
             border: 'none',
             display: 'block',
             opacity: ready ? 1 : 0,
