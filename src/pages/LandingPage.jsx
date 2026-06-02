@@ -20,6 +20,103 @@ function useInView(options = {}) {
   return [ref, inView]
 }
 
+// ─── Lazy demo embed — loads iframe only when scrolled into view ─────────────
+function DemoEmbed() {
+  const containerRef = useRef(null)
+  const [loaded, setLoaded] = useState(false)   // iframe src set
+  const [ready, setReady] = useState(false)      // iframe finished loading
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoaded(true)
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.15, rootMargin: '200px 0px' } // start loading a bit before visible
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        marginTop: 48,
+        width: '100%',
+        maxWidth: 800,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        borderRadius: 16,
+        overflow: 'hidden',
+        boxShadow: '0 24px 60px rgba(0,0,0,0.10)',
+        background: '#0a0a0a',
+        position: 'relative',
+        paddingBottom: '56.25%',
+      }}
+    >
+      {/* Poster / loading state */}
+      {!ready && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 2,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          background: 'linear-gradient(135deg, #1a1610 0%, #0a0a0a 100%)',
+          gap: 16,
+        }}>
+          {/* Praisly logo mark */}
+          <div style={{
+            width: 56, height: 56, borderRadius: 14,
+            background: '#1A1610', border: '2px solid rgba(216,144,32,0.3)',
+            display: 'grid', placeItems: 'center', position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%', background: '#D89020' }} />
+            <span style={{ position: 'relative', zIndex: 1, fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'white' }}>P</span>
+          </div>
+          {loaded ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                width: 8, height: 8, borderRadius: '50%', background: '#D89020',
+                animation: 'demoPulse 1s ease-in-out infinite',
+              }} />
+              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600 }}>Loading demo...</span>
+            </div>
+          ) : (
+            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
+              See how Praisly works
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Iframe — src only set once visible */}
+      {loaded && (
+        <iframe
+          src="/demo.html"
+          onLoad={() => setReady(true)}
+          style={{
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            display: 'block',
+            opacity: ready ? 1 : 0,
+            transition: 'opacity 0.4s ease',
+          }}
+          title="See how Praisly works"
+          allow="autoplay"
+        />
+      )}
+
+      <style>{`@keyframes demoPulse { 0%,100% { opacity: .4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }`}</style>
+    </div>
+  )
+}
+
 function Reveal({ children, delay = 0, style = {} }) {
   const [ref, inView] = useInView()
   return (
@@ -874,34 +971,7 @@ export default function LandingPage() {
             </Reveal>
           </div>
 
-          <div style={{
-            marginTop: '48px',
-            width: '100%',
-            maxWidth: '800px',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            boxShadow: '0 24px 60px rgba(0,0,0,0.10)',
-            background: '#0a0a0a',
-            position: 'relative',
-            paddingBottom: '56.25%', /* 16:9 — works on all mobile browsers */
-          }}>
-            <iframe
-              src="/demo.html"
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                border: 'none',
-                display: 'block',
-              }}
-              title="See how Praisly works"
-              allow="autoplay"
-            />
-          </div>
+          <DemoEmbed />
         </div>
       </section>
 
