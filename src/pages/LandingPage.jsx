@@ -873,6 +873,31 @@ export default function LandingPage() {
               </div>
             </Reveal>
           </div>
+
+          <div style={{
+            marginTop: '48px',
+            width: '100%',
+            maxWidth: '800px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.10)',
+            aspectRatio: '16/9',
+            background: '#0a0a0a',
+          }}>
+            <iframe
+              src="/demo.html"
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                display: 'block',
+              }}
+              title="See how Praisly works"
+              allow="autoplay"
+            />
+          </div>
         </div>
       </section>
 
