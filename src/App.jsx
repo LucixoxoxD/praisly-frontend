@@ -63,8 +63,9 @@ function AuthOnly({ children }) {
 
 function OnboardingRoute({ children }) {
   if (!authService.isAuthenticated()) return <Navigate to="/login" replace />
-  const biz = authService.getBusiness()
-  if (biz?.onboarding_completed === true) return <Navigate to="/dashboard" replace />
+  // Always allow access — the Onboarding page itself checks /api/onboarding/status
+  // and redirects to /dashboard if the active business is already onboarded.
+  // This avoids stale-localStorage race conditions with multi-location switching.
   return children
 }
 
