@@ -5,10 +5,12 @@ const api = axios.create({
   timeout: 15000,
 })
 
-// Attach token to every request
+// Attach token + active business ID to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('praisly_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
+  const bizId = localStorage.getItem('praisly_active_business_id')
+  if (bizId) config.headers['X-Business-Id'] = bizId
   return config
 })
 
@@ -69,6 +71,8 @@ api.interceptors.response.use(
         localStorage.removeItem('praisly_token')
         localStorage.removeItem('praisly_refresh_token')
         localStorage.removeItem('praisly_business')
+        localStorage.removeItem('praisly_active_business_id')
+        localStorage.removeItem('praisly_locations')
         window.location.href = '/login'
         return Promise.reject(refreshErr)
       } finally {
@@ -92,6 +96,7 @@ export const authService = {
     }
     if (res.data.business) {
       localStorage.setItem('praisly_business', JSON.stringify(res.data.business))
+      localStorage.setItem('praisly_active_business_id', res.data.business.id)
     }
     return res.data
   },
@@ -104,6 +109,7 @@ export const authService = {
     }
     if (res.data.business) {
       localStorage.setItem('praisly_business', JSON.stringify(res.data.business))
+      localStorage.setItem('praisly_active_business_id', res.data.business.id)
     }
     return res.data
   },
@@ -114,6 +120,8 @@ export const authService = {
     localStorage.removeItem('praisly_token')
     localStorage.removeItem('praisly_refresh_token')
     localStorage.removeItem('praisly_business')
+    localStorage.removeItem('praisly_active_business_id')
+    localStorage.removeItem('praisly_locations')
     window.location.href = '/login'
   },
 
@@ -126,7 +134,25 @@ export const authService = {
 
   setBusiness: (biz) => {
     localStorage.setItem('praisly_business', JSON.stringify(biz))
+    if (biz?.id) localStorage.setItem('praisly_active_business_id', biz.id)
   },
+
+  // Multi-location helpers
+  getLocations: () => {
+    const l = localStorage.getItem('praisly_locations')
+    try { return l ? JSON.parse(l) : [] } catch { return [] }
+  },
+
+  setLocations: (locations) => {
+    localStorage.setItem('praisly_locations', JSON.stringify(locations || []))
+  },
+
+  switchLocation: (biz) => {
+    localStorage.setItem('praisly_business', JSON.stringify(biz))
+    localStorage.setItem('praisly_active_business_id', biz.id)
+  },
+
+  getActiveBusinessId: () => localStorage.getItem('praisly_active_business_id'),
 }
 
 // Standalone refresh — used by Protected route guard before any API call is made.
@@ -149,6 +175,8 @@ export async function refreshAuth() {
     localStorage.removeItem('praisly_token')
     localStorage.removeItem('praisly_refresh_token')
     localStorage.removeItem('praisly_business')
+    localStorage.removeItem('praisly_active_business_id')
+    localStorage.removeItem('praisly_locations')
     return false
   }
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import WhatsAppButton from './WhatsAppButton'
+import LocationSwitcher from './LocationSwitcher'
 
 const WORKSPACE_NAV = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
@@ -510,6 +511,9 @@ function Sidebar({ onClose, mobileDrawer = false }) {
           </button>
         )}
       </div>
+
+      {/* Location switcher (multi-location accounts) */}
+      <LocationSwitcher />
 
       {/* Workspace nav group */}
       <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px' }}>
