@@ -54,7 +54,7 @@ function DemoEmbed() {
         borderRadius: 16,
         overflow: 'hidden',
         boxShadow: '0 24px 60px rgba(0,0,0,0.10)',
-        background: '#0a0a0a',
+        background: '#faf6ec',
         position: 'relative',
         paddingBottom: '56.25%',
       }}
@@ -64,7 +64,7 @@ function DemoEmbed() {
         <div style={{
           position: 'absolute', inset: 0, zIndex: 2,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          background: 'linear-gradient(135deg, #1a1610 0%, #0a0a0a 100%)',
+          background: '#faf6ec',
           gap: 16,
         }}>
           {/* Praisly logo mark */}
@@ -82,10 +82,10 @@ function DemoEmbed() {
                 width: 8, height: 8, borderRadius: '50%', background: '#D89020',
                 animation: 'demoPulse 1s ease-in-out infinite',
               }} />
-              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600 }}>Loading demo...</span>
+              <span style={{ color: 'rgba(26,22,16,0.45)', fontSize: 13, fontWeight: 600 }}>Loading demo...</span>
             </div>
           ) : (
-            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
+            <span style={{ color: 'rgba(26,22,16,0.35)', fontSize: 13, fontWeight: 500 }}>
               See how Praisly works
             </span>
           )}
