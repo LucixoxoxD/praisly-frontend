@@ -45,19 +45,14 @@ function DemoEmbed() {
   return (
     <div
       ref={containerRef}
+      className="lp-demo-wrap"
       style={{
         marginTop: 48,
-        width: '100%',
-        maxWidth: 880,
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        borderRadius: 18,
-        overflow: 'hidden',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06)',
-        border: '1px solid var(--line)',
+        width: '100vw',
+        marginLeft: 'calc(-50vw + 50%)',
         background: '#faf6ec',
         position: 'relative',
-        paddingBottom: '52%',
+        overflow: 'hidden',
       }}
     >
       {/* Poster / loading state */}
@@ -70,7 +65,7 @@ function DemoEmbed() {
         }}>
           <div style={{
             width: 48, height: 48, borderRadius: 12,
-            background: '#1A1610', border: '1.5px solid rgba(216,144,32,0.25)',
+            background: '#1A1610',
             display: 'grid', placeItems: 'center', position: 'relative', overflow: 'hidden',
           }}>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%', background: '#D89020' }} />
@@ -92,7 +87,7 @@ function DemoEmbed() {
         </div>
       )}
 
-      {/* Iframe — crops the demo's top/bottom chrome bars */}
+      {/* Iframe — full bleed, crops top/bottom chrome */}
       {loaded && (
         <iframe
           src="/demo.html"
@@ -113,7 +108,12 @@ function DemoEmbed() {
         />
       )}
 
-      <style>{`@keyframes demoPulse { 0%,100% { opacity: .4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }`}</style>
+      <style>{`
+        @keyframes demoPulse { 0%,100% { opacity:.4; transform:scale(1); } 50% { opacity:1; transform:scale(1.3); } }
+        .lp-demo-wrap { padding-bottom: 50%; }
+        @media (max-width: 768px) { .lp-demo-wrap { padding-bottom: 65%; } }
+        @media (max-width: 480px) { .lp-demo-wrap { padding-bottom: 75%; } }
+      `}</style>
     </div>
   )
 }
