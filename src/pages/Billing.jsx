@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import { useToast } from '../components/Toast'
+import { PENDING_LOCATION_KEY, PENDING_ADDON_QTY_KEY } from '../components/LocationSwitcher'
 
 const PAGE_STYLE = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -40,10 +41,45 @@ export default function Billing() {
     const paymentId      = searchParams.get('razorpay_payment_id')
     const subscriptionId = searchParams.get('razorpay_subscription_id')
     const signature      = searchParams.get('razorpay_signature')
-    const planName       = searchParams.get('plan_name') || 'monthly'
 
     if (!paymentId || !subscriptionId || !signature) return
 
+    // If a location was stashed before checkout, this return is a per-location
+    // add-on purchase — verify it, create the stashed location, then onboard it.
+    const pendingRaw = localStorage.getItem(PENDING_LOCATION_KEY)
+    if (pendingRaw) {
+      const qty = parseInt(localStorage.getItem(PENDING_ADDON_QTY_KEY) || '1', 10) || 1
+      let pending = null
+      try { pending = JSON.parse(pendingRaw) } catch { /* ignore */ }
+
+      setVerifying(true)
+      api.post('/api/locations/purchase/verify', {
+        razorpay_payment_id:      paymentId,
+        razorpay_subscription_id: subscriptionId,
+        razorpay_signature:       signature,
+        quantity:                 qty,
+      })
+        .then(() => api.post('/api/locations', pending))
+        .then(res => {
+          localStorage.removeItem(PENDING_LOCATION_KEY)
+          localStorage.removeItem(PENDING_ADDON_QTY_KEY)
+          const newLoc = res.data.location
+          authService.switchLocation(newLoc)
+          toast('Location added! Let’s set it up. 🎉')
+          window.location.href = '/onboarding'
+        })
+        .catch(() => {
+          toast('Payment succeeded but we couldn’t finish adding the location. Please contact support.', 'error')
+          localStorage.removeItem(PENDING_LOCATION_KEY)
+          localStorage.removeItem(PENDING_ADDON_QTY_KEY)
+          window.history.replaceState({}, '', '/billing')
+          setVerifying(false)
+        })
+      return
+    }
+
+    // Otherwise it's a base-plan subscription.
+    const planName = searchParams.get('plan_name') || 'monthly'
     setVerifying(true)
     api.post('/api/payments/verify', {
       razorpay_payment_id:      paymentId,

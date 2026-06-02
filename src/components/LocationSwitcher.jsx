@@ -8,19 +8,58 @@ const VALID_TYPES = [
   'auto / repair service', 'real estate', 'other',
 ]
 
+const PRICE_PER_LOCATION = 999
+export const PENDING_LOCATION_KEY = 'praisly_pending_location'
+export const PENDING_ADDON_QTY_KEY = 'praisly_pending_addon_qty'
+
+// Hoisted to module scope so it keeps a stable identity across renders —
+// defining it inside AddLocationModal would remount the form on every keystroke.
+function ModalShell({ onClose, children }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 20,
+    }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: 'var(--bg)', borderRadius: 16, padding: '28px 24px',
+        width: '100%', maxWidth: 420, maxHeight: '88vh', overflowY: 'auto',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+      }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 function AddLocationModal({ onClose, onAdded }) {
   const [form, setForm] = useState({ business_name: '', business_type: '', city: '', phone: '', location_label: '' })
+  const [quantity, setQuantity] = useState(1)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [quota, setQuota] = useState(null)   // null = loading
+  const [quotaError, setQuotaError] = useState(false)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+  useEffect(() => {
+    api.get('/api/locations/quota')
+      .then(r => setQuota(r.data))
+      .catch(() => setQuotaError(true))
+  }, [])
+
+  function validateForm() {
     if (!form.business_name || !form.business_type || !form.city || !form.phone) {
       setError('All fields are required')
-      return
+      return false
     }
+    return true
+  }
+
+  // Slot already paid for — create the location directly
+  async function handleAddDirect(e) {
+    e.preventDefault()
+    if (!validateForm()) return
     setSaving(true)
     setError('')
     try {
@@ -35,6 +74,27 @@ function AddLocationModal({ onClose, onAdded }) {
     }
   }
 
+  // No slot available — purchase via Razorpay, then resume on return
+  async function handlePurchase(e) {
+    e.preventDefault()
+    if (!validateForm()) return
+    setSaving(true)
+    setError('')
+    try {
+      const res = await api.post('/api/locations/purchase', { quantity })
+      // Stash the form + quantity so we can finish after the Razorpay redirect
+      localStorage.setItem(PENDING_LOCATION_KEY, JSON.stringify({
+        ...form,
+        location_label: form.location_label || form.city,
+      }))
+      localStorage.setItem(PENDING_ADDON_QTY_KEY, String(quantity))
+      window.location.href = res.data.short_url
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Could not start payment. Please try again.')
+      setSaving(false)
+    }
+  }
+
   const inputStyle = {
     width: '100%', padding: '10px 12px', borderRadius: 8,
     border: '1px solid var(--line)', fontSize: 13.5, fontFamily: 'inherit',
@@ -42,68 +102,143 @@ function AddLocationModal({ onClose, onAdded }) {
   }
   const labelStyle = { fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 4, display: 'block' }
 
-  return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 9999,
-      background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 20,
-    }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: 'var(--bg)', borderRadius: 16, padding: '28px 24px',
-        width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-      }}>
+  const isPaid = quota?.is_paid
+  const slotsAvailable = quota?.slots_available ?? 0
+  const needsPurchase = isPaid && slotsAvailable <= 0
+  const total = PRICE_PER_LOCATION * quantity
+
+  // ── Loading quota ──
+  if (quota === null && !quotaError) {
+    return (
+      <ModalShell onClose={onClose}>
+        <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--ink-3)', fontSize: 14 }}>
+          Loading…
+        </div>
+      </ModalShell>
+    )
+  }
+
+  // ── Not on a paid base plan → upsell ──
+  if (!quotaError && !isPaid) {
+    return (
+      <ModalShell onClose={onClose}>
         <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>
-          Add a new location
+          Add another location
         </h3>
-        <p style={{ margin: '0 0 20px', fontSize: 13, color: 'var(--ink-3)' }}>
-          Each location gets its own QR code, reviews, and Google tracking.
+        <p style={{ margin: '0 0 18px', fontSize: 13.5, color: 'var(--ink-3)', lineHeight: 1.5 }}>
+          Multiple locations are available on a paid plan. Subscribe to your base plan first,
+          then add extra locations for <strong>₹{PRICE_PER_LOCATION}/location per month</strong>.
         </p>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onClose} style={{
+            flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid var(--line)',
+            background: 'var(--surface)', color: 'var(--ink-2)', fontSize: 13.5, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}>Cancel</button>
+          <a href="/billing" style={{
+            flex: 1, padding: '11px 0', borderRadius: 10, border: 'none',
+            background: 'var(--primary)', color: 'white', fontSize: 13.5, fontWeight: 700,
+            cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', textDecoration: 'none',
+          }}>View plans →</a>
+        </div>
+      </ModalShell>
+    )
+  }
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+  // ── Paid plan: show the form (+ purchase block if no free slot) ──
+  return (
+    <ModalShell onClose={onClose}>
+      <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>
+        Add a new location
+      </h3>
+      <p style={{ margin: '0 0 20px', fontSize: 13, color: 'var(--ink-3)' }}>
+        Each location gets its own QR code, reviews, and Google tracking.
+      </p>
+
+      <form onSubmit={needsPurchase ? handlePurchase : handleAddDirect} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <label style={labelStyle}>Business name</label>
+          <input style={inputStyle} value={form.business_name} onChange={e => set('business_name', e.target.value)} placeholder="e.g. Looks Salon - Sector 18" />
+        </div>
+        <div>
+          <label style={labelStyle}>Business type</label>
+          <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.business_type} onChange={e => set('business_type', e.target.value)}>
+            <option value="">Select type</option>
+            {VALID_TYPES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+          </select>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <label style={labelStyle}>Business name</label>
-            <input style={inputStyle} value={form.business_name} onChange={e => set('business_name', e.target.value)} placeholder="e.g. Looks Salon - Sector 18" />
+            <label style={labelStyle}>City</label>
+            <input style={inputStyle} value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Noida" />
           </div>
           <div>
-            <label style={labelStyle}>Business type</label>
-            <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.business_type} onChange={e => set('business_type', e.target.value)}>
-              <option value="">Select type</option>
-              {VALID_TYPES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
-            </select>
+            <label style={labelStyle}>Phone</label>
+            <input style={inputStyle} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="10-digit number" />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={labelStyle}>City</label>
-              <input style={inputStyle} value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Noida" />
+        </div>
+        <div>
+          <label style={labelStyle}>Location label <span style={{ fontWeight: 400, color: 'var(--ink-4)' }}>(optional)</span></label>
+          <input style={inputStyle} value={form.location_label} onChange={e => set('location_label', e.target.value)} placeholder="e.g. Sector 18 branch" />
+        </div>
+
+        {/* Slot available — no payment needed */}
+        {!needsPurchase && (
+          <div style={{ fontSize: 12.5, color: 'var(--win)', background: 'var(--primary-soft)', padding: '8px 12px', borderRadius: 8 }}>
+            ✓ You have {slotsAvailable} paid location slot{slotsAvailable !== 1 ? 's' : ''} available.
+          </div>
+        )}
+
+        {/* No slot — purchase block */}
+        {needsPurchase && (
+          <div style={{ background: 'var(--surface-tint)', border: '1px solid var(--line)', borderRadius: 12, padding: 14 }}>
+            <label style={{ ...labelStyle, marginBottom: 8 }}>How many locations do you want to add?</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} style={qtyBtnStyle}>−</button>
+              <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)', minWidth: 24, textAlign: 'center' }}>{quantity}</span>
+              <button type="button" onClick={() => setQuantity(q => Math.min(10, q + 1))} style={qtyBtnStyle}>+</button>
+              <span style={{ fontSize: 12, color: 'var(--ink-3)', marginLeft: 4 }}>
+                ₹{PRICE_PER_LOCATION}/location · monthly
+              </span>
             </div>
-            <div>
-              <label style={labelStyle}>Phone</label>
-              <input style={inputStyle} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="10-digit number" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+              <span style={{ fontSize: 13, color: 'var(--ink-2)', fontWeight: 600 }}>Total</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--ink)' }}>₹{total.toLocaleString('en-IN')}<span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink-3)' }}>/month</span></span>
             </div>
+            <p style={{ fontSize: 11, color: 'var(--ink-4)', margin: '8px 0 0', lineHeight: 1.4 }}>
+              You'll set up this location now; any extra slots can be added later. Billed monthly via Razorpay.
+            </p>
           </div>
-          <div>
-            <label style={labelStyle}>Location label <span style={{ fontWeight: 400, color: 'var(--ink-4)' }}>(optional)</span></label>
-            <input style={inputStyle} value={form.location_label} onChange={e => set('location_label', e.target.value)} placeholder="e.g. Sector 18 branch" />
-          </div>
+        )}
 
-          {error && <div style={{ fontSize: 13, color: '#c5221f', background: '#fce8e6', padding: '8px 12px', borderRadius: 8 }}>{error}</div>}
+        {error && <div style={{ fontSize: 13, color: '#c5221f', background: '#fce8e6', padding: '8px 12px', borderRadius: 8 }}>{error}</div>}
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-            <button type="button" onClick={onClose} style={{
-              flex: 1, padding: '10px 0', borderRadius: 10, border: '1px solid var(--line)',
-              background: 'var(--surface)', color: 'var(--ink-2)', fontSize: 13.5, fontWeight: 600,
-              cursor: 'pointer', fontFamily: 'inherit',
-            }}>Cancel</button>
-            <button type="submit" disabled={saving} style={{
-              flex: 1, padding: '10px 0', borderRadius: 10, border: 'none',
-              background: 'var(--ink)', color: 'var(--primary)', fontSize: 13.5, fontWeight: 700,
-              cursor: saving ? 'wait' : 'pointer', fontFamily: 'inherit', opacity: saving ? 0.7 : 1,
-            }}>{saving ? 'Adding...' : 'Add location'}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+          <button type="button" onClick={onClose} style={{
+            flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid var(--line)',
+            background: 'var(--surface)', color: 'var(--ink-2)', fontSize: 13.5, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}>Cancel</button>
+          <button type="submit" disabled={saving} style={{
+            flex: 1.4, padding: '11px 0', borderRadius: 10, border: 'none',
+            background: needsPurchase ? 'var(--primary)' : 'var(--ink)',
+            color: needsPurchase ? 'white' : 'var(--primary)', fontSize: 13.5, fontWeight: 700,
+            cursor: saving ? 'wait' : 'pointer', fontFamily: 'inherit', opacity: saving ? 0.7 : 1,
+          }}>
+            {saving
+              ? (needsPurchase ? 'Redirecting…' : 'Adding…')
+              : (needsPurchase ? `Pay ₹${total.toLocaleString('en-IN')} & continue →` : 'Add location')}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
   )
+}
+
+const qtyBtnStyle = {
+  width: 32, height: 32, borderRadius: 8, border: '1px solid var(--line)',
+  background: 'var(--surface)', color: 'var(--ink)', fontSize: 18, fontWeight: 700,
+  cursor: 'pointer', display: 'grid', placeItems: 'center', fontFamily: 'inherit', lineHeight: 1,
 }
 
 export default function LocationSwitcher() {
@@ -231,7 +366,9 @@ export default function LocationSwitcher() {
             borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
             zIndex: 100, overflow: 'hidden',
             animation: 'dropIn 0.15s ease both',
+            display: 'flex', flexDirection: 'column', maxHeight: '60vh',
           }}>
+            <div style={{ overflowY: 'auto', flex: 1 }}>
             {activeLocations.map(loc => (
               <div
                 key={loc.id}
@@ -277,8 +414,8 @@ export default function LocationSwitcher() {
                     </svg>
                   )}
                 </button>
-                {/* Delete — only for non-primary locations */}
-                {!loc.is_primary && (
+                {/* Delete — allowed as long as more than one location exists */}
+                {activeLocations.length > 1 && (
                   <button
                     onClick={e => handleDelete(loc, e)}
                     disabled={deletingId === loc.id}
@@ -302,26 +439,25 @@ export default function LocationSwitcher() {
                 )}
               </div>
             ))}
+            </div>
 
-            {/* Add location button */}
+            {/* Add location — pinned CTA, always visible at the bottom of the dropdown */}
             <button
               onClick={() => { setOpen(false); setShowAdd(true) }}
               style={{
-                width: '100%', padding: '10px 12px',
-                background: 'transparent', border: 'none',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                fontFamily: 'inherit', textAlign: 'left',
-                transition: 'background 0.1s',
+                width: '100%', padding: '12px', flexShrink: 0,
+                background: 'var(--primary-soft)', border: 'none',
+                borderTop: '1px solid var(--line)',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                fontFamily: 'inherit',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-tint)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
               <span style={{
                 width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-                background: 'var(--primary-soft)', color: 'var(--primary-ink)',
+                background: 'var(--primary-ink)', color: 'var(--surface)',
                 display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 700,
               }}>+</span>
-              <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--primary-ink)' }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary-ink)' }}>
                 Add location
               </span>
             </button>
