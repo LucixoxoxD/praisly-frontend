@@ -883,12 +883,16 @@ export default function LandingPage() {
             borderRadius: '16px',
             overflow: 'hidden',
             boxShadow: '0 24px 60px rgba(0,0,0,0.10)',
-            aspectRatio: '16/9',
             background: '#0a0a0a',
+            position: 'relative',
+            paddingBottom: '56.25%', /* 16:9 — works on all mobile browsers */
           }}>
             <iframe
               src="/demo.html"
               style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width: '100%',
                 height: '100%',
                 border: 'none',
