@@ -6,6 +6,9 @@ import { PENDING_LOCATION_KEY, PENDING_ADDON_QTY_KEY } from '../components/Locat
 
 const PAGE_STYLE = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 60% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 `
 
 const FEATURES = [
@@ -239,16 +242,39 @@ export default function Billing() {
           </span>
         </div>
 
+        {/* Discount percentage badge */}
+        {discountPct > 0 && (
+          <div style={{ textAlign: 'center', marginBottom: 12, animation: 'popIn 0.4s ease' }}>
+            <span style={{
+              display: 'inline-block', padding: '6px 18px', borderRadius: 999, fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
+              color: 'white',
+              background: 'linear-gradient(135deg, #059669, #10b981, #059669)',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 2s infinite linear',
+              boxShadow: '0 2px 12px rgba(5,150,105,0.3)',
+            }}>
+              {discountPct}% OFF APPLIED
+            </span>
+          </div>
+        )}
+
         {/* Price */}
         <div style={{ textAlign: 'center', marginBottom: 8 }}>
           {/* Strikethrough original price */}
           {(yearly || discountPct > 0) && (
-            <p style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px' }}>
-              {yearly ? '₹999/month' : `₹${monthlyBase}/month`}
+            <p style={{ fontSize: discountPct > 0 ? 16 : 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px', transition: 'font-size 0.2s' }}>
+              {yearly
+                ? (discountPct > 0 ? `₹${833}/month` : '₹999/month')
+                : `₹${monthlyBase}/month`}
             </p>
           )}
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
-            <span style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, color: discountPct > 0 ? '#059669' : '#0f172a', lineHeight: 1, transition: 'color 0.2s' }}>
+            <span style={{
+              fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, lineHeight: 1,
+              color: discountPct > 0 ? '#059669' : '#0f172a',
+              transition: 'color 0.3s',
+              ...(discountPct > 0 ? { animation: 'popIn 0.3s ease' } : {}),
+            }}>
               {yearly ? `₹${yearlyPerMonth.toLocaleString('en-IN')}` : `₹${monthlyPrice.toLocaleString('en-IN')}`}
             </span>
             <span style={{ fontSize: 16, color: '#94a3b8' }}>/month</span>
@@ -268,7 +294,7 @@ export default function Billing() {
             : `Less than ₹${dailyMonthly}/day — that's one samosa plate`}
         </p>
 
-        {/* Yearly savings badge */}
+        {/* Savings badge */}
         {yearly && (
           <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
             <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
@@ -276,6 +302,23 @@ export default function Billing() {
                 ? `You save ₹${(yearlyBase - yearlyPrice + (monthlyBase * 12 - yearlyBase)).toLocaleString('en-IN')}/year with coupon + yearly`
                 : 'You save ~₹2,000/year — 17% off'}
             </span>
+          </div>
+        )}
+
+        {/* Extra hype banner when coupon is active */}
+        {discountPct > 0 && (
+          <div style={{
+            margin: '12px 0 0', padding: '10px 16px', borderRadius: 12, textAlign: 'center',
+            background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
+            border: '1px dashed #059669',
+            animation: 'popIn 0.5s ease',
+          }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#065f46', margin: 0 }}>
+              You're saving ₹{yearly
+                ? (yearlyBase - yearlyPrice).toLocaleString('en-IN')
+                : (monthlyBase - monthlyPrice).toLocaleString('en-IN')
+              } {yearly ? 'this year' : 'every month'} with this coupon
+            </p>
           </div>
         )}
 
@@ -300,8 +343,9 @@ export default function Billing() {
                 Have a coupon code?
               </button>
             ) : couponStatus?.valid ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10 }}>
-                <span style={{ fontSize: 14, color: '#065f46', fontWeight: 600, flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #86efac', borderRadius: 12, animation: 'popIn 0.3s ease' }}>
+                <span style={{ fontSize: 16, lineHeight: 1 }}>&#127881;</span>
+                <span style={{ fontSize: 14, color: '#065f46', fontWeight: 700, flex: 1 }}>
                   {couponStatus.label}
                 </span>
                 <button
