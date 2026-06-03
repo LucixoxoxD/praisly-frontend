@@ -98,11 +98,38 @@ export default function Billing() {
       .finally(() => setVerifying(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Coupon code state
+  const [couponCode, setCouponCode]       = useState('')
+  const [couponStatus, setCouponStatus]   = useState(null) // null | 'checking' | { valid, offer_id, label } | { valid: false, message }
+  const [showCoupon, setShowCoupon]       = useState(false)
+
+  async function handleApplyCoupon() {
+    const code = couponCode.trim().toUpperCase()
+    if (!code) return
+    setCouponStatus('checking')
+    try {
+      const res = await api.post('/api/payments/validate-coupon', { code })
+      setCouponStatus({ valid: true, offer_id: res.data.offer_id, label: res.data.label })
+      toast(`Coupon applied: ${res.data.label}`)
+    } catch (err) {
+      setCouponStatus({ valid: false, message: err.response?.data?.detail || 'Invalid coupon code' })
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setCouponCode('')
+    setCouponStatus(null)
+  }
+
   async function handleStart() {
     const planName = yearly ? 'yearly' : 'monthly'
     setUpgrading(true)
     try {
-      const res = await api.post('/api/payments/create-subscription', { plan_name: planName })
+      const payload = { plan_name: planName }
+      if (couponStatus?.valid && couponStatus.offer_id) {
+        payload.offer_id = couponStatus.offer_id
+      }
+      const res = await api.post('/api/payments/create-subscription', payload)
       window.location.href = res.data.short_url
     } catch (err) {
       toast(err.response?.data?.detail || 'Failed to start checkout. Please try again.', 'error')
@@ -245,6 +272,62 @@ export default function Billing() {
             </li>
           ))}
         </ul>
+
+        {/* Coupon code */}
+        {!loading && !isSubscribed && (
+          <div style={{ marginBottom: 16 }}>
+            {!showCoupon && !couponStatus?.valid ? (
+              <button
+                onClick={() => setShowCoupon(true)}
+                style={{ background: 'none', border: 'none', color: '#6366f1', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+              >
+                Have a coupon code?
+              </button>
+            ) : couponStatus?.valid ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10 }}>
+                <span style={{ fontSize: 14, color: '#065f46', fontWeight: 600, flex: 1 }}>
+                  {couponStatus.label}
+                </span>
+                <button
+                  onClick={handleRemoveCoupon}
+                  style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="text"
+                    placeholder="Enter coupon code"
+                    value={couponCode}
+                    onChange={e => { setCouponCode(e.target.value.toUpperCase()); setCouponStatus(null) }}
+                    onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+                    style={{
+                      flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10,
+                      fontSize: 14, fontFamily: 'inherit', outline: 'none', letterSpacing: 1, fontWeight: 600,
+                    }}
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={couponStatus === 'checking' || !couponCode.trim()}
+                    style={{
+                      padding: '10px 20px', background: '#6366f1', color: 'white', border: 'none',
+                      borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                      opacity: (couponStatus === 'checking' || !couponCode.trim()) ? 0.5 : 1,
+                    }}
+                  >
+                    {couponStatus === 'checking' ? '...' : 'Apply'}
+                  </button>
+                </div>
+                {couponStatus?.valid === false && (
+                  <p style={{ fontSize: 12, color: '#dc2626', margin: '6px 0 0' }}>{couponStatus.message}</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* CTA button */}
         {loading || verifying ? (
