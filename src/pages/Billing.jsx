@@ -109,7 +109,7 @@ export default function Billing() {
     setCouponStatus('checking')
     try {
       const res = await api.post('/api/payments/validate-coupon', { code })
-      setCouponStatus({ valid: true, offer_id: res.data.offer_id, label: res.data.label })
+      setCouponStatus({ valid: true, offer_id: res.data.offer_id, label: res.data.label, discount: res.data.discount_percent || 0 })
       toast(`Coupon applied: ${res.data.label}`)
     } catch (err) {
       setCouponStatus({ valid: false, message: err.response?.data?.detail || 'Invalid coupon code' })
@@ -142,6 +142,16 @@ export default function Billing() {
   const isTrial       = planStatus?.is_trial ?? true
   const trialExpired  = planStatus?.trial_expired ?? false
   const trialDaysLeft = planStatus?.trial_days_remaining ?? 7
+
+  // Price calculations with coupon support
+  const discountPct   = couponStatus?.valid ? couponStatus.discount : 0
+  const monthlyBase   = 999
+  const yearlyBase    = 9999
+  const monthlyPrice  = Math.round(monthlyBase * (1 - discountPct / 100))
+  const yearlyPrice   = Math.round(yearlyBase * (1 - discountPct / 100))
+  const yearlyPerMonth = Math.round(yearlyPrice / 12)
+  const dailyYearly   = Math.round(yearlyPrice / 365)
+  const dailyMonthly  = Math.round(monthlyPrice / 30)
 
   return (
     <div style={{ animation: 'fadeUp 0.2s ease', maxWidth: 560, margin: '0 auto' }}>
@@ -231,34 +241,40 @@ export default function Billing() {
 
         {/* Price */}
         <div style={{ textAlign: 'center', marginBottom: 8 }}>
-          {yearly && (
+          {/* Strikethrough original price */}
+          {(yearly || discountPct > 0) && (
             <p style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px' }}>
-              ₹999/month
+              {yearly ? '₹999/month' : `₹${monthlyBase}/month`}
             </p>
           )}
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
-            <span style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
-              {yearly ? '₹833' : '₹999'}
+            <span style={{ fontFamily: "'Plus Jakarta Sans', system-ui", fontSize: 48, fontWeight: 800, color: discountPct > 0 ? '#059669' : '#0f172a', lineHeight: 1, transition: 'color 0.2s' }}>
+              {yearly ? `₹${yearlyPerMonth.toLocaleString('en-IN')}` : `₹${monthlyPrice.toLocaleString('en-IN')}`}
             </span>
             <span style={{ fontSize: 16, color: '#94a3b8' }}>/month</span>
           </div>
           {yearly && (
-            <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>₹9,999 billed yearly</p>
+            <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>
+              {discountPct > 0 && <span style={{ textDecoration: 'line-through', color: '#94a3b8', marginRight: 6 }}>₹9,999</span>}
+              ₹{yearlyPrice.toLocaleString('en-IN')} billed yearly
+            </p>
           )}
         </div>
 
         {/* Comparison line */}
         <p style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', margin: '8px 0 0' }}>
           {yearly
-            ? 'Less than ₹27/day — cheaper than auto fare 🛺'
-            : "Less than ₹34/day — that's one samosa plate 🥟"}
+            ? `Less than ₹${dailyYearly}/day — cheaper than auto fare`
+            : `Less than ₹${dailyMonthly}/day — that's one samosa plate`}
         </p>
 
         {/* Yearly savings badge */}
         {yearly && (
           <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
             <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
-              You save ~₹2,000/year — 17% off 🎉
+              {discountPct > 0
+                ? `You save ₹${(yearlyBase - yearlyPrice + (monthlyBase * 12 - yearlyBase)).toLocaleString('en-IN')}/year with coupon + yearly`
+                : 'You save ~₹2,000/year — 17% off'}
             </span>
           </div>
         )}
