@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import api from '../services/api'
-import WhatsAppButton from '../components/WhatsAppButton'
 
 const BIZ_EMOJI = {
   'healthcare / clinic':    '🏥',
@@ -754,7 +753,6 @@ export default function CustomerReview() {
 
         </div>
       </div>
-      <WhatsAppButton message="Hi I need help with submitting a review" size={48} />
     </>
   )
 }
