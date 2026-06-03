@@ -157,7 +157,7 @@ export default function Billing() {
   const dailyMonthly  = Math.round(monthlyPrice / 30)
 
   return (
-    <div style={{ animation: 'fadeUp 0.2s ease', maxWidth: 560, margin: '0 auto' }}>
+    <div style={{ animation: 'fadeUp 0.2s ease', maxWidth: 560, margin: '0 auto', padding: '0 16px' }}>
       <style>{PAGE_STYLE}</style>
 
       {/* Trial status banner */}
@@ -297,9 +297,9 @@ export default function Billing() {
         {/* Savings badge */}
         {yearly && (
           <div style={{ textAlign: 'center', margin: '10px 0 0' }}>
-            <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 12, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
+            <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 999, maxWidth: '100%', textAlign: 'center' }}>
               {discountPct > 0
-                ? `You save ₹${(yearlyBase - yearlyPrice + (monthlyBase * 12 - yearlyBase)).toLocaleString('en-IN')}/year with coupon + yearly`
+                ? `Save ₹${(yearlyBase - yearlyPrice + (monthlyBase * 12 - yearlyBase)).toLocaleString('en-IN')}/yr with coupon + yearly`
                 : 'You save ~₹2,000/year — 17% off'}
             </span>
           </div>
@@ -365,7 +365,7 @@ export default function Billing() {
                     onChange={e => { setCouponCode(e.target.value.toUpperCase()); setCouponStatus(null) }}
                     onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
                     style={{
-                      flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10,
+                      flex: 1, minWidth: 0, padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 10,
                       fontSize: 14, fontFamily: 'inherit', outline: 'none', letterSpacing: 1, fontWeight: 600,
                     }}
                   />
@@ -373,8 +373,9 @@ export default function Billing() {
                     onClick={handleApplyCoupon}
                     disabled={couponStatus === 'checking' || !couponCode.trim()}
                     style={{
-                      padding: '10px 20px', background: '#6366f1', color: 'white', border: 'none',
+                      padding: '10px 16px', background: '#6366f1', color: 'white', border: 'none',
                       borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                      flexShrink: 0,
                       opacity: (couponStatus === 'checking' || !couponCode.trim()) ? 0.5 : 1,
                     }}
                   >
