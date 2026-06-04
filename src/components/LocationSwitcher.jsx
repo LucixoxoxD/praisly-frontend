@@ -241,7 +241,8 @@ const qtyBtnStyle = {
   cursor: 'pointer', display: 'grid', placeItems: 'center', fontFamily: 'inherit', lineHeight: 1,
 }
 
-export default function LocationSwitcher() {
+export default function LocationSwitcher({ variant = 'sidebar' }) {
+  const isTopbar = variant === 'topbar'
   const [locations, setLocations] = useState(authService.getLocations())
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -333,10 +334,15 @@ export default function LocationSwitcher() {
 
   return (
     <>
-      <div ref={ref} style={{ position: 'relative', margin: '0 8px 12px' }}>
+      <div ref={ref} style={{ position: 'relative', ...(isTopbar ? { minWidth: 0, maxWidth: '62vw' } : { margin: '0 8px 12px' }) }}>
         <button
           onClick={() => setOpen(v => !v)}
-          style={{
+          style={isTopbar ? {
+            maxWidth: '100%', padding: '6px 9px 6px 11px',
+            background: 'var(--surface-tint)', border: '1px solid var(--line)',
+            borderRadius: 999, cursor: 'pointer', display: 'flex',
+            alignItems: 'center', gap: 7, fontFamily: 'inherit',
+          } : {
             width: '100%', padding: '8px 10px',
             background: 'var(--surface-tint)', border: '1px solid var(--line)',
             borderRadius: 8, cursor: 'pointer', display: 'flex',
@@ -348,7 +354,8 @@ export default function LocationSwitcher() {
             background: 'var(--win)', flexShrink: 0,
           }} />
           <span style={{
-            flex: 1, fontSize: 12.5, fontWeight: 600, color: 'var(--ink)',
+            flex: 1, minWidth: 0, fontSize: isTopbar ? 14 : 12.5,
+            fontWeight: isTopbar ? 700 : 600, color: 'var(--ink)',
             textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}>
@@ -361,12 +368,13 @@ export default function LocationSwitcher() {
 
         {open && (
           <div style={{
-            position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
+            position: 'absolute', top: 'calc(100% + 6px)',
+            ...(isTopbar ? { left: 0, width: 'min(300px, calc(100vw - 24px))' } : { left: 0, right: 0 }),
             background: 'var(--surface)', border: '1px solid var(--line)',
             borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
             zIndex: 100, overflow: 'hidden',
             animation: 'dropIn 0.15s ease both',
-            display: 'flex', flexDirection: 'column', maxHeight: '60vh',
+            display: 'flex', flexDirection: 'column', maxHeight: '70vh',
           }}>
             <div style={{ overflowY: 'auto', flex: 1 }}>
             {activeLocations.map(loc => (

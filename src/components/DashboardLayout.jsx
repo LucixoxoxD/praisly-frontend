@@ -512,8 +512,8 @@ function Sidebar({ onClose, mobileDrawer = false }) {
         )}
       </div>
 
-      {/* Location switcher (multi-location accounts) */}
-      <LocationSwitcher />
+      {/* Location switcher — desktop sidebar only; on mobile it lives in the top bar */}
+      {!mobileDrawer && <LocationSwitcher />}
 
       {/* Workspace nav group */}
       <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontWeight: 600, padding: '0 8px 6px' }}>
@@ -702,18 +702,10 @@ export default function DashboardLayout({ children }) {
             </svg>
           </button>
 
-          {/* Title — mobile only, absolutely centered */}
-          <span
-            className="md:hidden"
-            style={{
-              position: 'absolute', left: '50%', top: '50%',
-              transform: 'translate(-50%, -50%)',
-              color: 'var(--ink)', fontSize: 18, fontWeight: 800,
-              pointerEvents: 'none', userSelect: 'none',
-            }}
-          >
-            Praisly
-          </span>
+          {/* Active location switcher — mobile only, replaces the static title */}
+          <div className="md:hidden mobile-only" style={{ minWidth: 0, display: 'flex', marginLeft: 2 }}>
+            <LocationSwitcher variant="topbar" />
+          </div>
 
           {/* Spacer — pushes bell/refresh to far right on all screen sizes */}
           <div style={{ flex: 1 }} />
