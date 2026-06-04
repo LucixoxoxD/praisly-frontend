@@ -468,6 +468,26 @@ const PAGE_CSS = `
   .d-delta-pill.hot  { background: var(--primary-soft); color: var(--primary-ink); }
   .d-delta-pill.flat { background: var(--surface-tint); color: var(--ink-4); }
 
+  /* ── Mobile leaderboard cards (shown only < 768px; desktop uses the table) ── */
+  .d-lb-cards { display: none; }
+  .d-lb-mcard {
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 11px;
+  }
+  .d-lb-mcard.d-you-row {
+    background: linear-gradient(90deg, rgba(216,144,32,0.07), rgba(216,144,32,0.02));
+    box-shadow: inset 3px 0 0 var(--primary); border-color: var(--primary-soft);
+  }
+  .d-lb-mtop { display: flex; align-items: center; gap: 10px; }
+  .d-lb-mtop .d-biz-name { max-width: 100%; }
+  .d-lb-mstats {
+    display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap;
+    padding-left: 38px;
+  }
+  .d-lb-mstat { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .d-lb-mstat .lbl { font-size: 10.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; }
+  .d-lb-mtrend { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+
   /* ── Page-level overflow guard ── */
   .d-page { max-width: 100%; width: 100%; overflow-x: hidden; box-sizing: border-box; }
 
@@ -508,6 +528,10 @@ const PAGE_CSS = `
   @media (max-width: 768px) {
     .d-stats { grid-template-columns: 1fr; }
     .d-greeting { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+    /* Swap the horizontal-scroll table for stacked cards */
+    .d-lb-desktop { display: none; }
+    .d-lb-cards { display: flex; flex-direction: column; gap: 10px; padding: 12px; }
   }
 `
 
@@ -1118,8 +1142,8 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
           </div>
         </div>
 
-        {/* Table */}
-        <div className="d-lb-wrap">
+        {/* Table — desktop only */}
+        <div className="d-lb-wrap d-lb-desktop">
           <table className="d-lb">
             <thead>
               <tr>
@@ -1201,6 +1225,60 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Cards — mobile only (same data, no horizontal scroll) */}
+        <div className="d-lb-cards">
+          {leaderboard.map((r, i) => {
+            const rank       = i + 1
+            const medalClass = `gm${Math.min(rank, 5)}`
+            const deltaClass = r.is_self ? 'hot' : ((r.reviews_last_30_days ?? 0) > 0 ? 'up' : 'flat')
+            const spark30    = sparkMap?.[r.name] || Array(30).fill(0)
+            return (
+              <div key={r.name + i} className={`d-lb-mcard ${r.is_self ? 'd-you-row' : ''}`}>
+                <div className="d-lb-mtop">
+                  <div className={`d-lb-medal ${medalClass}`}>{rank <= 3 ? rank : `#${rank}`}</div>
+                  <div className="d-biz-avatar" style={{ background: AVATAR_GRADS[i % AVATAR_GRADS.length] }}>
+                    {getInitials(r.name)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="d-biz-name">
+                      {r.name}
+                      {r.is_self && <span className="d-you-pill">YOU</span>}
+                    </div>
+                    {r.area && <div className="d-biz-sub">{r.area}</div>}
+                  </div>
+                  {showManage && !r.is_self && (
+                    <button
+                      onClick={() => onDelete(r.id)}
+                      style={{ color: '#ef4444', background: 'none', border: 'none', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600, flexShrink: 0 }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                <div className="d-lb-mstats">
+                  <span className="d-lb-mstat">
+                    <span style={{ color: '#F5B945' }}>★</span>
+                    {r.rating ? Number(r.rating).toFixed(1) : '—'}
+                  </span>
+                  <span className="d-lb-mstat">
+                    {fmtIN(r.review_count)}<span className="lbl">reviews</span>
+                  </span>
+                  <span className="d-lb-mtrend">
+                    <MiniBars
+                      deltas={spark30}
+                      color={r.is_self ? '#D89020' : '#9E9189'}
+                      opacity={r.is_self ? 1 : 0.55}
+                    />
+                    <span className={`d-delta-pill ${deltaClass}`}>
+                      ↑ +{r.reviews_last_30_days ?? 0}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
