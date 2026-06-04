@@ -486,7 +486,7 @@ const PAGE_CSS = `
   }
   .d-lb-mstat { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
   .d-lb-mstat .lbl { font-size: 10.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; }
-  .d-lb-mtrend { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+  .d-lb-mtrend { display: inline-flex; align-items: center; gap: 8px; }
 
   /* ── Page-level overflow guard ── */
   .d-page { max-width: 100%; width: 100%; overflow-x: hidden; box-sizing: border-box; }
@@ -532,6 +532,9 @@ const PAGE_CSS = `
     /* Swap the horizontal-scroll table for stacked cards */
     .d-lb-desktop { display: none; }
     .d-lb-cards { display: flex; flex-direction: column; gap: 10px; padding: 12px; }
+
+    /* Clearance so the floating WhatsApp button never overlaps the last card */
+    .d-page { padding-bottom: 96px; }
   }
 `
 
