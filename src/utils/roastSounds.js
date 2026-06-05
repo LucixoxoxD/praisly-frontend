@@ -1,34 +1,51 @@
 let ctx = null
-let unlocked = false
 
 function getCtx() {
   try {
-    if (!ctx || ctx.state === 'closed') ctx = new (window.AudioContext || window.webkitAudioContext)()
-    if (ctx.state === 'suspended') ctx.resume()
+    if (!ctx || ctx.state === 'closed') {
+      ctx = new (window.AudioContext || window.webkitAudioContext)()
+    }
     return ctx
   } catch { return null }
 }
 
-// Must be called synchronously inside a user gesture (tap/click) to unlock
-// audio on iOS Safari and Android Chrome. Play a 1-sample silent buffer —
-// this is enough to move the context out of 'suspended' state permanently.
+// Called synchronously inside a user gesture (touchstart/click). Creates the
+// AudioContext inside the gesture, resumes it, and plays a silent buffer.
+// All three steps together are needed to permanently unlock audio on iOS
+// Safari and Android Chrome. Subsequent calls are no-ops.
 export function unlockAudio() {
-  if (unlocked) return
+  const c = getCtx()
+  if (!c) return
+  if (c.state === 'running') return
   try {
-    const c = getCtx()
-    if (!c) return
+    // Resume must happen inside the gesture — the returned promise resolves
+    // once the browser actually unlocks playback.
+    c.resume()
+    // Play a silent buffer synchronously in the same gesture frame.
+    // On iOS this is what actually transitions the context to 'running'.
     const buf = c.createBuffer(1, 1, 22050)
     const src = c.createBufferSource()
     src.buffer = buf
     src.connect(c.destination)
     src.start(0)
-    unlocked = true
   } catch {}
+}
+
+// Every play function calls ensureRunning before doing anything. If the
+// context was already unlocked by a prior gesture, resume() is a no-op.
+// If it wasn't unlocked yet, this won't help (no gesture), but it also
+// won't throw — the sound simply won't play.
+function ensureRunning() {
+  const c = getCtx()
+  if (!c) return null
+  if (c.state === 'suspended') c.resume()
+  if (c.state !== 'running') return null
+  return c
 }
 
 export function playPop() {
   try {
-    const c = getCtx(); if (!c) return
+    const c = ensureRunning(); if (!c) return
     const o = c.createOscillator()
     const g = c.createGain()
     o.type = 'sine'
@@ -43,7 +60,7 @@ export function playPop() {
 
 export function playWhoosh() {
   try {
-    const c = getCtx(); if (!c) return
+    const c = ensureRunning(); if (!c) return
     const buf = c.createBuffer(1, c.sampleRate * 0.3, c.sampleRate)
     const data = buf.getChannelData(0)
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
@@ -64,7 +81,7 @@ export function playWhoosh() {
 
 export function playKaching() {
   try {
-    const c = getCtx(); if (!c) return
+    const c = ensureRunning(); if (!c) return
     ;[1400, 1300, 1200].forEach((freq, i) => {
       const o = c.createOscillator()
       const g = c.createGain()
@@ -82,7 +99,7 @@ export function playKaching() {
 
 export function playDoom() {
   try {
-    const c = getCtx(); if (!c) return
+    const c = ensureRunning(); if (!c) return
     const o = c.createOscillator()
     const g = c.createGain()
     o.type = 'sine'

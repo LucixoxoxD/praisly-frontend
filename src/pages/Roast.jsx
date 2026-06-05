@@ -1392,7 +1392,7 @@ export default function Roast() {
         }
       `}</style>
 
-      <div className="roast-page" onClickCapture={unlockAudio}>
+      <div className="roast-page" onClickCapture={unlockAudio} onTouchStartCapture={unlockAudio}>
         <button
           className="roast-sound-toggle"
           onClick={toggleSound}
