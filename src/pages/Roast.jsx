@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { playPop, playWhoosh, playKaching, playDoom, vibrate } from '../utils/roastSounds'
 
 const LOADING_MESSAGES = [
   'Scanning your Google listing...',
@@ -47,6 +48,35 @@ const TOMBSTONES = [
   { name: 'City Gym', epitaph: 'Great equipment. Great trainers. Google rating: 3.2. Cult Fit ate their lunch.' },
   { name: 'Brilliant Coaching Centre', epitaph: '100% results. 3 Google reviews. Parents chose the one with 200 reviews instead.' },
 ]
+
+const TYPEWRITER_LINES = [
+  'Every day without reviews...',
+  '...a customer chooses your competitor.',
+  'Every week you wait...',
+  '...you fall further behind on Google.',
+  'Every month you ignore this...',
+  '...is ₹50,000+ walking out the door.',
+  '',
+  "But here's the thing.",
+  'Your customers ARE happy.',
+  'They just need a 30-second nudge.',
+]
+
+function getMoneyComparison(amount) {
+  if (amount <= 25000) return `That's ${Math.round(amount / 350)} plates of butter chicken you're missing 🍗`
+  if (amount <= 50000) return "That's a vacation to Goa you're funding for your competitor 🏖️"
+  if (amount <= 100000) return "That's your kid's school fees going to Sharma Ji 📚"
+  if (amount <= 150000) return "That's a brand new Activa riding away from you 🛵"
+  return "That's literally a Toyota Glanza. A WHOLE CAR. 🚗"
+}
+
+function getMoneyColor(amount) {
+  const t = Math.min(amount / 200000, 1)
+  const r = Math.round(245 * t + 245 * (1 - t))
+  const g = Math.round(63 * t + 158 * (1 - t))
+  const b = Math.round(94 * t + 11 * (1 - t))
+  return `rgb(${r},${g},${b})`
+}
 
 function getSliderState(count) {
   let rating, badge, youOpacity, compOpacity, statusText
@@ -124,12 +154,28 @@ export default function Roast() {
   const [showHint, setShowHint] = useState(false)
   const [reviewCount, setReviewCount] = useState(12)
   const [graveyardVisible, setGraveyardVisible] = useState(false)
+  const [moneyGap, setMoneyGap] = useState(50)
+  const [moneyVisible, setMoneyVisible] = useState(false)
+  const [displayedMoney, setDisplayedMoney] = useState(50000)
+  const [twVisible, setTwVisible] = useState(false)
+  const [twLine, setTwLine] = useState(0)
+  const [showFinalCard, setShowFinalCard] = useState(false)
+  const [soundOn, setSoundOn] = useState(true)
+  const [shared, setShared] = useState(false)
   const heroRef = useRef(null)
   const diagRef = useRef(null)
   const excuseRef = useRef(null)
   const competitorRef = useRef(null)
   const graveyardRef = useRef(null)
+  const moneyRef = useRef(null)
+  const wakeupRef = useRef(null)
   const hintTimerRef = useRef(null)
+  const kachingRef = useRef(0)
+  const soundRef = useRef(true)
+
+  const sfx = useCallback((fn, ...args) => {
+    if (soundRef.current) fn(...args)
+  }, [])
 
   useEffect(() => {
     const msgTimer = setInterval(() => {
@@ -142,7 +188,7 @@ export default function Roast() {
       setProgress(Math.min((elapsed / 3500) * 100, 100))
     }, 50)
 
-    const fadeTimer = setTimeout(() => setFadeOut(true), 3500)
+    const fadeTimer = setTimeout(() => { setFadeOut(true); sfx(playDoom) }, 3500)
     const doneTimer = setTimeout(() => setLoading(false), 4000)
 
     return () => {
@@ -151,7 +197,7 @@ export default function Roast() {
       clearTimeout(fadeTimer)
       clearTimeout(doneTimer)
     }
-  }, [])
+  }, [sfx])
 
   useEffect(() => {
     const el = diagRef.current
@@ -176,6 +222,63 @@ export default function Roast() {
   }, [loading])
 
   useEffect(() => {
+    const el = moneyRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setMoneyVisible(true); obs.disconnect() } },
+      { threshold: 0.3 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [loading])
+
+  useEffect(() => {
+    const el = wakeupRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setTwVisible(true); obs.disconnect() } },
+      { threshold: 0.2 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [loading])
+
+  useEffect(() => {
+    if (!twVisible) return
+    if (twLine >= TYPEWRITER_LINES.length) {
+      const t = setTimeout(() => setShowFinalCard(true), 500)
+      return () => clearTimeout(t)
+    }
+    const delay = TYPEWRITER_LINES[twLine] === '' ? 1000 : 800
+    const t = setTimeout(() => {
+      setTwLine((l) => l + 1)
+      sfx(vibrate, [10])
+    }, delay)
+    return () => clearTimeout(t)
+  }, [twVisible, twLine, sfx])
+
+  useEffect(() => {
+    const target = moneyGap * 1000
+    if (displayedMoney === target) return
+    const step = target > displayedMoney ? Math.max(1000, Math.ceil((target - displayedMoney) / 8)) : -Math.max(1000, Math.ceil((displayedMoney - target) / 8))
+    const t = setTimeout(() => {
+      const next = step > 0 ? Math.min(displayedMoney + step, target) : Math.max(displayedMoney + step, target)
+      setDisplayedMoney(next)
+    }, 30)
+    return () => clearTimeout(t)
+  }, [moneyGap, displayedMoney])
+
+  useEffect(() => {
+    if (!graveyardVisible) return
+    sfx(playWhoosh)
+  }, [graveyardVisible, sfx])
+
+  useEffect(() => {
+    if (!diagVisible) return
+    sfx(vibrate, [20])
+  }, [diagVisible, sfx])
+
+  useEffect(() => {
     if (Object.keys(popped).length > 0 && Object.keys(popped).length < 6) return
     if (Object.keys(popped).length === 6) { clearTimeout(hintTimerRef.current); return }
     hintTimerRef.current = setTimeout(() => setShowHint(true), 30000)
@@ -187,7 +290,8 @@ export default function Roast() {
 
   const popExcuse = (idx) => {
     if (popped[idx]) return
-    navigator.vibrate?.([30, 20, 30])
+    sfx(playPop)
+    sfx(vibrate, [30, 20, 30])
     setPopped((p) => ({ ...p, [idx]: 'popping' }))
     setTimeout(() => {
       setPopped((p) => ({ ...p, [idx]: 'gone' }))
@@ -212,8 +316,41 @@ export default function Roast() {
   const scrollToGraveyard = () => {
     graveyardRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-  const scrollToNext = () => {
-    // placeholder for section 7
+  const scrollToMoney = () => {
+    moneyRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+  const scrollToWakeup = () => {
+    wakeupRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const handleMoneySlider = (e) => {
+    const val = Number(e.target.value)
+    setMoneyGap(val)
+    const now = Date.now()
+    if (now - kachingRef.current > 500) {
+      kachingRef.current = now
+      sfx(playKaching)
+    }
+  }
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Is Your Business Secretly Dying?',
+          text: 'This hilarious page shows why Google reviews matter for local businesses 😂',
+          url: window.location.href,
+        })
+      } else {
+        await navigator.clipboard.writeText(window.location.href)
+        setShared(true)
+        setTimeout(() => setShared(false), 2000)
+      }
+    } catch {}
+  }
+
+  const toggleSound = () => {
+    setSoundOn((s) => { soundRef.current = !s; return !s })
   }
 
   return (
@@ -822,9 +959,231 @@ export default function Roast() {
           animation: roast-pulseSlow 2s ease-in-out infinite;
           cursor: pointer;
         }
+
+        /* Sound toggle */
+        .roast-sound-toggle {
+          position: fixed;
+          top: 16px;
+          right: 16px;
+          z-index: 51;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(6, 6, 15, 0.8);
+          color: #9ca3af;
+          font-size: 16px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          transition: background 0.2s;
+        }
+        .roast-sound-toggle:hover { background: rgba(255,255,255,0.08); }
+
+        /* Section 7: Money Calculator */
+        .roast-money {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 64px 20px;
+          position: relative;
+          z-index: 1;
+        }
+        .roast-stat-card {
+          background: #0C0C1E;
+          border: 1px solid rgba(245, 158, 11, 0.2);
+          border-radius: 14px;
+          padding: 24px;
+          max-width: 480px;
+          width: 100%;
+          text-align: center;
+          margin-bottom: 40px;
+        }
+        .roast-stat-main {
+          font-family: 'Bebas Neue', cursive;
+          font-size: clamp(22px, 5vw, 28px);
+          color: #F59E0B;
+          margin-bottom: 8px;
+        }
+        .roast-stat-sub {
+          font-size: 12px;
+          color: #6b7280;
+          line-height: 1.5;
+        }
+        @keyframes roast-countUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .roast-stat-card.visible {
+          animation: roast-countUp 0.6s ease both;
+        }
+
+        .roast-money-question {
+          font-size: 15px;
+          color: #d1d5db;
+          text-align: center;
+          margin-bottom: 16px;
+          max-width: 400px;
+        }
+        .roast-money-amount {
+          font-family: 'Bebas Neue', cursive;
+          font-size: clamp(40px, 10vw, 64px);
+          text-align: center;
+          margin: 12px 0 4px;
+          transition: color 0.3s ease;
+        }
+        .roast-money-label {
+          font-size: 14px;
+          color: #9ca3af;
+          text-align: center;
+          margin-bottom: 8px;
+        }
+        .roast-money-comparison {
+          font-size: 15px;
+          text-align: center;
+          min-height: 24px;
+          margin: 8px 0 24px;
+          color: #d1d5db;
+          transition: opacity 0.3s ease;
+        }
+        .roast-money-hardline {
+          max-width: 440px;
+          text-align: center;
+          font-size: 14px;
+          color: #6b7280;
+          line-height: 1.7;
+          margin-bottom: 32px;
+          font-style: italic;
+        }
+
+        /* Section 8: Wake-up Call */
+        .roast-wakeup {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 20px;
+          position: relative;
+          z-index: 1;
+        }
+        .roast-tw-lines {
+          max-width: 480px;
+          width: 100%;
+          margin-bottom: 48px;
+        }
+        .roast-tw-line {
+          font-size: clamp(17px, 4vw, 21px);
+          line-height: 1.6;
+          color: #d1d5db;
+          opacity: 0;
+          transform: translateY(8px);
+          transition: opacity 0.5s ease, transform 0.5s ease;
+          min-height: 1.6em;
+        }
+        .roast-tw-line.shown {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        @keyframes roast-cardReveal {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .roast-final-card {
+          background: #0C0C1E;
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 20px;
+          padding: 40px 28px;
+          max-width: 420px;
+          width: 100%;
+          text-align: center;
+          animation: roast-cardReveal 0.8s ease both;
+        }
+        .roast-final-logo {
+          font-family: 'Bebas Neue', cursive;
+          font-size: 32px;
+          color: #39FF14;
+          letter-spacing: 2px;
+          margin-bottom: 16px;
+          opacity: 0.85;
+        }
+        .roast-final-desc {
+          font-size: 15px;
+          color: #9ca3af;
+          line-height: 1.6;
+          margin-bottom: 28px;
+        }
+        .roast-final-buttons {
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          flex-wrap: wrap;
+          margin-bottom: 20px;
+        }
+        .roast-final-btn {
+          padding: 12px 24px;
+          border-radius: 10px;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-weight: 700;
+          font-size: 14px;
+          cursor: pointer;
+          text-decoration: none;
+          border: none;
+          transition: transform 0.15s ease;
+        }
+        .roast-final-btn:hover { transform: scale(1.04); }
+        .roast-final-btn.primary {
+          background: #fff;
+          color: #06060F;
+        }
+        .roast-final-btn.secondary {
+          background: transparent;
+          color: #9ca3af;
+          border: 1px solid rgba(255,255,255,0.1);
+        }
+        .roast-final-footnote {
+          font-size: 11px;
+          color: #4b5563;
+        }
+
+        /* Footer */
+        .roast-footer {
+          padding: 40px 20px;
+          text-align: center;
+          position: relative;
+          z-index: 1;
+          border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .roast-footer-text {
+          font-size: 13px;
+          color: #4b5563;
+          margin-bottom: 16px;
+        }
+        .roast-share-btn {
+          padding: 10px 20px;
+          border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: transparent;
+          color: #9ca3af;
+          font-size: 13px;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .roast-share-btn:hover { background: rgba(255,255,255,0.05); }
       `}</style>
 
       <div className="roast-page">
+        <button className="roast-sound-toggle" onClick={toggleSound} aria-label="Toggle sound">
+          {soundOn ? '🔊' : '🔇'}
+        </button>
+
         {/* LOADING SCREEN */}
         {loading && (
           <div className={`roast-loader ${fadeOut ? 'fade-out' : ''}`}>
@@ -1130,10 +1489,113 @@ export default function Roast() {
             ))}
           </div>
 
-          <div className="roast-graveyard-bottom" onClick={scrollToNext}>
+          <div className="roast-graveyard-bottom" onClick={scrollToMoney}>
             Don't be the next one here. ↓
           </div>
         </section>
+
+        {/* SECTION 7: THE MONEY CALCULATOR */}
+        <section className="roast-money" ref={moneyRef}>
+          <h2 style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(36px, 9vw, 56px)', textAlign: 'center', margin: '0 0 8px' }}>
+            THE MONEY YOU'RE LOSING 💸
+          </h2>
+          <p style={{ color: '#9ca3af', fontSize: 15, textAlign: 'center', marginBottom: 32, maxWidth: 400 }}>
+            Let's do some painful math
+          </p>
+
+          <div className={`roast-stat-card ${moneyVisible ? 'visible' : ''}`}>
+            <div className="roast-stat-main">Each Google review = ~₹1,000 in yearly revenue</div>
+            <div className="roast-stat-sub">
+              Based on industry data: reviews increase click-through by 25-35%, each click has measurable conversion value
+            </div>
+          </div>
+
+          <div className="roast-money-question">
+            How many reviews does your COMPETITOR have that you DON'T?
+          </div>
+
+          <div className="roast-slider-wrap">
+            <input
+              type="range"
+              className="roast-slider"
+              min={0}
+              max={200}
+              step={5}
+              value={moneyGap}
+              onChange={handleMoneySlider}
+            />
+          </div>
+
+          <div className="roast-money-amount" style={{ color: getMoneyColor(displayedMoney) }}>
+            ₹{displayedMoney.toLocaleString('en-IN')}
+          </div>
+          <div className="roast-money-label">on the table every year</div>
+          <div className="roast-money-comparison">
+            {moneyGap > 0 ? getMoneyComparison(moneyGap * 1000) : "Move the slider to see the damage"}
+          </div>
+
+          <div className="roast-money-hardline">
+            And this compounds. Every month. Every year. While your competitor collects reviews and you... don't.
+          </div>
+
+          <button className="roast-cta" onClick={scrollToWakeup}>
+            OK I get it. What do I do? ↓
+          </button>
+        </section>
+
+        {/* SECTION 8: THE WAKE-UP CALL */}
+        <section className="roast-wakeup" ref={wakeupRef}>
+          <div className="roast-tw-lines">
+            {TYPEWRITER_LINES.map((line, i) => (
+              <div
+                key={i}
+                className={`roast-tw-line ${i < twLine ? 'shown' : ''}`}
+              >
+                {line || ' '}
+              </div>
+            ))}
+          </div>
+
+          {showFinalCard && (
+            <div className="roast-final-card">
+              <div className="roast-final-logo">praisly</div>
+              <div className="roast-final-desc">
+                Get Google reviews from happy customers in 30 seconds. No fake reviews. No hassle.
+              </div>
+              <div className="roast-final-buttons">
+                <a
+                  href="https://praisly.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="roast-final-btn primary"
+                >
+                  See How It Works →
+                </a>
+                <a
+                  href="https://praisly.in#demo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="roast-final-btn secondary"
+                >
+                  Watch Demo
+                </a>
+              </div>
+              <div className="roast-final-footnote">
+                Used by salons, clinics, gyms, restaurants & more across India
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* FOOTER */}
+        <footer className="roast-footer">
+          <div className="roast-footer-text">
+            Made with 🔥 by Praisly — Because your business deserves better than 7 Google reviews
+          </div>
+          <button className="roast-share-btn" onClick={handleShare}>
+            {shared ? 'Link copied!' : (navigator.share ? 'Share this roast' : 'Copy link')}
+          </button>
+        </footer>
       </div>
     </>
   )
