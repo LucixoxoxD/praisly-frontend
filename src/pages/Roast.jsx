@@ -165,6 +165,7 @@ export default function Roast() {
   const [soundOn, setSoundOn] = useState(true)
   const [shared, setShared] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [bizName, setBizName] = useState('')
   const heroRef = useRef(null)
   const diagRef = useRef(null)
   const excuseRef = useRef(null)
@@ -185,6 +186,16 @@ export default function Roast() {
     document.title = 'Is Your Business Secretly Dying? 💀 | Praisly'
     const meta = document.querySelector('meta[name="description"]')
     if (meta) meta.setAttribute('content', 'Find out why your Google reviews (or lack of them) are killing your business. A hilarious wake-up call for Indian business owners.')
+
+    // Load Bebas Neue + DM Sans via a non-blocking <link> instead of a
+    // render-blocking @import. preconnect hints already live in index.html.
+    if (!document.getElementById('roast-fonts')) {
+      const link = document.createElement('link')
+      link.id = 'roast-fonts'
+      link.rel = 'stylesheet'
+      link.href = 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap'
+      document.head.appendChild(link)
+    }
 
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     setPrefersReducedMotion(mq.matches)
@@ -326,6 +337,7 @@ export default function Roast() {
   }, [popped, sfx])
 
   const slider = useMemo(() => getSliderState(reviewCount), [reviewCount])
+  const displayName = bizName.trim() || 'Your Business'
 
   const scrollToDiag = useCallback(() => diagRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
   const scrollToExcuse = useCallback(() => excuseRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
@@ -373,8 +385,6 @@ export default function Roast() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap');
-
         .roast-page {
           background: #06060F;
           color: #fff;
@@ -515,6 +525,41 @@ export default function Roast() {
         .roast-cta:focus-visible {
           outline: 2px solid #39FF14;
           outline-offset: 3px;
+        }
+
+        /* Hero business-name input */
+        .roast-name-group {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 28px;
+          width: 100%;
+        }
+        .roast-name-label {
+          font-size: 13px;
+          color: #6b7280;
+          letter-spacing: 0.3px;
+        }
+        .roast-name-input {
+          width: 100%;
+          max-width: 320px;
+          padding: 14px 18px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.12);
+          background: rgba(12, 12, 30, 0.7);
+          color: #fff;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-size: 16px;
+          text-align: center;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          touch-action: manipulation;
+        }
+        .roast-name-input::placeholder { color: #4b5563; }
+        .roast-name-input:focus {
+          border-color: #39FF14;
+          box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.15);
         }
 
         /* Floating stars */
@@ -1433,6 +1478,24 @@ export default function Roast() {
               Your customers are happy. Your Google profile says otherwise.
             </p>
 
+            <div className="roast-name-group">
+              <label htmlFor="biz-name" className="roast-name-label">
+                Enter your business name for an honest diagnosis 👇
+              </label>
+              <input
+                id="biz-name"
+                className="roast-name-input"
+                type="text"
+                value={bizName}
+                onChange={(e) => setBizName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') scrollToDiag() }}
+                placeholder="e.g. Sharma Garments"
+                maxLength={40}
+                autoComplete="off"
+                aria-label="Your business name"
+              />
+            </div>
+
             <button className="roast-cta" onClick={scrollToDiag}>
               CHECK YOUR REPUTATION ↓
             </button>
@@ -1466,7 +1529,7 @@ export default function Roast() {
 
             <div className="roast-field">
               <div className="roast-field-label">Patient</div>
-              <div className="roast-field-value">Your Business</div>
+              <div className="roast-field-value">{displayName}</div>
             </div>
             <div className="roast-field">
               <div className="roast-field-label">Diagnosis</div>
@@ -1588,7 +1651,7 @@ export default function Roast() {
                   {slider.badge}
                 </div>
               )}
-              <div className="roast-biz-name" style={{ color: '#d1d5db' }}>Your Business</div>
+              <div className="roast-biz-name" style={{ color: '#d1d5db' }}>{displayName}</div>
               <div className="roast-biz-rating">
                 <StarRow rating={slider.rating} size={14} />
                 <span className="num" style={{ color: '#d1d5db' }}>{slider.rating}</span>
