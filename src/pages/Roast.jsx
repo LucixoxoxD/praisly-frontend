@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { playPop, playWhoosh, playKaching, playDoom, vibrate } from '../utils/roastSounds'
 
 const LOADING_MESSAGES = [
@@ -143,6 +143,8 @@ const STARS = Array.from({ length: 8 }, (_, i) => ({
   startY: `${10 + Math.random() * 80}%`,
 }))
 
+const ROAST_URL = 'https://praisly.in/roast'
+
 export default function Roast() {
   const [loading, setLoading] = useState(true)
   const [fadeOut, setFadeOut] = useState(false)
@@ -162,6 +164,7 @@ export default function Roast() {
   const [showFinalCard, setShowFinalCard] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
   const [shared, setShared] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const heroRef = useRef(null)
   const diagRef = useRef(null)
   const excuseRef = useRef(null)
@@ -172,10 +175,30 @@ export default function Roast() {
   const hintTimerRef = useRef(null)
   const kachingRef = useRef(0)
   const soundRef = useRef(true)
+  const moneyDebounceRef = useRef(null)
 
   const sfx = useCallback((fn, ...args) => {
     if (soundRef.current) fn(...args)
   }, [])
+
+  useEffect(() => {
+    document.title = 'Is Your Business Secretly Dying? 💀 | Praisly'
+    const meta = document.querySelector('meta[name="description"]')
+    if (meta) meta.setAttribute('content', 'Find out why your Google reviews (or lack of them) are killing your business. A hilarious wake-up call for Indian business owners.')
+
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mq.matches)
+    const handler = (e) => setPrefersReducedMotion(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setTwLine(TYPEWRITER_LINES.length)
+      setShowFinalCard(true)
+    }
+  }, [prefersReducedMotion, twVisible])
 
   useEffect(() => {
     const msgTimer = setInterval(() => {
@@ -244,7 +267,7 @@ export default function Roast() {
   }, [loading])
 
   useEffect(() => {
-    if (!twVisible) return
+    if (!twVisible || prefersReducedMotion) return
     if (twLine >= TYPEWRITER_LINES.length) {
       const t = setTimeout(() => setShowFinalCard(true), 500)
       return () => clearTimeout(t)
@@ -255,7 +278,7 @@ export default function Roast() {
       sfx(vibrate, [10])
     }, delay)
     return () => clearTimeout(t)
-  }, [twVisible, twLine, sfx])
+  }, [twVisible, twLine, sfx, prefersReducedMotion])
 
   useEffect(() => {
     const target = moneyGap * 1000
@@ -288,7 +311,7 @@ export default function Roast() {
   const poppedCount = Object.keys(popped).length
   const allDestroyed = poppedCount === 6
 
-  const popExcuse = (idx) => {
+  const popExcuse = useCallback((idx) => {
     if (popped[idx]) return
     sfx(playPop)
     sfx(vibrate, [30, 20, 30])
@@ -300,58 +323,52 @@ export default function Roast() {
     setTimeout(() => {
       setCounters((c) => ({ ...c, [idx]: false }))
     }, 2300)
-  }
+  }, [popped, sfx])
 
-  const slider = getSliderState(reviewCount)
+  const slider = useMemo(() => getSliderState(reviewCount), [reviewCount])
 
-  const scrollToDiag = () => {
-    diagRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-  const scrollToExcuse = () => {
-    excuseRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-  const scrollToCompetitor = () => {
-    competitorRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-  const scrollToGraveyard = () => {
-    graveyardRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-  const scrollToMoney = () => {
-    moneyRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-  const scrollToWakeup = () => {
-    wakeupRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const scrollToDiag = useCallback(() => diagRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
+  const scrollToExcuse = useCallback(() => excuseRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
+  const scrollToCompetitor = useCallback(() => competitorRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
+  const scrollToGraveyard = useCallback(() => graveyardRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
+  const scrollToMoney = useCallback(() => moneyRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
+  const scrollToWakeup = useCallback(() => wakeupRef.current?.scrollIntoView({ behavior: 'smooth' }), [])
 
-  const handleMoneySlider = (e) => {
+  const handleMoneySlider = useCallback((e) => {
     const val = Number(e.target.value)
-    setMoneyGap(val)
+    clearTimeout(moneyDebounceRef.current)
+    moneyDebounceRef.current = setTimeout(() => setMoneyGap(val), 50)
     const now = Date.now()
     if (now - kachingRef.current > 500) {
       kachingRef.current = now
       sfx(playKaching)
     }
-  }
+  }, [sfx])
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     try {
       if (navigator.share) {
         await navigator.share({
           title: 'Is Your Business Secretly Dying?',
           text: 'This hilarious page shows why Google reviews matter for local businesses 😂',
-          url: window.location.href,
+          url: ROAST_URL,
         })
       } else {
-        await navigator.clipboard.writeText(window.location.href)
+        await navigator.clipboard.writeText(ROAST_URL)
         setShared(true)
         setTimeout(() => setShared(false), 2000)
       }
     } catch {}
-  }
+  }, [])
 
-  const toggleSound = () => {
+  const handleWhatsAppShare = useCallback(() => {
+    const text = encodeURIComponent(`Bhai dekh ye 😂 - Is Your Business Secretly Dying? ${ROAST_URL}`)
+    window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer')
+  }, [])
+
+  const toggleSound = useCallback(() => {
     setSoundOn((s) => { soundRef.current = !s; return !s })
-  }
+  }, [])
 
   return (
     <>
@@ -364,6 +381,12 @@ export default function Roast() {
           font-family: 'DM Sans', system-ui, sans-serif;
           min-height: 100vh;
           overflow-x: hidden;
+        }
+
+        .roast-page *,
+        .roast-page *::before,
+        .roast-page *::after {
+          box-sizing: border-box;
         }
 
         .roast-page::before {
@@ -485,9 +508,13 @@ export default function Roast() {
           cursor: pointer;
           animation: roast-btnPulse 2s ease-in-out infinite;
           transition: transform 0.15s ease;
+          touch-action: manipulation;
+          min-height: 48px;
         }
-        .roast-cta:hover {
-          transform: scale(1.05);
+        .roast-cta:hover { transform: scale(1.05); }
+        .roast-cta:focus-visible {
+          outline: 2px solid #39FF14;
+          outline-offset: 3px;
         }
 
         /* Floating stars */
@@ -636,6 +663,9 @@ export default function Roast() {
           border-radius: 16px;
           overflow: hidden;
         }
+        @media (max-width: 480px) {
+          .roast-game-area { height: 340px; }
+        }
         .roast-score {
           text-align: center;
           margin-top: 16px;
@@ -664,10 +694,25 @@ export default function Roast() {
           max-width: 45%;
           transition: transform 0.3s ease, opacity 0.3s ease;
           -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          min-height: 44px;
+          display: flex;
+          align-items: center;
           animation: var(--anim, none) var(--dur, 4s) ease-in-out infinite;
           animation-delay: var(--delay, 0s);
         }
+        @media (max-width: 480px) {
+          .roast-bubble {
+            font-size: 11px;
+            padding: 8px 12px;
+            max-width: 48%;
+          }
+        }
         .roast-bubble:hover { background: rgba(255, 255, 255, 0.08); }
+        .roast-bubble:focus-visible {
+          outline: 2px solid #39FF14;
+          outline-offset: 2px;
+        }
         .roast-bubble.popping {
           transform: scale(1.3) !important;
           opacity: 0;
@@ -756,15 +801,17 @@ export default function Roast() {
           z-index: 1;
         }
         .roast-comp-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
+          display: flex;
           gap: 20px;
           max-width: 600px;
           width: 100%;
           margin-bottom: 32px;
         }
-        @media (max-width: 560px) {
-          .roast-comp-grid { grid-template-columns: 1fr; }
+        @media (max-width: 640px) {
+          .roast-comp-grid { flex-direction: column; }
+        }
+        @media (min-width: 641px) {
+          .roast-comp-grid > * { flex: 1; }
         }
         .roast-biz-card {
           border-radius: 14px;
@@ -849,24 +896,29 @@ export default function Roast() {
           -webkit-appearance: none;
           appearance: none;
           width: 100%;
-          height: 6px;
-          border-radius: 3px;
+          height: 8px;
+          border-radius: 4px;
           background: #1a1a2e;
           outline: none;
+          touch-action: manipulation;
+        }
+        .roast-slider:focus-visible {
+          outline: 2px solid #39FF14;
+          outline-offset: 2px;
         }
         .roast-slider::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
-          width: 24px;
-          height: 24px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           background: #39FF14;
           cursor: pointer;
           box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
         }
         .roast-slider::-moz-range-thumb {
-          width: 24px;
-          height: 24px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           background: #39FF14;
           cursor: pointer;
@@ -909,20 +961,24 @@ export default function Roast() {
           pointer-events: none;
         }
         .roast-tombstones {
-          display: flex;
-          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
           gap: 20px;
-          justify-content: center;
-          max-width: 700px;
+          max-width: 400px;
           width: 100%;
           margin-bottom: 40px;
+        }
+        @media (max-width: 480px) {
+          .roast-tombstones {
+            grid-template-columns: 1fr;
+            max-width: 280px;
+          }
         }
         @keyframes roast-tombRise {
           from { opacity: 0; transform: translateY(60px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .roast-tombstone {
-          width: clamp(140px, 40vw, 180px);
           background: #1a1a2e;
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 50% 50% 4px 4px;
@@ -958,6 +1014,16 @@ export default function Roast() {
           text-align: center;
           animation: roast-pulseSlow 2s ease-in-out infinite;
           cursor: pointer;
+          background: none;
+          border: none;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          touch-action: manipulation;
+          padding: 12px 16px;
+          min-height: 44px;
+        }
+        .roast-graveyard-bottom:focus-visible {
+          outline: 2px solid #F43F5E;
+          outline-offset: 2px;
         }
 
         /* Sound toggle */
@@ -966,8 +1032,8 @@ export default function Roast() {
           top: 16px;
           right: 16px;
           z-index: 51;
-          width: 36px;
-          height: 36px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           border: 1px solid rgba(255,255,255,0.1);
           background: rgba(6, 6, 15, 0.8);
@@ -980,8 +1046,13 @@ export default function Roast() {
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
           transition: background 0.2s;
+          touch-action: manipulation;
         }
         .roast-sound-toggle:hover { background: rgba(255,255,255,0.08); }
+        .roast-sound-toggle:focus-visible {
+          outline: 2px solid #39FF14;
+          outline-offset: 2px;
+        }
 
         /* Section 7: Money Calculator */
         .roast-money {
@@ -1050,6 +1121,7 @@ export default function Roast() {
           margin: 8px 0 24px;
           color: #d1d5db;
           transition: opacity 0.3s ease;
+          padding: 0 16px;
         }
         .roast-money-hardline {
           max-width: 440px;
@@ -1059,6 +1131,7 @@ export default function Roast() {
           line-height: 1.7;
           margin-bottom: 32px;
           font-style: italic;
+          padding: 0 16px;
         }
 
         /* Section 8: Wake-up Call */
@@ -1105,6 +1178,9 @@ export default function Roast() {
           text-align: center;
           animation: roast-cardReveal 0.8s ease both;
         }
+        @media (max-width: 480px) {
+          .roast-final-card { padding: 32px 20px; }
+        }
         .roast-final-logo {
           font-family: 'Bebas Neue', cursive;
           font-size: 32px;
@@ -1136,8 +1212,17 @@ export default function Roast() {
           text-decoration: none;
           border: none;
           transition: transform 0.15s ease;
+          touch-action: manipulation;
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
         .roast-final-btn:hover { transform: scale(1.04); }
+        .roast-final-btn:focus-visible {
+          outline: 2px solid #39FF14;
+          outline-offset: 2px;
+        }
         .roast-final-btn.primary {
           background: #fff;
           color: #06060F;
@@ -1165,6 +1250,13 @@ export default function Roast() {
           color: #4b5563;
           margin-bottom: 16px;
         }
+        .roast-share-buttons {
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          flex-wrap: wrap;
+          align-items: center;
+        }
         .roast-share-btn {
           padding: 10px 20px;
           border-radius: 8px;
@@ -1175,31 +1267,116 @@ export default function Roast() {
           font-family: 'DM Sans', system-ui, sans-serif;
           cursor: pointer;
           transition: background 0.2s;
+          touch-action: manipulation;
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
         }
         .roast-share-btn:hover { background: rgba(255,255,255,0.05); }
+        .roast-share-btn:focus-visible {
+          outline: 2px solid #39FF14;
+          outline-offset: 2px;
+        }
+        .roast-share-btn.whatsapp {
+          border-color: rgba(37, 211, 102, 0.3);
+          color: #25D366;
+        }
+        .roast-share-btn.whatsapp:hover {
+          background: rgba(37, 211, 102, 0.08);
+        }
+        .roast-share-btn .copied-tooltip {
+          color: #39FF14;
+        }
+
+        /* prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+          .roast-star { animation: none !important; }
+          .roast-tombstone.visible {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-symptom.visible {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-tw-line {
+            transition: none !important;
+          }
+          .roast-bubble {
+            animation: none !important;
+          }
+          .roast-ticker-inner {
+            animation: none !important;
+          }
+          .roast-dot {
+            animation: none !important;
+          }
+          .roast-cta {
+            animation: none !important;
+          }
+          .roast-hero-h1-1,
+          .roast-hero-h1-2 {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-graveyard-bottom {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-stat-card.visible {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-final-card {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-result-card {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-counter {
+            animation: none !important;
+            opacity: 1;
+          }
+          .roast-counter.fading {
+            animation: none !important;
+            opacity: 0;
+          }
+        }
       `}</style>
 
       <div className="roast-page">
-        <button className="roast-sound-toggle" onClick={toggleSound} aria-label="Toggle sound">
+        <button
+          className="roast-sound-toggle"
+          onClick={toggleSound}
+          aria-label={soundOn ? 'Mute sound effects' : 'Unmute sound effects'}
+          aria-pressed={soundOn}
+        >
           {soundOn ? '🔊' : '🔇'}
         </button>
 
         {/* LOADING SCREEN */}
         {loading && (
-          <div className={`roast-loader ${fadeOut ? 'fade-out' : ''}`}>
+          <div className={`roast-loader ${fadeOut ? 'fade-out' : ''}`} role="status" aria-label="Loading reputation report">
             <div className="roast-dot" />
-            <div className="roast-loader-msg">{LOADING_MESSAGES[msgIndex]}</div>
+            <div className="roast-loader-msg" aria-live="polite">{LOADING_MESSAGES[msgIndex]}</div>
             <div
               className="roast-progress-bar"
+              role="progressbar"
+              aria-valuenow={Math.round(progress)}
+              aria-valuemin={0}
+              aria-valuemax={100}
               style={{ width: `${progress}%` }}
             />
           </div>
         )}
 
         {/* SECTION 2: HERO / BREAKING NEWS */}
-        <section className="roast-hero" ref={heroRef}>
+        <section className="roast-hero" ref={heroRef} aria-label="Hero">
           {/* Ticker */}
-          <div className="roast-ticker-wrap">
+          <div className="roast-ticker-wrap" aria-hidden="true">
             <div className="roast-ticker-inner">
               <span>{TICKER_TEXT}</span>
               <span>{TICKER_TEXT}</span>
@@ -1262,10 +1439,11 @@ export default function Roast() {
           </div>
 
           {/* Floating stars */}
-          {STARS.map((s) => (
+          {!prefersReducedMotion && STARS.map((s) => (
             <span
               key={s.id}
               className="roast-star"
+              aria-hidden="true"
               style={{
                 left: s.left,
                 top: s.startY,
@@ -1280,10 +1458,10 @@ export default function Roast() {
         </section>
 
         {/* SECTION 3: THE DIAGNOSIS */}
-        <section className="roast-diagnosis" ref={diagRef}>
+        <section className="roast-diagnosis" ref={diagRef} aria-label="Diagnosis">
           <div className="roast-section-label">THE DIAGNOSIS</div>
           <div className="roast-card">
-            <div className="roast-confidential">CONFIDENTIAL</div>
+            <div className="roast-confidential" aria-hidden="true">CONFIDENTIAL</div>
             <div className="roast-card-header">OFFICIAL REPUTATION REPORT</div>
 
             <div className="roast-field">
@@ -1304,7 +1482,7 @@ export default function Roast() {
                   className={`roast-symptom ${diagVisible ? 'visible' : ''}`}
                   style={{ '--delay': `${i * 400}ms` }}
                 >
-                  <span className="roast-symptom-x">✗</span>
+                  <span className="roast-symptom-x" aria-hidden="true">✗</span>
                   <span>{s}</span>
                 </div>
               ))}
@@ -1321,7 +1499,7 @@ export default function Roast() {
         </section>
 
         {/* SECTION 4: EXCUSE DESTROYER */}
-        <section className="roast-excuse-section" ref={excuseRef}>
+        <section className="roast-excuse-section" ref={excuseRef} role="application" aria-label="Excuse Destroyer Game">
           <h2 className="roast-excuse-title">EXCUSE DESTROYER 💥</h2>
           <p className="roast-excuse-sub">
             Business owners love excuses. Tap them to destroy them.
@@ -1336,7 +1514,7 @@ export default function Roast() {
                 <div key={i}>
                   {/* Bubble */}
                   {state !== 'gone' && (
-                    <div
+                    <button
                       className={`roast-bubble ${state === 'popping' ? 'popping' : ''}`}
                       style={{
                         top: bs.top,
@@ -1349,15 +1527,17 @@ export default function Roast() {
                         '--delay': `${bs.delay}s`,
                       }}
                       onClick={() => popExcuse(i)}
+                      aria-label={`Destroy excuse: ${exc.text}`}
                     >
                       {exc.text}
-                    </div>
+                    </button>
                   )}
                   {/* Counter fact */}
                   {counters[i] !== undefined && (
                     <div
                       className={`roast-counter ${!counters[i] ? 'fading' : ''}`}
                       style={{ top: bs.top, left: bs.left }}
+                      aria-live="polite"
                     >
                       {exc.counter}
                     </div>
@@ -1380,7 +1560,7 @@ export default function Roast() {
             )}
           </div>
 
-          <div className="roast-score">
+          <div className="roast-score" aria-live="polite">
             <span>{poppedCount}</span>/6 excuses destroyed
           </div>
           {showHint && !allDestroyed && (
@@ -1389,7 +1569,7 @@ export default function Roast() {
         </section>
 
         {/* SECTION 5: THE COMPETITOR NIGHTMARE */}
-        <section className="roast-competitor" ref={competitorRef}>
+        <section className="roast-competitor" ref={competitorRef} aria-label="Competitor Comparison">
           <h2 style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(36px, 9vw, 56px)', textAlign: 'center', margin: '0 0 8px' }}>
             THE COMPETITOR NIGHTMARE 😱
           </h2>
@@ -1447,17 +1627,19 @@ export default function Roast() {
 
           {/* Slider */}
           <div className="roast-slider-wrap">
-            <div className="roast-slider-label">What if YOU had more reviews?</div>
+            <label htmlFor="review-slider" className="roast-slider-label">What if YOU had more reviews?</label>
             <input
+              id="review-slider"
               type="range"
               className="roast-slider"
               min={12}
               max={200}
               value={reviewCount}
               onChange={(e) => setReviewCount(Number(e.target.value))}
+              aria-valuetext={`${reviewCount} reviews — ${slider.statusText}`}
             />
-            <div className="roast-slider-count">{reviewCount} reviews</div>
-            <div className="roast-slider-status">{slider.statusText}</div>
+            <div className="roast-slider-count" aria-hidden="true">{reviewCount} reviews</div>
+            <div className="roast-slider-status" aria-live="polite">{slider.statusText}</div>
           </div>
 
           <div style={{ marginTop: 32 }}>
@@ -1468,12 +1650,12 @@ export default function Roast() {
         </section>
 
         {/* SECTION 6: THE GRAVEYARD */}
-        <section className="roast-graveyard" ref={graveyardRef}>
+        <section className="roast-graveyard" ref={graveyardRef} aria-label="Google Review Graveyard">
           <h2 style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(32px, 8vw, 52px)', textAlign: 'center', margin: '0 0 8px' }}>
             THE GOOGLE REVIEW GRAVEYARD ⚰️
           </h2>
           <p style={{ color: '#9ca3af', fontSize: 15, textAlign: 'center', marginBottom: 40, maxWidth: 480 }}>
-            Dedicated to businesses that said "reviews don't matter"
+            Dedicated to businesses that said &ldquo;reviews don&rsquo;t matter&rdquo;
           </p>
 
           <div className="roast-tombstones">
@@ -1489,13 +1671,13 @@ export default function Roast() {
             ))}
           </div>
 
-          <div className="roast-graveyard-bottom" onClick={scrollToMoney}>
+          <button className="roast-graveyard-bottom" onClick={scrollToMoney}>
             Don't be the next one here. ↓
-          </div>
+          </button>
         </section>
 
         {/* SECTION 7: THE MONEY CALCULATOR */}
-        <section className="roast-money" ref={moneyRef}>
+        <section className="roast-money" ref={moneyRef} aria-label="Revenue Calculator">
           <h2 style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(36px, 9vw, 56px)', textAlign: 'center', margin: '0 0 8px' }}>
             THE MONEY YOU'RE LOSING 💸
           </h2>
@@ -1510,12 +1692,13 @@ export default function Roast() {
             </div>
           </div>
 
-          <div className="roast-money-question">
+          <label htmlFor="money-slider" className="roast-money-question">
             How many reviews does your COMPETITOR have that you DON'T?
-          </div>
+          </label>
 
           <div className="roast-slider-wrap">
             <input
+              id="money-slider"
               type="range"
               className="roast-slider"
               min={0}
@@ -1523,10 +1706,11 @@ export default function Roast() {
               step={5}
               value={moneyGap}
               onChange={handleMoneySlider}
+              aria-valuetext={`${moneyGap} reviews gap — ₹${(moneyGap * 1000).toLocaleString('en-IN')} lost per year`}
             />
           </div>
 
-          <div className="roast-money-amount" style={{ color: getMoneyColor(displayedMoney) }}>
+          <div className="roast-money-amount" style={{ color: getMoneyColor(displayedMoney) }} aria-live="polite">
             ₹{displayedMoney.toLocaleString('en-IN')}
           </div>
           <div className="roast-money-label">on the table every year</div>
@@ -1544,14 +1728,14 @@ export default function Roast() {
         </section>
 
         {/* SECTION 8: THE WAKE-UP CALL */}
-        <section className="roast-wakeup" ref={wakeupRef}>
+        <section className="roast-wakeup" ref={wakeupRef} aria-label="Wake-up Call">
           <div className="roast-tw-lines">
             {TYPEWRITER_LINES.map((line, i) => (
               <div
                 key={i}
                 className={`roast-tw-line ${i < twLine ? 'shown' : ''}`}
               >
-                {line || ' '}
+                {line || ' '}
               </div>
             ))}
           </div>
@@ -1592,9 +1776,15 @@ export default function Roast() {
           <div className="roast-footer-text">
             Made with 🔥 by Praisly — Because your business deserves better than 7 Google reviews
           </div>
-          <button className="roast-share-btn" onClick={handleShare}>
-            {shared ? 'Link copied!' : (navigator.share ? 'Share this roast' : 'Copy link')}
-          </button>
+          <div className="roast-share-buttons">
+            <button className="roast-share-btn whatsapp" onClick={handleWhatsAppShare} aria-label="Share on WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Share on WhatsApp
+            </button>
+            <button className="roast-share-btn" onClick={handleShare} aria-label={navigator.share ? 'Share this roast' : 'Copy link to clipboard'}>
+              {shared ? <span className="copied-tooltip">Copied!</span> : (navigator.share ? 'Share this roast' : 'Copy link')}
+            </button>
+          </div>
         </footer>
       </div>
     </>
