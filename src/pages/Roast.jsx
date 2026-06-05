@@ -40,6 +40,70 @@ const BUBBLE_STYLES = [
   { border: '#FB923C', top: '48%', left: '10%', dur: 4.8, delay: -4.0 },
 ]
 
+const TOMBSTONES = [
+  { name: 'Gupta Electronics (2015-2023)', epitaph: 'Had amazing products. Zero Google reviews. Customers went to Croma.' },
+  { name: 'Royal Restaurant', epitaph: "'Our food speaks for itself' — It didn't. Nobody heard it." },
+  { name: 'Sharma Salon', epitaph: "'Word of mouth is enough' — Last words before closing." },
+  { name: 'City Gym', epitaph: 'Great equipment. Great trainers. Google rating: 3.2. Cult Fit ate their lunch.' },
+  { name: 'Brilliant Coaching Centre', epitaph: '100% results. 3 Google reviews. Parents chose the one with 200 reviews instead.' },
+]
+
+function getSliderState(count) {
+  let rating, badge, youOpacity, compOpacity, statusText
+  if (count < 50) {
+    rating = 3.8
+    badge = null
+    youOpacity = 0.5
+    compOpacity = 1
+  } else if (count < 100) {
+    rating = 4.2
+    badge = null
+    youOpacity = 0.7
+    compOpacity = 1
+  } else if (count < 150) {
+    rating = 4.5
+    badge = 'POPULAR'
+    youOpacity = 1
+    compOpacity = 1
+  } else {
+    rating = 4.7
+    badge = 'HIGHLY RATED'
+    youOpacity = 1
+    compOpacity = 0.55
+  }
+  if (count <= 30) statusText = 'Google is hiding you 🫣'
+  else if (count <= 70) statusText = 'Getting there... customers are noticing 👀'
+  else if (count <= 120) statusText = "Now we're talking! You're on the map 🗺️"
+  else if (count <= 170) statusText = 'Sharma Ji is getting nervous 😰'
+  else statusText = 'YOU ARE THE SHARMA JI NOW 👑'
+  return { rating, badge, youOpacity, compOpacity, statusText }
+}
+
+function StarRow({ rating, size = 16 }) {
+  const full = Math.floor(rating)
+  const partial = rating - full
+  const empty = 5 - full - (partial > 0 ? 1 : 0)
+  return (
+    <span style={{ display: 'inline-flex', gap: 2 }}>
+      {Array.from({ length: full }, (_, i) => (
+        <span key={`f${i}`} style={{ color: '#F59E0B', fontSize: size }}>★</span>
+      ))}
+      {partial > 0 && (
+        <span key="p" style={{ position: 'relative', display: 'inline-block', fontSize: size, color: '#4b5563' }}>
+          ★
+          <span style={{
+            position: 'absolute', inset: 0, overflow: 'hidden',
+            width: `${partial * 100}%`, color: '#F59E0B',
+          }}>★</span>
+        </span>
+      )}
+      {Array.from({ length: empty }, (_, i) => (
+        <span key={`e${i}`} style={{ color: '#4b5563', fontSize: size }}>★</span>
+      ))}
+    </span>
+  )
+}
+
 const STARS = Array.from({ length: 8 }, (_, i) => ({
   id: i,
   left: `${10 + Math.random() * 80}%`,
@@ -58,9 +122,13 @@ export default function Roast() {
   const [popped, setPopped] = useState({})
   const [counters, setCounters] = useState({})
   const [showHint, setShowHint] = useState(false)
+  const [reviewCount, setReviewCount] = useState(12)
+  const [graveyardVisible, setGraveyardVisible] = useState(false)
   const heroRef = useRef(null)
   const diagRef = useRef(null)
   const excuseRef = useRef(null)
+  const competitorRef = useRef(null)
+  const graveyardRef = useRef(null)
   const hintTimerRef = useRef(null)
 
   useEffect(() => {
@@ -97,6 +165,17 @@ export default function Roast() {
   }, [loading])
 
   useEffect(() => {
+    const el = graveyardRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setGraveyardVisible(true); obs.disconnect() } },
+      { threshold: 0.2 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [loading])
+
+  useEffect(() => {
     if (Object.keys(popped).length > 0 && Object.keys(popped).length < 6) return
     if (Object.keys(popped).length === 6) { clearTimeout(hintTimerRef.current); return }
     hintTimerRef.current = setTimeout(() => setShowHint(true), 30000)
@@ -119,17 +198,22 @@ export default function Roast() {
     }, 2300)
   }
 
-  const scrollToHero = () => {
-    heroRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const slider = getSliderState(reviewCount)
+
   const scrollToDiag = () => {
     diagRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
   const scrollToExcuse = () => {
     excuseRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+  const scrollToCompetitor = () => {
+    competitorRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+  const scrollToGraveyard = () => {
+    graveyardRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
   const scrollToNext = () => {
-    // placeholder for section 5
+    // placeholder for section 7
   }
 
   return (
@@ -279,6 +363,8 @@ export default function Roast() {
           pointer-events: none;
           opacity: 0.08;
           z-index: 0;
+          animation: roast-float var(--dur, 20s) ease-in-out infinite;
+          animation-delay: var(--delay, 0s);
         }
 
         /* Section 3: Diagnosis */
@@ -361,6 +447,7 @@ export default function Roast() {
         }
         .roast-symptom.visible {
           animation: roast-symptomIn 0.4s ease both;
+          animation-delay: var(--delay, 0s);
         }
         .roast-symptom-x {
           color: #F43F5E;
@@ -440,6 +527,8 @@ export default function Roast() {
           max-width: 45%;
           transition: transform 0.3s ease, opacity 0.3s ease;
           -webkit-tap-highlight-color: transparent;
+          animation: var(--anim, none) var(--dur, 4s) ease-in-out infinite;
+          animation-delay: var(--delay, 0s);
         }
         .roast-bubble:hover { background: rgba(255, 255, 255, 0.08); }
         .roast-bubble.popping {
@@ -516,6 +605,222 @@ export default function Roast() {
           color: #d1d5db;
           margin-bottom: 20px;
           line-height: 1.5;
+        }
+
+        /* Section 5: Competitor Nightmare */
+        .roast-competitor {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 64px 20px;
+          position: relative;
+          z-index: 1;
+        }
+        .roast-comp-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          max-width: 600px;
+          width: 100%;
+          margin-bottom: 32px;
+        }
+        @media (max-width: 560px) {
+          .roast-comp-grid { grid-template-columns: 1fr; }
+        }
+        .roast-biz-card {
+          border-radius: 14px;
+          padding: 20px;
+          transition: opacity 0.4s ease, filter 0.4s ease;
+          position: relative;
+        }
+        .roast-biz-card.you {
+          background: #0C0C1E;
+          border: 1px solid rgba(255,255,255,0.06);
+        }
+        .roast-biz-card.comp {
+          background: #0F1628;
+          border: 1px solid rgba(57,255,20,0.15);
+        }
+        .roast-biz-name {
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-weight: 700;
+          font-size: 15px;
+          margin-bottom: 6px;
+        }
+        .roast-biz-rating {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          margin-bottom: 4px;
+        }
+        .roast-biz-rating .num {
+          font-weight: 700;
+          font-size: 14px;
+        }
+        .roast-biz-reviews {
+          font-size: 12px;
+          margin-bottom: 12px;
+        }
+        .roast-biz-photos {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 12px;
+        }
+        .roast-biz-photo-placeholder {
+          width: 100%;
+          height: 48px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+        }
+        .roast-biz-photo-thumb {
+          flex: 1;
+          height: 48px;
+          border-radius: 6px;
+        }
+        .roast-biz-desc {
+          font-size: 12px;
+          line-height: 1.5;
+          color: #9ca3af;
+        }
+        .roast-biz-badge {
+          display: inline-block;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: 4px;
+          margin-bottom: 10px;
+          letter-spacing: 0.5px;
+        }
+
+        .roast-slider-wrap {
+          max-width: 500px;
+          width: 100%;
+          text-align: center;
+        }
+        .roast-slider-label {
+          font-size: 14px;
+          color: #d1d5db;
+          margin-bottom: 12px;
+        }
+        .roast-slider {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 100%;
+          height: 6px;
+          border-radius: 3px;
+          background: #1a1a2e;
+          outline: none;
+        }
+        .roast-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #39FF14;
+          cursor: pointer;
+          box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
+        }
+        .roast-slider::-moz-range-thumb {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #39FF14;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
+        }
+        .roast-slider-count {
+          font-size: 32px;
+          font-family: 'Bebas Neue', cursive;
+          color: #39FF14;
+          margin-top: 8px;
+        }
+        .roast-slider-status {
+          font-size: 15px;
+          color: #F59E0B;
+          margin-top: 8px;
+          min-height: 24px;
+          transition: opacity 0.3s ease;
+        }
+
+        /* Section 6: Graveyard */
+        .roast-graveyard {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 64px 20px;
+          position: relative;
+          z-index: 1;
+        }
+        .roast-graveyard::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 180px;
+          background: linear-gradient(to bottom, transparent, rgba(100, 116, 139, 0.05));
+          pointer-events: none;
+        }
+        .roast-tombstones {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          justify-content: center;
+          max-width: 700px;
+          width: 100%;
+          margin-bottom: 40px;
+        }
+        @keyframes roast-tombRise {
+          from { opacity: 0; transform: translateY(60px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .roast-tombstone {
+          width: clamp(140px, 40vw, 180px);
+          background: #1a1a2e;
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 50% 50% 4px 4px;
+          padding: 32px 16px 24px;
+          text-align: center;
+          opacity: 0;
+        }
+        .roast-tombstone.visible {
+          animation: roast-tombRise 0.6s ease both;
+          animation-delay: var(--delay, 0s);
+        }
+        .roast-tomb-rip {
+          font-family: 'Bebas Neue', cursive;
+          font-size: 14px;
+          color: #9ca3af;
+          letter-spacing: 1px;
+          margin-bottom: 8px;
+          line-height: 1.3;
+        }
+        .roast-tomb-epitaph {
+          font-size: 11px;
+          color: #6b7280;
+          line-height: 1.5;
+          font-style: italic;
+        }
+        @keyframes roast-pulseSlow {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 1; }
+        }
+        .roast-graveyard-bottom {
+          font-size: 15px;
+          color: #F43F5E;
+          text-align: center;
+          animation: roast-pulseSlow 2s ease-in-out infinite;
+          cursor: pointer;
         }
       `}</style>
 
@@ -606,8 +911,8 @@ export default function Roast() {
                 left: s.left,
                 top: s.startY,
                 fontSize: s.size,
-                animation: `roast-float ${s.duration}s ease-in-out infinite`,
-                animationDelay: `${s.delay}s`,
+                '--dur': `${s.duration}s`,
+                '--delay': `${s.delay}s`,
               }}
             >
               ⭐
@@ -638,7 +943,7 @@ export default function Roast() {
                 <div
                   key={i}
                   className={`roast-symptom ${diagVisible ? 'visible' : ''}`}
-                  style={diagVisible ? { animationDelay: `${i * 400}ms` } : undefined}
+                  style={{ '--delay': `${i * 400}ms` }}
                 >
                   <span className="roast-symptom-x">✗</span>
                   <span>{s}</span>
@@ -680,8 +985,9 @@ export default function Roast() {
                         borderWidth: 1,
                         borderStyle: 'solid',
                         borderColor: bs.border,
-                        animation: state ? undefined : `roast-bubbleFloat ${bs.dur}s ease-in-out infinite`,
-                        animationDelay: `${bs.delay}s`,
+                        '--anim': state ? 'none' : 'roast-bubbleFloat',
+                        '--dur': `${bs.dur}s`,
+                        '--delay': `${bs.delay}s`,
                       }}
                       onClick={() => popExcuse(i)}
                     >
@@ -708,7 +1014,7 @@ export default function Roast() {
                 <p className="roast-result-prompt">
                   Now that we've cleared that up... let's see the REAL damage
                 </p>
-                <button className="roast-cta" onClick={scrollToNext}>
+                <button className="roast-cta" onClick={scrollToCompetitor}>
                   SHOW ME ↓
                 </button>
               </div>
@@ -721,6 +1027,112 @@ export default function Roast() {
           {showHint && !allDestroyed && (
             <div className="roast-hint">Tap the excuses to destroy them!</div>
           )}
+        </section>
+
+        {/* SECTION 5: THE COMPETITOR NIGHTMARE */}
+        <section className="roast-competitor" ref={competitorRef}>
+          <h2 style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(36px, 9vw, 56px)', textAlign: 'center', margin: '0 0 8px' }}>
+            THE COMPETITOR NIGHTMARE 😱
+          </h2>
+          <p style={{ color: '#9ca3af', fontSize: 15, textAlign: 'center', marginBottom: 32, maxWidth: 480 }}>
+            This is what customers see when they Google your category
+          </p>
+
+          <div className="roast-comp-grid">
+            {/* YOU card */}
+            <div
+              className="roast-biz-card you"
+              style={{ opacity: slider.youOpacity, filter: slider.youOpacity < 1 ? `brightness(${0.5 + slider.youOpacity * 0.5})` : 'none' }}
+            >
+              {slider.badge && (
+                <div className="roast-biz-badge" style={{ background: slider.badge === 'HIGHLY RATED' ? 'rgba(57,255,20,0.15)' : 'rgba(245,158,11,0.15)', color: slider.badge === 'HIGHLY RATED' ? '#39FF14' : '#F59E0B' }}>
+                  {slider.badge}
+                </div>
+              )}
+              <div className="roast-biz-name" style={{ color: '#d1d5db' }}>Your Business</div>
+              <div className="roast-biz-rating">
+                <StarRow rating={slider.rating} size={14} />
+                <span className="num" style={{ color: '#d1d5db' }}>{slider.rating}</span>
+              </div>
+              <div className="roast-biz-reviews" style={{ color: '#6b7280' }}>({reviewCount} reviews)</div>
+              <div className="roast-biz-photo-placeholder" style={{ background: '#1a1a2e', color: '#4b5563' }}>
+                📷
+              </div>
+              <p className="roast-biz-desc" style={{ marginTop: 10 }}>Local business</p>
+            </div>
+
+            {/* COMPETITOR card */}
+            <div
+              className="roast-biz-card comp"
+              style={{ opacity: slider.compOpacity, filter: slider.compOpacity < 1 ? 'brightness(0.6)' : 'none' }}
+            >
+              <div className="roast-biz-badge" style={{ background: 'rgba(57,255,20,0.15)', color: '#39FF14' }}>
+                OPEN NOW
+              </div>
+              <div className="roast-biz-name" style={{ color: '#fff' }}>Sharma Ji Next Door™</div>
+              <div className="roast-biz-rating">
+                <StarRow rating={4.7} size={14} />
+                <span className="num" style={{ color: '#fff' }}>4.7</span>
+              </div>
+              <div className="roast-biz-reviews" style={{ color: '#d1d5db' }}>(187 reviews)</div>
+              <div className="roast-biz-photos">
+                <div className="roast-biz-photo-thumb" style={{ background: 'linear-gradient(135deg, #F59E0B, #F43F5E)' }} />
+                <div className="roast-biz-photo-thumb" style={{ background: 'linear-gradient(135deg, #39FF14, #22D3EE)' }} />
+                <div className="roast-biz-photo-thumb" style={{ background: 'linear-gradient(135deg, #818CF8, #F43F5E)' }} />
+              </div>
+              <p className="roast-biz-desc">
+                Trusted by 187 happy customers. Fastest service in the area. 5-star hygiene rated.
+              </p>
+            </div>
+          </div>
+
+          {/* Slider */}
+          <div className="roast-slider-wrap">
+            <div className="roast-slider-label">What if YOU had more reviews?</div>
+            <input
+              type="range"
+              className="roast-slider"
+              min={12}
+              max={200}
+              value={reviewCount}
+              onChange={(e) => setReviewCount(Number(e.target.value))}
+            />
+            <div className="roast-slider-count">{reviewCount} reviews</div>
+            <div className="roast-slider-status">{slider.statusText}</div>
+          </div>
+
+          <div style={{ marginTop: 32 }}>
+            <button className="roast-cta" onClick={scrollToGraveyard}>
+              But how do you GET those reviews? ↓
+            </button>
+          </div>
+        </section>
+
+        {/* SECTION 6: THE GRAVEYARD */}
+        <section className="roast-graveyard" ref={graveyardRef}>
+          <h2 style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(32px, 8vw, 52px)', textAlign: 'center', margin: '0 0 8px' }}>
+            THE GOOGLE REVIEW GRAVEYARD ⚰️
+          </h2>
+          <p style={{ color: '#9ca3af', fontSize: 15, textAlign: 'center', marginBottom: 40, maxWidth: 480 }}>
+            Dedicated to businesses that said "reviews don't matter"
+          </p>
+
+          <div className="roast-tombstones">
+            {TOMBSTONES.map((t, i) => (
+              <div
+                key={i}
+                className={`roast-tombstone ${graveyardVisible ? 'visible' : ''}`}
+                style={{ '--delay': `${i * 300}ms` }}
+              >
+                <div className="roast-tomb-rip">R.I.P.<br />{t.name}</div>
+                <div className="roast-tomb-epitaph">{t.epitaph}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="roast-graveyard-bottom" onClick={scrollToNext}>
+            Don't be the next one here. ↓
+          </div>
         </section>
       </div>
     </>
