@@ -20,6 +20,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import AgentSignup from './pages/AgentSignup'
 import Admin from './pages/Admin'
+import Roast from './pages/Roast'
 
 function Protected({ children }) {
   const hasToken = !!localStorage.getItem('praisly_token')
@@ -104,9 +105,10 @@ export default function App() {
           <Route path="/reset-password"  element={<ResetPassword />} />
           <Route path="/onboarding" element={<OnboardingRoute><Onboarding /></OnboardingRoute>} />
 
-          {/* Public legal pages */}
+          {/* Public pages */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms"   element={<TermsOfService />} />
+          <Route path="/roast"   element={<Roast />} />
 
           {/* Public customer-facing review page — untouched */}
           <Route path="/review/:businessId" element={<CustomerReview />} />

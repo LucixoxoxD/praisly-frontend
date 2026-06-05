@@ -12,4 +12,5 @@ Disallow: /signup
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /review/
+Disallow: /roast
 Sitemap: https://praisly.in/sitemap.xml
