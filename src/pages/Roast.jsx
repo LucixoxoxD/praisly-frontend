@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { playPop, playWhoosh, playKaching, playDoom, vibrate } from '../utils/roastSounds'
+import { playPop, playWhoosh, playKaching, playDoom, vibrate, unlockAudio } from '../utils/roastSounds'
 
 const LOADING_MESSAGES = [
   'Scanning your Google listing...',
@@ -1347,7 +1347,7 @@ export default function Roast() {
         }
       `}</style>
 
-      <div className="roast-page">
+      <div className="roast-page" onClickCapture={unlockAudio}>
         <button
           className="roast-sound-toggle"
           onClick={toggleSound}

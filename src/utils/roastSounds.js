@@ -1,4 +1,5 @@
 let ctx = null
+let unlocked = false
 
 function getCtx() {
   try {
@@ -6,6 +7,23 @@ function getCtx() {
     if (ctx.state === 'suspended') ctx.resume()
     return ctx
   } catch { return null }
+}
+
+// Must be called synchronously inside a user gesture (tap/click) to unlock
+// audio on iOS Safari and Android Chrome. Play a 1-sample silent buffer —
+// this is enough to move the context out of 'suspended' state permanently.
+export function unlockAudio() {
+  if (unlocked) return
+  try {
+    const c = getCtx()
+    if (!c) return
+    const buf = c.createBuffer(1, 1, 22050)
+    const src = c.createBufferSource()
+    src.buffer = buf
+    src.connect(c.destination)
+    src.start(0)
+    unlocked = true
+  } catch {}
 }
 
 export function playPop() {
