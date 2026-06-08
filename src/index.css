@@ -24,7 +24,21 @@
   --accent: #E13B3B;
   --bronze: #C17F24;
   --font-display: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Type scale — tight modular steps; avoid off-scale / half-pixel sizes */
+  --t-xs: 12px;   /* captions, eyebrows */
+  --t-sm: 13px;   /* meta, fine print */
+  --t-ui: 14px;   /* nav, buttons, dense UI */
+  --t-base: 16px; /* body */
+  --t-md: 18px;   /* lead / sub-headlines */
+  --t-lg: 20px;
+  --t-xl: 22px;   /* card headings */
+  --t-2xl: 28px;
+  --t-3xl: 32px;
+  --t-4xl: 40px;
+  --t-5xl: 48px;
+  --t-6xl: 64px;
   --shadow-sm: 0 1px 2px rgba(26,22,16,0.04), 0 1px 3px rgba(26,22,16,0.04);
   --shadow-md: 0 2px 4px rgba(26,22,16,0.04), 0 10px 30px rgba(26,22,16,0.06);
   --shadow-gold: 0 1px 2px rgba(26,22,16,0.05), 0 24px 50px -20px rgba(216,144,32,0.45);
@@ -36,7 +50,7 @@
 
 body {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
