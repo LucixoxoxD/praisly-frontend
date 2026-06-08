@@ -138,6 +138,15 @@ const Chart = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" 
 const StarIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.24l7.19-.61L12 2l2.81 6.63 7.19.61-5.46 4.73L18.18 21z"/></svg>
 const Check = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5L20 7"/></svg>
 
+// ─── Category line icons (replace emoji) ─────────────────────────────────────
+const ico = (s = 16) => ({ width: s, height: s, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' })
+const Tooth = ({ s }) => <svg {...ico(s)}><path d="M12 5.5c-1.4-1.1-3-1.6-4.5-1C6 5.2 5 6.7 5 8.8c0 1.7.4 3 .9 5 .5 2 .9 4.2 2.1 4.2 1 0 1.2-1.6 1.5-3.2.2-1 .6-1.8 1.5-1.8s1.3.8 1.5 1.8c.3 1.6.5 3.2 1.5 3.2 1.2 0 1.6-2.2 2.1-4.2.5-2 .9-3.3.9-5 0-2.1-1-3.6-2.5-4.3-1.5-.6-3.1-.1-4.5 1Z"/></svg>
+const Scissors = ({ s }) => <svg {...ico(s)}><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg>
+const Dumbbell = ({ s }) => <svg {...ico(s)}><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
+const Utensils = ({ s }) => <svg {...ico(s)}><path d="M3 2v7a2 2 0 0 0 2 2 2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 3 0 0 0 0 13zM21 15v7"/></svg>
+const Cap = ({ s }) => <svg {...ico(s)}><path d="M22 10 12 5 2 10l10 5 10-5ZM6 12v5c0 1 2.5 2 6 2s6-1 6-2v-5"/></svg>
+const Coffee = ({ s }) => <svg {...ico(s)}><path d="M17 8h1a4 4 0 0 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4ZM6 2v2M10 2v2M14 2v2"/></svg>
+
 // ─── Decorative QR code SVG ───────────────────────────────────────────────────
 function QrSvg() {
   return (
@@ -773,23 +782,17 @@ export default function LandingPage() {
               <Link to="/signup" className="lp-btn lp-btn-primary lp-btn-lg">
                 Start free — no card needed <Arrow />
               </Link>
-              <a href={import.meta.env.VITE_SUPPORT_PHONE ? `https://wa.me/${import.meta.env.VITE_SUPPORT_PHONE}?text=${encodeURIComponent('Hi, I want to know more about Praisly')}` : '#'} className="lp-btn lp-btn-outline lp-btn-lg" target="_blank" rel="noopener noreferrer">
-                Talk to us on WhatsApp
-              </a>
-            </div>
-            <div className="lp-hero-ctas" style={{ marginTop: 8 }}>
               {DEMO_EMAIL && DEMO_PASSWORD ? (
-                <button onClick={handleDemoLogin} disabled={demoLoading} className="lp-btn lp-btn-outline lp-btn-lg" style={{ fontSize: 14, padding: '10px 20px' }}>
+                <button onClick={handleDemoLogin} disabled={demoLoading} className="lp-btn lp-btn-outline lp-btn-lg">
                   {demoLoading ? 'Loading…' : 'See live demo (2 min)'}
                 </button>
               ) : (
-                <a href="#features" className="lp-btn lp-btn-outline lp-btn-lg" style={{ fontSize: 14, padding: '10px 20px' }}>See how it works</a>
+                <a href="#features" className="lp-btn lp-btn-outline lp-btn-lg">See how it works</a>
               )}
             </div>
 
             <div className="lp-hero-reassure">
               <span className="lp-re-pill"><span className="ic green">✓</span>Setup in 10 min</span>
-              <span className="lp-re-pill"><span className="ic">💳</span>No card required</span>
               <span className="lp-re-pill"><span className="ic ink">W</span>WhatsApp support</span>
             </div>
 
@@ -817,15 +820,15 @@ export default function LandingPage() {
           <div className="lp-proof-label">Trusted by salons, dentists, gyms, and restaurants across India</div>
           <div className="lp-proof-row">
             {[
-              ['🦷', 'Dentists', '#FCE6E6'],
-              ['💇', 'Salons', '#FBEED0'],
-              ['🏋️', 'Gyms', '#E3F4EB'],
-              ['🍱', 'Restaurants', '#FDF7E4'],
-              ['📚', 'Coaching centres', '#EEF0F2'],
-              ['☕', 'Cafés', '#F7E6D6'],
-            ].map(([emoji, label, bg]) => (
+              [<Tooth s={15} />, 'Dentists', '#FCE6E6'],
+              [<Scissors s={15} />, 'Salons', '#FBEED0'],
+              [<Dumbbell s={15} />, 'Gyms', '#E3F4EB'],
+              [<Utensils s={15} />, 'Restaurants', '#FDF7E4'],
+              [<Cap s={15} />, 'Coaching centres', '#EEF0F2'],
+              [<Coffee s={15} />, 'Cafés', '#F7E6D6'],
+            ].map(([icon, label, bg]) => (
               <span key={label} className="lp-proof-chip">
-                <span className="ic" style={{ background: bg }}>{emoji}</span>
+                <span className="ic" style={{ background: bg, color: 'var(--ink-2)' }}>{icon}</span>
                 {label}
               </span>
             ))}
