@@ -151,6 +151,13 @@ const WA_ICON = (
 const EMPTY_FORM = {
   business_name: '', business_type: 'salon / beauty parlour',
   city: '', area: '', owner_name: '', owner_phone: '',
+  owner_email: '', password: '',
+}
+
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+
+function genPassword() {
+  return `Praisly@${Math.floor(1000 + Math.random() * 9000)}`
 }
 
 export default function AgentSignup() {
@@ -245,7 +252,12 @@ export default function AgentSignup() {
     setError('')
     if (!form.business_name.trim()) return setError('Business name is required.')
     if (!form.city.trim()) return setError('City is required.')
-    if (!form.owner_phone.trim()) return setError('Owner phone is required.')
+    if (!form.owner_phone.trim()) return setError('Owner mobile number is required.')
+    if (!form.owner_email.trim()) return setError('Owner email is required.')
+    if (!EMAIL_RE.test(form.owner_email.trim())) return setError('Enter a valid owner email.')
+    if (form.password.trim() && form.password.trim().length < 6) {
+      return setError('Password must be at least 6 characters (or leave blank to auto-generate).')
+    }
 
     setLoading(true)
     try {
@@ -256,6 +268,8 @@ export default function AgentSignup() {
         area: form.area.trim() || null,
         owner_name: form.owner_name.trim() || null,
         owner_phone: form.owner_phone.trim(),
+        owner_email: form.owner_email.trim(),
+        password: form.password.trim() || null,
         google_place_id: selectedPlace?.place_id || null,
         google_business_url: selectedPlace?.google_review_url || null,
       })
@@ -479,7 +493,7 @@ export default function AgentSignup() {
                   </div>
 
                   <div className="ag-field">
-                    <label className="ag-label">Owner Phone *</label>
+                    <label className="ag-label">Owner Mobile Number *</label>
                     <input
                       className="ag-input"
                       placeholder="9876543210"
@@ -488,6 +502,44 @@ export default function AgentSignup() {
                       inputMode="tel"
                       autoComplete="off"
                     />
+                  </div>
+
+                  <div className="ag-field">
+                    <label className="ag-label">Owner Email *</label>
+                    <input
+                      className="ag-input"
+                      type="email"
+                      placeholder="owner@example.com"
+                      value={form.owner_email}
+                      onChange={e => setF('owner_email', e.target.value)}
+                      inputMode="email"
+                      autoComplete="off"
+                    />
+                  </div>
+
+                  <div className="ag-field">
+                    <label className="ag-label">
+                      Password <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(blank = auto-generate)</span>
+                    </label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input
+                        className="ag-input"
+                        type="text"
+                        placeholder="Auto-generated if left blank"
+                        value={form.password}
+                        onChange={e => setF('password', e.target.value)}
+                        autoComplete="off"
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        className="ag-btn-ghost"
+                        style={{ width: 'auto', margin: 0, padding: '0 16px', whiteSpace: 'nowrap' }}
+                        onClick={() => setF('password', genPassword())}
+                      >
+                        Generate
+                      </button>
+                    </div>
                   </div>
 
                   <button type="submit" className="ag-btn" disabled={loading}>
