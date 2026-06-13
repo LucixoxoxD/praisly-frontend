@@ -8,7 +8,7 @@ const VALID_TYPES = [
   'auto / repair service', 'real estate', 'other',
 ]
 
-const PRICE_PER_LOCATION = 999
+const PRICE_PER_LOCATION = 499
 export const PENDING_LOCATION_KEY = 'praisly_pending_location'
 export const PENDING_ADDON_QTY_KEY = 'praisly_pending_addon_qty'
 

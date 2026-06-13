@@ -148,8 +148,8 @@ export default function Billing() {
 
   // Price calculations with coupon support
   const discountPct   = couponStatus?.valid ? couponStatus.discount : 0
-  const monthlyBase   = 999
-  const yearlyBase    = 9999
+  const monthlyBase   = 499
+  const yearlyBase    = 4990
   const monthlyPrice  = Math.round(monthlyBase * (1 - discountPct / 100))
   const yearlyPrice   = Math.round(yearlyBase * (1 - discountPct / 100))
   const yearlyPerMonth = Math.round(yearlyPrice / 12)
@@ -213,7 +213,7 @@ export default function Billing() {
             }}
           >
             Yearly
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--win)' }}>Save ~₹2,000 (17% off)</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--win)' }}>2 months free · save 17%</span>
           </button>
         </div>
       </div>
@@ -238,7 +238,7 @@ export default function Billing() {
         {/* Early adopter badge */}
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <span style={{ display: 'inline-block', background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 999 }}>
-            🚀 Early Adopter Pricing
+            🚀 Launch Pricing
           </span>
         </div>
 
@@ -264,7 +264,7 @@ export default function Billing() {
           {(yearly || discountPct > 0) && (
             <p style={{ fontSize: discountPct > 0 ? 16 : 13, color: '#94a3b8', textDecoration: 'line-through', margin: '0 0 4px', transition: 'font-size 0.2s' }}>
               {yearly
-                ? (discountPct > 0 ? `₹${833}/month` : '₹999/month')
+                ? (discountPct > 0 ? `₹${416}/month` : '₹499/month')
                 : `₹${monthlyBase}/month`}
             </p>
           )}
@@ -281,7 +281,7 @@ export default function Billing() {
           </div>
           {yearly && (
             <p style={{ fontSize: 13, color: '#64748b', margin: '6px 0 0' }}>
-              {discountPct > 0 && <span style={{ textDecoration: 'line-through', color: '#94a3b8', marginRight: 6 }}>₹9,999</span>}
+              {discountPct > 0 && <span style={{ textDecoration: 'line-through', color: '#94a3b8', marginRight: 6 }}>₹4,990</span>}
               ₹{yearlyPrice.toLocaleString('en-IN')} billed yearly
             </p>
           )}
@@ -300,7 +300,7 @@ export default function Billing() {
             <span style={{ display: 'inline-block', background: '#d1fae5', color: '#065f46', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 999, maxWidth: '100%', textAlign: 'center' }}>
               {discountPct > 0
                 ? `Save ₹${(yearlyBase - yearlyPrice + (monthlyBase * 12 - yearlyBase)).toLocaleString('en-IN')}/yr with coupon + yearly`
-                : 'You save ~₹2,000/year — 17% off'}
+                : '2 months free — save 17%'}
             </span>
           </div>
         )}

@@ -1151,22 +1151,22 @@ export default function LandingPage() {
 
           <Reveal>
             <div className="lp-price-card">
-              <span className="lp-price-badge">★ Early Adopter Pricing</span>
+              <span className="lp-price-badge">★ Launch Pricing</span>
               <div className="lp-plan-name">Praisly Pro</div>
               <div className="lp-plan-tag">For one business location · Unlimited reviews</div>
 
-              {lpYearly && <div className="lp-price-strike">₹999/month</div>}
+              {lpYearly && <div className="lp-price-strike">₹499/month</div>}
 
               <div className="lp-price-row">
                 <span className="lp-price-cur">₹</span>
-                <span className="lp-price-amt">{lpYearly ? '833' : '999'}</span>
+                <span className="lp-price-amt">{lpYearly ? '416' : '499'}</span>
                 <span className="lp-price-per">/ month</span>
               </div>
 
               <div className="lp-price-note">
                 {lpYearly
-                  ? <><strong>Billed ₹9,999/year.</strong> Just ₹27/day — less than a chai. 7 days free · No card required.</>
-                  : <><strong>Just ₹33/day</strong> — less than your daily chai. 7 days free · No card required. Cancel anytime.</>
+                  ? <><strong>Billed ₹4,990/year.</strong> 2 months free · Save 17%. 7 days free · No card required.</>
+                  : <><strong>Just ₹17/day</strong> — less than your daily chai. 7 days free · No card required. Cancel anytime.</>
                 }
               </div>
 
