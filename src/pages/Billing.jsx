@@ -51,7 +51,6 @@ export default function Billing() {
     // add-on purchase — verify it, create the stashed location, then onboard it.
     const pendingRaw = localStorage.getItem(PENDING_LOCATION_KEY)
     if (pendingRaw) {
-      const qty = parseInt(localStorage.getItem(PENDING_ADDON_QTY_KEY) || '1', 10) || 1
       let pending = null
       try { pending = JSON.parse(pendingRaw) } catch { /* ignore */ }
 
@@ -60,7 +59,6 @@ export default function Billing() {
         razorpay_payment_id:      paymentId,
         razorpay_subscription_id: subscriptionId,
         razorpay_signature:       signature,
-        quantity:                 qty,
       })
         .then(() => api.post('/api/locations', pending))
         .then(res => {
@@ -71,11 +69,10 @@ export default function Billing() {
           toast('Location added! Let’s set it up. 🎉')
           window.location.href = '/onboarding'
         })
-        .catch(() => {
-          toast('Payment succeeded but we couldn’t finish adding the location. Please contact support.', 'error')
-          localStorage.removeItem(PENDING_LOCATION_KEY)
-          localStorage.removeItem(PENDING_ADDON_QTY_KEY)
-          window.history.replaceState({}, '', '/billing')
+        .catch(err => {
+          // Keep the checkout details so a reload can safely retry verification.
+          // The server grants a subscription's slots only once.
+          toast(err.response?.data?.detail || 'Could not finish adding the location. Reload to retry, or contact support. Do not pay again.', 'error')
           setVerifying(false)
         })
       return
