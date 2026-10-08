@@ -30,14 +30,35 @@ export default function Billing() {
   const [loading, setLoading]         = useState(true)
   const [upgrading, setUpgrading]     = useState(false)
   const [verifying, setVerifying]     = useState(false)
-  const biz = authService.getBusiness()
+  const [statusError, setStatusError] = useState(false)
+  const [cancelling, setCancelling] = useState(null)
+
+  function refreshStatus() {
+    return api.get('/api/payments/status')
+      .then(r => { setPlanStatus(r.data); setStatusError(false) })
+      .catch(() => setStatusError(true))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => {
-    api.get('/api/payments/status')
-      .then(r => setPlanStatus(r.data))
-      .catch(() => setPlanStatus({ plan: biz?.plan || null, is_trial: true, trial_expired: false, trial_days_remaining: 7 }))
-      .finally(() => setLoading(false))
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    refreshStatus()
+    const timer = setInterval(refreshStatus, 60000)
+    window.addEventListener('focus', refreshStatus)
+    return () => { clearInterval(timer); window.removeEventListener('focus', refreshStatus) }
+  }, [])
+
+  async function cancelRenewal(subscription) {
+    const label = subscription.kind === 'addon' ? 'this extra-location subscription' : 'your main plan and all extra-location subscriptions'
+    if (!window.confirm(`Cancel renewal of ${label}? You keep access for the time already paid for.`)) return
+    setCancelling(subscription.subscription_id)
+    try {
+      const r = await api.post('/api/payments/cancel', { subscription_id: subscription.subscription_id })
+      toast(r.data.message)
+      await refreshStatus()
+    } catch (err) {
+      toast(err.response?.data?.detail || 'Could not cancel renewal. Please retry.', 'error')
+    } finally { setCancelling(null) }
+  }
 
   // Handle post-payment redirect from Razorpay
   useEffect(() => {
@@ -91,7 +112,8 @@ export default function Billing() {
         const label = r.data.plan === 'yearly' ? 'Yearly' : 'Monthly'
         toast(`You're on the ${label} plan! 🎉`)
         authService.setBusiness({ ...authService.getBusiness(), plan: r.data.plan })
-        setPlanStatus(prev => ({ ...prev, plan: r.data.plan, is_trial: false }))
+        setPlanStatus(r.data)
+        refreshStatus()
         window.history.replaceState({}, '', '/billing')
       })
       .catch(() => toast('Payment verification failed. Please contact support.', 'error'))
@@ -137,11 +159,11 @@ export default function Billing() {
     }
   }
 
-  const currentPlan   = planStatus?.plan || biz?.plan || null
-  const isSubscribed  = currentPlan === 'monthly' || currentPlan === 'yearly'
-  const isTrial       = planStatus?.is_trial ?? true
+  const currentPlan   = planStatus?.plan || null
+  const isSubscribed  = planStatus?.is_paid === true
+  const isTrial       = planStatus?.is_trial === true
   const trialExpired  = planStatus?.trial_expired ?? false
-  const trialDaysLeft = planStatus?.trial_days_remaining ?? 7
+  const trialDaysLeft = planStatus?.trial_days_remaining ?? 0
 
   // Price calculations with coupon support
   const discountPct   = couponStatus?.valid ? couponStatus.discount : 0
@@ -157,6 +179,30 @@ export default function Billing() {
     <div style={{ animation: 'fadeUp 0.2s ease', maxWidth: 560, margin: '0 auto', padding: '0 16px' }}>
       <style>{PAGE_STYLE}</style>
 
+      {statusError && <div role="alert" style={{ padding: 16, marginBottom: 18, background: '#fff4df', borderRadius: 12 }}>
+        Could not refresh subscription status. <button onClick={refreshStatus}>Retry</button>
+      </div>}
+      {!loading && !statusError && planStatus?.access_expired && !isTrial && (
+        <div role="status" style={{ padding: 16, marginBottom: 18, background: '#fef2f2', borderRadius: 12 }}>
+          {planStatus?.location_covered === false
+            ? 'This location is outside your current paid capacity. Renew or add location capacity to resume reviews.'
+            : 'Your paid access has ended. Subscribe to resume collecting reviews.'}
+        </div>
+      )}
+      {!loading && !statusError && isSubscribed && planStatus?.paid_until && (
+        <p>Paid access through {new Date(planStatus.paid_until).toLocaleString()}.</p>
+      )}
+      {(planStatus?.subscriptions || []).map(subscription => (
+        <div key={subscription.subscription_id} style={{ padding: 16, marginBottom: 12, border: '1px solid #e2e8f0', borderRadius: 12 }}>
+          <strong>{subscription.kind === 'addon' ? `${subscription.quantity} extra location(s)` : `${subscription.plan_name === 'yearly' ? 'Yearly' : 'Monthly'} subscription`}</strong>
+          <p style={{ margin: '8px 0' }}>{subscription.cancel_requested ? 'Renewal cancelled' : subscription.status}</p>
+          {!subscription.cancel_requested && !['cancelled', 'completed', 'expired'].includes(subscription.status) && (
+            <button disabled={cancelling !== null || statusError} onClick={() => cancelRenewal(subscription)}>
+              {cancelling === subscription.subscription_id ? 'Cancelling…' : 'Cancel renewal'}
+            </button>
+          )}
+        </div>
+      ))}
       {/* Trial status banner */}
       {!loading && !isSubscribed && isTrial && (
         trialExpired ? (
@@ -397,7 +443,7 @@ export default function Billing() {
         ) : (
           <button
             onClick={handleStart}
-            disabled={upgrading}
+            disabled={upgrading || statusError}
             style={{
               width: '100%', height: 48,
               background: upgrading ? '#9ca3af' : 'var(--primary)',

@@ -472,8 +472,18 @@ function Sidebar({ onClose, mobileDrawer = false }) {
   const biz      = authService.getBusiness()
   const initials = getInitials(biz?.business_name)
   const subtitle = formatSubtitle(biz)
-  const plan     = biz?.plan
-  const isPaid   = plan === 'monthly' || plan === 'yearly'
+  const [billingStatus, setBillingStatus] = useState(null)
+  useEffect(() => {
+    let mounted = true
+    const refresh = () => api.get('/api/payments/status')
+      .then(r => { if (mounted) setBillingStatus(r.data) })
+      .catch(() => { if (mounted) setBillingStatus(null) })
+    refresh()
+    const timer = setInterval(refresh, 60000)
+    window.addEventListener('focus', refresh)
+    return () => { mounted = false; clearInterval(timer); window.removeEventListener('focus', refresh) }
+  }, [biz?.id])
+  const isPaid = billingStatus?.is_paid === true
   const isDemo   = biz?.business_name === 'Sharma Dental Clinic' || biz?.email === 'demo@praisly.in'
   const logoHref = isDemo ? '/' : '/dashboard'
 
@@ -594,29 +604,13 @@ function Sidebar({ onClose, mobileDrawer = false }) {
             </span>
           )}
         </div>
-        {!isPaid && (() => {
-          const trialEndsAt = biz?.trial_ends_at
-          let daysLeft = null
-          let expired = false
-          if (trialEndsAt) {
-            const diff = Math.floor((new Date(trialEndsAt) - Date.now()) / 86400000)
-            expired = diff < 0
-            daysLeft = Math.max(0, diff)
-          }
-          if (expired) {
-            return (
-              <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginTop: 8, background: 'var(--danger-soft)', color: 'var(--danger)' }}>
-                Trial Expired
-              </span>
-            )
-          }
-          const daysLabel = daysLeft !== null ? `Trial — ${daysLeft}d left` : 'Trial'
-          return (
-            <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginTop: 8, background: 'var(--gold-soft)', color: 'var(--bronze)' }}>
-              {daysLabel}
-            </span>
-          )
-        })()}
+        {!isPaid && (
+          <span style={{ display: 'inline-block', fontSize: 10, padding: '2px 8px', marginTop: 8 }}>
+            {!billingStatus ? 'Billing status unavailable'
+              : billingStatus.allowed ? `Trial — ${billingStatus.trial_days_remaining}d left`
+              : billingStatus.trial_expired ? 'Trial expired' : 'Subscription inactive'}
+          </span>
+        )}
         <button className="sidebar-logout" style={{ marginTop: 8, display: 'block' }} onClick={() => authService.logout()}>
           Logout →
         </button>

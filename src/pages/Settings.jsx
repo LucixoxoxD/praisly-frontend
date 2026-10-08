@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import { useToast } from '../components/Toast'
@@ -71,13 +71,18 @@ export default function Settings() {
   const [seoGenerating, setSeoGenerating] = useState(false)
   const [seoSaving, setSeoSaving] = useState(false)
 
-  const plan       = stored?.plan || null
-  const isPaid     = plan === 'monthly' || plan === 'yearly'
-  const trialEndsAt = stored?.trial_ends_at
-  const trialDaysLeft = trialEndsAt
-    ? Math.max(0, Math.floor((new Date(trialEndsAt) - Date.now()) / 86400000))
-    : 7
-  const trialExpired = trialEndsAt ? Date.now() >= new Date(trialEndsAt).getTime() : false
+  const [billingStatus, setBillingStatus] = useState(null)
+  useEffect(() => {
+    const refresh = () => api.get('/api/payments/status').then(r => setBillingStatus(r.data)).catch(() => setBillingStatus(null))
+    refresh()
+    const timer = setInterval(refresh, 60000)
+    window.addEventListener('focus', refresh)
+    return () => { clearInterval(timer); window.removeEventListener('focus', refresh) }
+  }, [])
+  const plan = billingStatus?.plan
+  const isPaid = billingStatus?.is_paid === true
+  const trialDaysLeft = billingStatus?.trial_days_remaining ?? 0
+  const trialExpired = billingStatus?.access_expired === true
 
   const set     = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const onFocus = (e) => (e.target.style.borderColor = 'var(--primary)')
@@ -453,19 +458,19 @@ export default function Settings() {
                 </span>
               ) : trialExpired ? (
                 <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, background: '#fee2e2', color: '#991b1b' }}>
-                  Trial Expired
+                  {billingStatus?.trial_expired ? 'Trial expired' : 'Access inactive'}
                 </span>
               ) : (
                 <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, background: '#fef3c7', color: '#92400e' }}>
-                  Free Trial
+                  {billingStatus ? 'Free trial' : 'Status unavailable'}
                 </span>
               )}
             </div>
 
             {/* Status line */}
             <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 20px', lineHeight: 1.5 }}>
-              {isPaid
-                ? 'Unlimited review requests'
+              {!billingStatus ? 'Open Billing to refresh your subscription status.' : isPaid
+                ? (billingStatus.location_covered ? 'Unlimited review requests' : 'This location needs paid capacity.')
                 : trialExpired
                   ? 'Subscribe to continue collecting reviews.'
                   : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} remaining in your trial`}

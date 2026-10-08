@@ -1486,10 +1486,10 @@ export default function Dashboard() {
       </div>
 
       {/* Trial expired banner */}
-      {stats?.trial_expired && (
+      {stats?.access_expired && (
         <div style={{ marginBottom: 20, padding: '16px 20px', background: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', animation: 'fadeUp 0.3s ease' }}>
           <div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#991b1b', margin: '0 0 2px' }}>Your 7-day free trial has ended</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#991b1b', margin: '0 0 2px' }}>{stats?.trial_expired ? 'Your 7-day free trial has ended' : stats?.location_covered === false ? 'This location needs paid capacity' : 'Your subscription access has ended'}</p>
             <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>Subscribe to continue collecting reviews.</p>
           </div>
           <Link to="/billing" style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--primary)', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
