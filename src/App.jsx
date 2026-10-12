@@ -26,6 +26,7 @@ const TermsOfService  = lazy(() => import('./pages/TermsOfService'))
 const AgentSignup     = lazy(() => import('./pages/AgentSignup'))
 const Admin           = lazy(() => import('./pages/Admin'))
 const Roast           = lazy(() => import('./pages/Roast'))
+const Reimagined      = lazy(() => import('./preview/Reimagined'))
 
 function Spinner() {
   return (
@@ -104,6 +105,7 @@ export default function App() {
         <BrowserRouter>
           <Suspense fallback={<Spinner />}>
             <Routes>
+              <Route path="/preview/*" element={<Reimagined />} />
               <Route
                 path="/"
                 element={authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LandingPage />}

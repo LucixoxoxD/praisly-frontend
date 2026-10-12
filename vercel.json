@@ -1,4 +1,14 @@
 {
+  "headers": [
+    {
+      "source": "/preview",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/preview/:path*",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
+  ],
   "rewrites": [
     { "source": "/demo.html", "destination": "/demo.html" },
     { "source": "/(.*)", "destination": "/" }
