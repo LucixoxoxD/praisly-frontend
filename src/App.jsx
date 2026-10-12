@@ -27,6 +27,8 @@ const AgentSignup     = lazy(() => import('./pages/AgentSignup'))
 const Admin           = lazy(() => import('./pages/Admin'))
 const Roast           = lazy(() => import('./pages/Roast'))
 
+const ReviewLab = import.meta.env.DEV ? lazy(() => import('./dev/ReviewLab')) : null
+
 function Spinner() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
@@ -104,6 +106,7 @@ export default function App() {
         <BrowserRouter>
           <Suspense fallback={<Spinner />}>
             <Routes>
+              {import.meta.env.DEV && <Route path="/__review-lab" element={<ReviewLab />} />}
               <Route
                 path="/"
                 element={authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LandingPage />}
@@ -119,7 +122,7 @@ export default function App() {
               <Route path="/terms"   element={<TermsOfService />} />
               <Route path="/roast"   element={<Roast />} />
 
-              {/* Public customer-facing review page — untouched */}
+              {/* Public customer-facing review page */}
               <Route path="/review/:businessId" element={<CustomerReview />} />
 
               {/* Protected dashboard pages */}

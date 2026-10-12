@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import Icon from '../components/Icon'
 import DOMPurify from 'dompurify'
 import api, { authService } from '../services/api'
 import { stripMarkdown } from '../utils/helpers'
@@ -60,68 +61,6 @@ const AVATAR_GRADS = [
 ]
 
 const CONF_COLORS = ['#D89020', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899']
-
-// ─── Revenue estimation ──────────────────────────────────────────────────────
-
-const REVENUE_PER_REVIEW = {
-  healthcare_clinic: 2500,
-  salon:             1500,
-  gym:               2000,
-  restaurant:        1000,
-  coaching:         10000,
-  ca_law:            7000,
-  auto_repair:       2000,
-  real_estate:       8000,
-  other:             2000,
-  // Legacy fallbacks
-  dentist:           2500,
-  ca_firm:           7000,
-}
-
-// Maps raw DB/frontend business_type strings → REVENUE_PER_REVIEW key
-const BIZ_TYPE_KEY_MAP = {
-  'healthcare / clinic':    'healthcare_clinic',
-  'salon / beauty parlour': 'salon',
-  'gym / fitness / yoga':   'gym',
-  'restaurant / cafe':      'restaurant',
-  'coaching / tuition':     'coaching',
-  'ca / law firm':          'ca_law',
-  'auto / repair service':  'auto_repair',
-  'real estate':            'real_estate',
-  'other':                  'other',
-  // Legacy DB values
-  'dentist':                'dentist',
-  'ca_firm':                'ca_firm',
-  'salon':                  'salon',
-  'gym':                    'gym',
-  'restaurant':             'restaurant',
-  'coaching':               'coaching',
-}
-
-const BIZ_TYPE_DISPLAY = {
-  healthcare_clinic: 'clinic',
-  salon:             'salon',
-  gym:               'gym',
-  restaurant:        'restaurant',
-  coaching:          'coaching centre',
-  ca_law:            'office',
-  auto_repair:       'service centre',
-  real_estate:       'agency',
-  other:             'business',
-  dentist:           'clinic',
-  ca_firm:           'office',
-}
-
-function getRevenueInfo(rawBizType) {
-  const key = BIZ_TYPE_KEY_MAP[(rawBizType || '').toLowerCase().trim()] || 'other'
-  const perReview = REVENUE_PER_REVIEW[key] ?? REVENUE_PER_REVIEW.other
-  const display   = BIZ_TYPE_DISPLAY[key] ?? 'business'
-  return { perReview, display }
-}
-
-function formatINR(amount) {
-  return '₹' + Math.floor(amount || 0).toLocaleString('en-IN')
-}
 
 // ─── CSS ────────────────────────────────────────────────────────────────────
 
@@ -576,7 +515,7 @@ function Stars({ rating }) {
 
 function StatusBadge({ status }) {
   const map = {
-    posted:  { bg: 'var(--win-soft)',     color: 'var(--win)',         label: 'Posted on Google ✓' },
+    posted:  { bg: 'var(--win-soft)',     color: 'var(--win)',         label: 'Customer confirmed' },
     pending: { bg: 'var(--primary-soft)', color: 'var(--primary-ink)', label: 'Pending' },
     private: { bg: 'var(--danger-soft)',  color: 'var(--danger)',      label: 'Private feedback' },
   }
@@ -712,7 +651,7 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
               <span style={{ color: 'var(--ink-3)', fontWeight: 500 }}> in </span>
               {bizCity ? bizCity.charAt(0).toUpperCase() + bizCity.slice(1) : 'your area'}
             </div>
-            <div className="d-rank-sub">Tracked weekly · Updates every few days</div>
+            <div className="d-rank-sub">Ordered by review count among tracked businesses · Not Google search position</div>
           </div>
         </div>
 
@@ -786,7 +725,7 @@ function HeroRank({ leaderboard, myRank, stats, biz, onAskNow }) {
 
 // ─── Stat Cards ──────────────────────────────────────────────────────────────
 
-function StatCards({ stats, sparkGained, sparkCollected, biz }) {
+function StatCards({ stats, sparkGained, sparkCollected }) {
   const gained        = stats?.google_reviews_gained ?? 0
   const currentCount  = stats?.google_current_count ?? 0
   const baselineCount = stats?.google_baseline_count ?? 0
@@ -803,11 +742,9 @@ function StatCards({ stats, sparkGained, sparkCollected, biz }) {
     ? (Number(currentRating) - Number(baselineRating)).toFixed(1)
     : null
 
-  const gainedSpark    = sparkGained.length >= 2    ? sparkGained    : [0, Math.max(gained, 1)]
-  const collectedSpark = sparkCollected.length >= 2 ? sparkCollected : [0, Math.max(collected, 1)]
+  const gainedSpark    = sparkGained.length >= 2    ? sparkGained    : []
+  const collectedSpark = sparkCollected.length >= 2 ? sparkCollected : []
 
-  const { perReview, display: bizDisplay } = getRevenueInfo(biz?.business_type)
-  const estimatedRevenue = gained * perReview
 
   return (
     <div className="d-stats">
@@ -816,7 +753,7 @@ function StatCards({ stats, sparkGained, sparkCollected, biz }) {
       <div className="d-stat">
         <div className="d-stat-head">
           <span className="d-stat-label">Google Reviews Gained</span>
-          <span className="d-stat-icon coral">📈</span>
+          <span className="d-stat-icon coral"><Icon name="chart" /></span>
         </div>
         <div className="d-stat-row">
           <span className="d-stat-val">+{fmtIN(gained)}</span>
@@ -836,7 +773,7 @@ function StatCards({ stats, sparkGained, sparkCollected, biz }) {
       <div className="d-stat">
         <div className="d-stat-head">
           <span className="d-stat-label">Google Rating</span>
-          <span className="d-stat-icon gold">⭐</span>
+          <span className="d-stat-icon gold"><Icon name="star" /></span>
         </div>
         <div className="d-stat-row">
           <span className="d-stat-val">
@@ -859,16 +796,14 @@ function StatCards({ stats, sparkGained, sparkCollected, biz }) {
           </span>
           {baselineRating && <span>was {Number(baselineRating).toFixed(1)} when you joined</span>}
         </div>
-        <div className="d-stat-spark">
-          <Spark points={gainedSpark} color="#E8B43A" />
-        </div>
+
       </div>
 
       {/* Card 3 — Reviews via QR */}
       <div className="d-stat">
         <div className="d-stat-head">
-          <span className="d-stat-label">Reviews via QR</span>
-          <span className="d-stat-icon dark">✨</span>
+          <span className="d-stat-label">Review drafts</span>
+          <span className="d-stat-icon dark"><Icon name="edit" /></span>
         </div>
         <div className="d-stat-row">
           <span className="d-stat-val">{fmtIN(collected)}</span>
@@ -876,7 +811,7 @@ function StatCards({ stats, sparkGained, sparkCollected, biz }) {
         </div>
         <div className="d-stat-foot">
           {collected > 0
-            ? <><strong>{fmtIN(collected)}</strong> customers reviewed through Praisly</>
+            ? <><strong>{fmtIN(collected)}</strong> drafts prepared through Praisly</>
             : <span>Scan your QR to start collecting</span>}
         </div>
         <div className="d-stat-spark">
@@ -884,25 +819,10 @@ function StatCards({ stats, sparkGained, sparkCollected, biz }) {
         </div>
       </div>
 
-      {/* Card 4 — Estimated Revenue */}
       <div className="d-stat">
-        <div className="d-stat-head">
-          <span className="d-stat-label">Estimated Revenue</span>
-          <span className="d-stat-icon" style={{ background: 'var(--win-soft)' }}>₹</span>
-        </div>
-        <div className="d-stat-row">
-          <span className="d-stat-val" style={{ fontSize: estimatedRevenue >= 100000 ? 30 : 36 }}>
-            {formatINR(estimatedRevenue)}
-          </span>
-        </div>
-        <div className="d-stat-foot">
-          <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>
-            based on {formatINR(perReview)}/review for {bizDisplay}
-          </span>
-        </div>
-        <div className="d-stat-spark">
-          <Spark points={gainedSpark} color="var(--win)" />
-        </div>
+        <div className="d-stat-head"><span className="d-stat-label">Private ratings</span><span className="d-stat-icon gold"><Icon name="message" /></span></div>
+        <div className="d-stat-row"><span className="d-stat-val">{fmtIN(stats?.negative_saved ?? 0)}</span></div>
+        <div className="d-stat-foot"><Link to="/reviews" style={{color:'var(--primary-ink)',fontWeight:600}}>Read customer feedback →</Link><span>Customer ratings of 1–3 stars</span></div>
       </div>
 
     </div>
@@ -1132,7 +1052,7 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
         {/* Header */}
         <div className="d-lb-head">
           <div className="d-lb-title">
-            Local Rankings
+            Competitor review counts
             {whereLabel && <span className="d-lb-where">{whereLabel}</span>}
           </div>
           <div className="d-lb-actions">
@@ -1418,8 +1338,8 @@ export default function Dashboard() {
   // Greeting subtitle
   const greetingSubtitle = useMemo(() => {
     if (!competitors.length) return 'Your review dashboard is ready. Share your QR to start collecting.'
-    if (myRank === 1) return "You're leading the pack in your area! Keep collecting reviews to stay #1."
-    if (myRank === 2) return "You're just one step from the top. A little push and you claim #1!"
+    if (myRank === 1) return "Your reviews, customer feedback and local comparisons, in one place."
+    if (myRank === 2) return "See how your review count compares with the businesses you track."
     const nextName = leaderboard[myRank - 2]?.name
     return nextName
       ? `You're closer than ever to overtaking ${nextName}. Let's close the gap this week.`
@@ -1498,6 +1418,16 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* ── Stat cards ── */}
+      <div style={{ marginBottom: 14, animation: 'fadeUp 0.35s ease both', animationDelay: '40ms' }}>
+        <StatCards
+          stats={stats}
+          sparkGained={sparkGained}
+          sparkCollected={sparkCollected}
+          biz={biz}
+        />
+      </div>
+
       {/* ── Hero rank card ── */}
       {showHero && (
         <div style={{ marginBottom: 14, animation: 'fadeUp 0.32s ease both' }}>
@@ -1510,16 +1440,6 @@ export default function Dashboard() {
           />
         </div>
       )}
-
-      {/* ── Stat cards ── */}
-      <div style={{ marginBottom: 14, animation: 'fadeUp 0.35s ease both', animationDelay: '40ms' }}>
-        <StatCards
-          stats={stats}
-          sparkGained={sparkGained}
-          sparkCollected={sparkCollected}
-          biz={biz}
-        />
-      </div>
 
       {/* ── AI strip ── */}
       {!dismissAI && competitors.length > 0 && (
