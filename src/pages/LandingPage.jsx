@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import WhatsAppButton from '../components/WhatsAppButton'
-import AnimatedMapMockup from '../components/AnimatedMapMockup'
+import ProductStory from '../components/ProductStory'
 
 // ─── Scroll-reveal hook ───────────────────────────────────────────────────────
 function useInView(options = {}) {
@@ -121,7 +121,7 @@ function DemoEmbed() {
 function Reveal({ children, delay = 0, style = {} }) {
   const [ref, inView] = useInView()
   return (
-    <div ref={ref} style={{ opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(24px)', transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`, ...style }}>
+    <div className="lp-reveal" ref={ref} style={{ opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(24px)', transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`, ...style }}>
       {children}
     </div>
   )
@@ -131,11 +131,6 @@ function Reveal({ children, delay = 0, style = {} }) {
 const Arrow = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
 const ArrowUp = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
 const Chev = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-const Trophy = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM17 4h3v2a3 3 0 0 1-3 3M7 4H4v2a3 3 0 0 0 3 3"/></svg>
-const Sparkle = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg>
-const Split = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v6M9 6l3-3 3 3M5 21l4-8M19 21l-4-8M5 21h4M19 21h-4"/></svg>
-const Chart = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 20h18M6 16l4-4 3 3 5-6"/></svg>
-const StarIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.24l7.19-.61L12 2l2.81 6.63 7.19.61-5.46 4.73L18.18 21z"/></svg>
 const Check = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5L20 7"/></svg>
 
 // ─── Category line icons (replace emoji) ─────────────────────────────────────
@@ -186,6 +181,7 @@ function FAQItem({ q, a }) {
   return (
     <div style={{ background: 'var(--surface)', border: `1px solid ${open ? 'rgba(216,144,32,0.35)' : 'var(--line)'}`, borderRadius: 14, overflow: 'hidden', transition: 'border-color .15s', boxShadow: open ? 'var(--shadow-sm)' : 'none' }}>
       <button
+        aria-expanded={open}
         onClick={() => setOpen(v => !v)}
         style={{ width: '100%', padding: '20px 22px', fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', cursor: 'pointer', background: 'none', border: 'none', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, textAlign: 'left' }}
       >
@@ -762,16 +758,16 @@ export default function LandingPage() {
           <div>
             <span className="lp-hero-eyebrow">
               <span className="dot" />
-              Rank · Review · Win
+              GOOD EXPERIENCES. SHARED.
             </span>
 
             <h1>
-              The shop next door has<br/>
-              <span className="accent">4× your reviews.</span> Not for long.
+              Good experiences<br/>
+              deserve <span className="accent">good words.</span>
             </h1>
 
             <p className="lp-hero-sub">
-              Your competitor gets 4 new Google reviews every week. You get none. Praisly gives you a simple QR code — customers scan, review, done. All you do is stick the QR.
+              A simple QR. A few thoughtful words. Praisly helps customers share their experience—and gives you a clearer view of your reputation.
             </p>
 
             <div className="lp-hero-ctas">
@@ -792,19 +788,11 @@ export default function LandingPage() {
               <span className="lp-re-pill"><span className="ic ink">W</span>WhatsApp support</span>
             </div>
 
-            <div className="lp-hero-trust">
-              <div className="lp-stack-avatars">
-                <div style={{ background: 'linear-gradient(135deg,#FF7C4F,#E13B3B)' }}>SD</div>
-                <div style={{ background: 'linear-gradient(135deg,#5b6ee8,#3950b8)' }}>PN</div>
-                <div style={{ background: 'linear-gradient(135deg,#2a8c5e,#1a6843)' }}>GK</div>
-                <div style={{ background: 'linear-gradient(135deg,#EFC659,#C9971F)' }}>RC</div>
-              </div>
-              <div><strong>200+ dentists, salons & restaurants</strong> across India trust Praisly</div>
-            </div>
+            <p className="lp-hero-trust">Made for the businesses that make a neighbourhood.</p>
           </div>
 
           {/* Right: Animated Google Maps mockup */}
-          <AnimatedMapMockup />
+          <ProductStory />
         </div>
       </section>
 
@@ -813,7 +801,7 @@ export default function LandingPage() {
       ══════════════════════════════════════════════════════════════ */}
       <section className="lp-proof">
         <div className="lp-wrap">
-          <div className="lp-proof-label">Trusted by salons, dentists, gyms, and restaurants across India</div>
+          <div className="lp-proof-label">Built for the places people come back to</div>
           <div className="lp-proof-row">
             {[
               [<Tooth s={15} />, 'Dentists', '#FCE6E6'],
@@ -835,69 +823,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════════════════════════
           TESTIMONIALS
       ══════════════════════════════════════════════════════════════ */}
-      <section className="lp-section lp-testimonials-section" id="sec-testimonials">
-        <div className="lp-wrap">
-          <Reveal>
-            <div className="lp-section-head">
-              <span className="lp-section-eyebrow">Real shops · Real ranks</span>
-              <h2>From "we're invisible on Google" to <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>#1 on Google Maps</em>.</h2>
-            </div>
-          </Reveal>
-          <div className="lp-tg">
-            <Reveal delay={0}>
-              <article className="lp-tcard">
-                <div className="lp-t-stars">{[...Array(5)].map((_, i) => <StarIcon key={i} />)}</div>
-                <p className="lp-t-quote">"My competitor had been #1 for 3 years. We crossed him in <span className="accent">6 weeks</span>. The QR code on the billing counter is doing all the work."</p>
-                <div className="lp-t-rank">
-                  <span className="from">#5</span><span className="arr">→</span><span className="to">#1</span>
-                  <span className="label">In 6 weeks</span>
-                </div>
-                <div className="lp-t-author">
-                  <div className="lp-t-av" style={{ background: 'linear-gradient(135deg,#FF7C4F,#E13B3B)' }}>RG</div>
-                  <div>
-                    <div className="lp-t-name">Dr. Rohan Gupta</div>
-                    <div className="lp-t-meta">Gupta Dental · Sector 18, Noida</div>
-                  </div>
-                </div>
-              </article>
-            </Reveal>
-            <Reveal delay={80}>
-              <article className="lp-tcard feat-card">
-                <div className="lp-t-stars">{[...Array(5)].map((_, i) => <StarIcon key={i} />)}</div>
-                <p className="lp-t-quote">"We were invisible on Google. Now every week new customers walk in saying they saw us at the top of Maps. <span className="accent">Praisly changed the game for us.</span>"</p>
-                <div className="lp-t-rank">
-                  <span className="from">47</span><span className="arr">→</span><span className="to">312</span>
-                  <span className="label">Reviews · 4 months</span>
-                </div>
-                <div className="lp-t-author">
-                  <div className="lp-t-av" style={{ background: 'linear-gradient(135deg,#2a8c5e,#1a6843)' }}>PS</div>
-                  <div>
-                    <div className="lp-t-name">Priya Sharma</div>
-                    <div className="lp-t-meta">Radiance Salon & Spa · HSR Layout, Bengaluru</div>
-                  </div>
-                </div>
-              </article>
-            </Reveal>
-            <Reveal delay={160}>
-              <article className="lp-tcard">
-                <div className="lp-t-stars">{[...Array(5)].map((_, i) => <StarIcon key={i} />)}</div>
-                <p className="lp-t-quote">"Set it up in 15 minutes over WhatsApp with their team. <span className="accent">One extra walk-in per week</span> already pays for the whole year. No-brainer."</p>
-                <div className="lp-t-rank">
-                  <span className="from">3.9★</span><span className="arr">→</span><span className="to">4.7★</span>
-                  <span className="label">Rating · 8 weeks</span>
-                </div>
-                <div className="lp-t-author">
-                  <div className="lp-t-av" style={{ background: 'linear-gradient(135deg,#5b6ee8,#3950b8)' }}>AK</div>
-                  <div>
-                    <div className="lp-t-name">Arjun Kothari</div>
-                    <div className="lp-t-meta">FitZone Gym · Andheri West, Mumbai</div>
-                  </div>
-                </div>
-              </article>
-            </Reveal>
-          </div>
-        </div>
-      </section>
+
 
       {/* ══════════════════════════════════════════════════════════════
           HOW IT WORKS
@@ -936,7 +862,7 @@ export default function LandingPage() {
               <div className="lp-step">
                 <span className="lp-step-num"><span className="nc">2</span>STEP 02</span>
                 <h3>Customer writes, we just help</h3>
-                <p>Customer taps what they liked. A draft is ready in seconds — they edit it in their own words and post from their own Google account. No fake reviews, no risk to your business.</p>
+                <p>Customer taps what they liked. A draft is ready in seconds — they edit it in their own words and post from their own Google account. Customers stay in control of what they share.</p>
                 <div className="lp-step-visual" style={{ background: 'linear-gradient(180deg,#FDF7E4,#FBEED0)' }}>
                   <div className="lp-phone-stack">
                     <div className="lp-chip-row">
@@ -957,8 +883,8 @@ export default function LandingPage() {
             <Reveal delay={200}>
               <div className="lp-step">
                 <span className="lp-step-num"><span className="nc">3</span>STEP 03</span>
-                <h3>Watch your ranking climb</h3>
-                <p>Track competitors in real time. See exactly where you stand vs the shop next door — and what move closes the gap.</p>
+                <h3>See the bigger picture</h3>
+                <p>Follow review counts, customer ratings and private feedback in one place. Compare with the businesses you track.</p>
                 <div className="lp-step-visual">
                   <span className="lp-climb-arrow"><ArrowUp /> You · +8</span>
                   <div className="lp-mini-podium">
@@ -978,18 +904,18 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════════════════════════
           GOOGLE MAPS LOCAL PACK
       ══════════════════════════════════════════════════════════════ */}
-      <section className="lp-section lp-local-pack-section" id="sec-local-pack">
+      <section className="lp-section lp-local-pack-section" id="features">
         <div className="lp-wrap lp-lpwrap">
           <div className="lp-lp-copy">
-            <span className="lp-section-eyebrow">Google Maps is the real game</span>
-            <h2>Top 3 on Google Maps gets <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>76% of all calls</em> in your area.</h2>
-            <p>When someone searches "dentist near me" or "salon near me," Google shows only 3 businesses at the top. 76% of calls go to those 3. Praisly's whole job is getting you in there.</p>
+            <span className="lp-section-eyebrow">YOUR NEIGHBOURHOOD, IN VIEW</span>
+            <h2>A clearer view of <em style={{ fontStyle: 'italic', color: 'var(--primary-ink)' }}>your neighbourhood.</em></h2>
+            <p>See how your review count and rating compare with nearby businesses. These comparisons help you understand your reputation; they do not measure your position in Google search.</p>
             <ul className="lp-lp-bullets">
               {[
-                'See your live Google Maps position — updated daily',
-                'Know which competitors are in the top 3 right now',
-                'Get the exact review count you need to overtake them',
-                'WhatsApp alert the moment your rank changes',
+                'See the latest available review counts and ratings',
+                'Keep the businesses you track in one view',
+                'Compare your review count with nearby businesses',
+                'Follow changes in your review count and rating',
               ].map(item => (
                 <li key={item}><span className="ck">✓</span>{item}</li>
               ))}
@@ -998,7 +924,7 @@ export default function LandingPage() {
 
           <div className="lp-maps-frame">
             <div className="lp-maps-floater">
-              <strong>+ 23 reviews</strong> and you take the #1 slot on Maps. Praisly tells you when.
+              <strong>Compare review counts.</strong> Illustrative data, not Google search positions.
             </div>
             <div className="lp-maps-search">
               <span className="lp-g-logo">
@@ -1114,8 +1040,8 @@ export default function LandingPage() {
             <div className="lp-roi-strip">
               <div className="lp-roi-icon">₹</div>
               <div className="lp-roi-content">
-                <div className="lbl">Quick math · Pays for itself</div>
-                <div className="body">Average local business gains <strong>5 extra walk-ins / week</strong> from better Google ranking. <strong>Just 1 extra customer pays for the whole month.</strong> The rest is pure profit.</div>
+                <div className="lbl">YOUR REVIEW TOOLKIT</div>
+                <div className="body"><strong>One place for review requests and feedback.</strong> Create your QR, help customers share their experience, and keep track of the conversation.</div>
               </div>
               <Link to="/signup" className="lp-btn lp-btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
                 Start free trial <Arrow />
@@ -1161,7 +1087,7 @@ export default function LandingPage() {
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--primary-soft)', display: 'grid', placeItems: 'center', flexShrink: 0, fontWeight: 800, fontSize: 15, color: 'var(--primary-ink)' }}>3</div>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Reviews start coming in — we track everything for you</div>
-                  <div style={{ color: 'var(--ink-2)', fontSize: 14 }}>Open your dashboard anytime to see your Google rank, competitor positions, and new reviews. You'll get WhatsApp alerts too.</div>
+                  <div style={{ color: 'var(--ink-2)', fontSize: 14 }}>Open your dashboard anytime to see your review activity, competitor comparisons, and customer feedback. You'll get WhatsApp alerts too.</div>
                 </div>
               </div>
             </Reveal>
@@ -1183,13 +1109,13 @@ export default function LandingPage() {
 
           <div className="lp-faq-list">
             {[
-              ['Is this allowed by Google? Will my listing get banned?', 'Absolutely safe. Your customers post reviews from their own Google accounts, in their own words. Praisly just makes it easy for them — like a pen and paper. Google has zero issues with this because every review is real, written by a real customer. 200+ businesses use Praisly with zero problems.'],
+              ['Who writes and posts the review?', 'The customer reviews and edits their own words, then chooses whether to post from their Google account. Praisly offers an optional starting draft and does not post on their behalf.'],
               ['Can I cancel anytime?', 'Yes, cancel anytime from your dashboard — no questions asked, no hidden fees. Your subscription stops at the end of your billing period and you keep access until then. We also offer a full refund within the first 14 days if Praisly isn\'t right for you.'],
-              ['Do my customers need to download anything?', 'No app, no signup. They scan a QR code, tap what they liked, and tap once more to post on Google. The whole thing takes under 30 seconds.'],
-              ['What if a customer is unhappy?', 'Unhappy customers get a private feedback form — straight to your dashboard inbox — so you can call, apologise, and fix the issue directly. All customers can still leave a Google review. You just get an early heads-up when someone had a bad experience.'],
-              ['How does competitor tracking work?', 'Tell us your business category and location. We automatically find your top 10 nearby competitors on Google and track their review count, rating, and growth every week. You\'ll see exactly who\'s gaining, who\'s stalled, and how far you are from #1.'],
+              ['Do my customers need to download anything?', 'No app, no signup. Customers scan a QR code and rate their visit. They can edit an optional draft, copy it and choose to post it on Google.'],
+              ['What if a customer is unhappy?', 'Unhappy customers get a private feedback form — straight to your dashboard inbox — so you can call, apologise, and fix the issue directly. This gives you a chance to understand and address the experience.'],
+              ['How does competitor tracking work?', 'Tell us your business category and location. We automatically find your top 10 nearby competitors on Google and track their review count, rating, and growth every week. The comparison is based on review counts and ratings, not Google search positions.'],
               ['Do I need a website or technical skills?', 'Not at all. If you can use WhatsApp, you can use Praisly. Sign up, and our team will call you on WhatsApp to set everything up — same day. No website needed, no app needed.'],
-              ['What\'s included in the 7-day free trial?', 'Everything. Unlimited reviews, AI drafts, competitor tracking, the full dashboard. No card required. If you don\'t see your rank climb in the first week, just close the tab — no charge, no hassle.'],
+              ['What\'s included in the 7-day free trial?', 'Everything. Unlimited reviews, AI drafts, competitor tracking, the full dashboard. No card required. You can explore the product before choosing a paid plan.'],
             ].map(([q, a], i) => (
               <Reveal key={i} delay={i * 50}>
                 <FAQItem q={q} a={a} />
@@ -1206,9 +1132,9 @@ export default function LandingPage() {
         <div className="lp-wrap">
           <Reveal>
             <div className="lp-cta-card">
-              <span className="lp-cta-eyebrow">★ Your competitor isn't waiting</span>
-              <h2>Start today.<br/>See results next week.</h2>
-              <p>Your competitor got new reviews this week. You got none. 200+ businesses across India already started — 7 days free, no card, set up in 10 minutes.</p>
+              <span className="lp-cta-eyebrow">A LITTLE INVITATION. A LASTING IMPRESSION.</span>
+              <h2>Good words start<br/>with a good experience.</h2>
+              <p>Give your customers a simple way to share theirs. Start with a 7-day trial, no card required.</p>
               <div className="lp-btn-row">
                 <Link to="/signup" className="lp-btn lp-btn-primary lp-btn-lg">
                   Start free — no card needed <Arrow />

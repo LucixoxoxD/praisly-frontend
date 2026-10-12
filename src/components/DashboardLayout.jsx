@@ -2,18 +2,19 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import WhatsAppButton from './WhatsAppButton'
+import Icon from './Icon'
 import LocationSwitcher from './LocationSwitcher'
 
 const WORKSPACE_NAV = [
-  { to: '/dashboard', icon: '📊', label: 'Dashboard' },
-  { to: '/reviews',   icon: '⭐', label: 'Reviews' },
-  { to: '/qr',        icon: '📱', label: 'QR Code' },
-  { to: '/send',      icon: '💬', label: 'WhatsApp' },
+  { to: '/dashboard', icon: <Icon name="chart" />, label: 'Dashboard' },
+  { to: '/reviews',   icon: <Icon name="star" />, label: 'Reviews' },
+  { to: '/qr',        icon: <Icon name="qr" />, label: 'QR Code' },
+  { to: '/send',      icon: <Icon name="message" />, label: 'WhatsApp' },
 ]
 
 const ACCOUNT_NAV = [
-  { to: '/settings',  icon: '⚙️', label: 'Settings' },
-  { to: '/billing',   icon: '💳', label: 'Billing' },
+  { to: '/settings',  icon: <Icon name="settings" />, label: 'Settings' },
+  { to: '/billing',   icon: <Icon name="card" />, label: 'Billing' },
 ]
 
 const NOTIF_ICONS = {

@@ -1,0 +1,559 @@
+.cr-page {
+  min-height: 100svh;
+  background:
+    radial-gradient(ellipse at 8% 80%, #f0dcaf55, transparent 55%), var(--bg);
+  padding: 35px max(24px, 6vw) 60px;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+.cr-brand {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  gap: 9px;
+  max-width: 1140px;
+  margin: auto;
+}
+.cr-brand > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 31px;
+  background: var(--ink);
+  border-radius: 9px;
+  color: var(--surface);
+  font-size: 17px;
+  box-shadow: inset 0 -9px var(--primary);
+}
+.cr-brand .cr-brand-dot {
+  color: var(--primary);
+  margin-left: -8px;
+}
+.cr-layout {
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9%;
+  align-items: start;
+  margin: 66px auto 0;
+}
+.cr-intro {
+  padding-top: 27px;
+  position: sticky;
+  top: 35px;
+}
+.cr-intro h1 {
+  font: 700 clamp(36px, 4.2vw, 60px) / 1.05 var(--font-display);
+  letter-spacing: -0.045em;
+  margin: 25px 0;
+}
+.cr-intro h1 em {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  color: var(--primary-ink);
+}
+.cr-intro > p {
+  font-size: 14px;
+  color: var(--ink-3);
+  line-height: 1.9;
+}
+.cr-intro-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-3);
+  font-size: 11px;
+}
+.cr-art {
+  height: 245px;
+  position: relative;
+  margin: 15px 0 25px;
+  isolation: isolate;
+}
+.cr-art-orbit {
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  border: 1px solid #b9965740;
+  border-radius: 50%;
+  top: 14px;
+  left: 50px;
+}
+.cr-art-orbit:after {
+  content: "";
+  position: absolute;
+  inset: 26px;
+  border: 1px dashed #b9965740;
+  border-radius: 50%;
+}
+.cr-art-star {
+  position: absolute;
+  font-size: 205px;
+  line-height: 1;
+  color: var(--primary);
+  left: 55px;
+  top: 12px;
+  transform: rotate(-12deg);
+  text-shadow:
+    2px 3px #f5d491,
+    6px 8px #b8822450;
+  animation: cr-float 8s ease-in-out infinite;
+}
+.cr-art-note {
+  position: absolute;
+  left: 170px;
+  top: 122px;
+  display: flex;
+  gap: 18px;
+  padding: 22px 25px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  box-shadow: 0 12px 40px #5c401014;
+  transform: rotate(-7deg);
+  font-size: 15px;
+  line-height: 1.5;
+  width: 220px;
+}
+.cr-art-note svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.cr-panel {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 20px 70px -25px #6547202b;
+  position: relative;
+  overflow: hidden;
+}
+.cr-panel:before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), #efd39e);
+}
+.cr-business {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 23px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.cr-business-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-tint);
+  color: var(--primary-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.cr-business > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 5px;
+}
+.cr-business > div > span {
+  font-size: 8px;
+  letter-spacing: 0.13em;
+  color: var(--ink-3);
+}
+.cr-business strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.cr-business > svg {
+  color: var(--primary);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.cr-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  font-size: 10px;
+  color: var(--ink-3);
+}
+.cr-progress span {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+.cr-progress b {
+  font-weight: 500;
+}
+.cr-progress .active {
+  color: var(--primary-ink);
+}
+.cr-progress .active b {
+  font-weight: 700;
+}
+.cr-progress .complete {
+  color: var(--ink-2);
+}
+.cr-progress i {
+  height: 1px;
+  background: var(--line-2);
+  flex: 1;
+  min-width: 8px;
+}
+.cr-panel h2 {
+  font: 700 32px/1.12 var(--font-display);
+  letter-spacing: -0.04em;
+  margin: 12px 0;
+}
+.cr-panel h2:focus {
+  outline: none;
+}
+.cr-description {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink-3);
+  margin: 0 0 24px;
+}
+.cr-stars {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin: 30px 0 12px;
+}
+.cr-stars button {
+  width: 54px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+  border-radius: 14px;
+  color: #c9bfaf;
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+}
+.cr-stars button.selected {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: #d8902055;
+}
+.cr-stars button.selected svg {
+  fill: var(--primary);
+}
+.cr-stars button:hover:not(:disabled) {
+  transform: translateY(-3px);
+}
+.cr-rating-label {
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-3);
+  min-height: 20px;
+  margin: 0 0 25px;
+}
+.cr-tags {
+  border: 0;
+  padding: 0;
+  margin: 0 0 28px;
+}
+.cr-tags legend {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.cr-tags legend span {
+  font-weight: 400;
+  color: var(--ink-3);
+  margin-left: 6px;
+}
+.cr-tags > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cr-primary {
+  width: 100%;
+  margin-top: 8px;
+}
+.cr-panel > .ui-button-quiet {
+  width: 100%;
+  margin-top: 3px;
+}
+.cr-editor {
+  border: 1px solid var(--line-2);
+  border-radius: 15px;
+  background: var(--surface-2);
+  padding: 16px;
+  margin: 22px 0 13px;
+}
+.cr-editor > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cr-editor label {
+  font-size: 12px;
+  font-weight: 700;
+  display: block;
+}
+.cr-editor label > span {
+  font-weight: 400;
+  color: var(--ink-3);
+  margin-left: 6px;
+}
+.cr-editor textarea {
+  display: block;
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  border: 0;
+  background: transparent;
+  font: 400 15px/1.85 var(--font-body);
+  color: var(--ink);
+  padding: 12px 0 5px;
+}
+.cr-editor > span {
+  display: block;
+  font-size: 10px;
+  color: var(--ink-3);
+  margin-top: 10px;
+}
+.cr-edit,
+.cr-tool {
+  background: none;
+  border: 0;
+  color: var(--primary-ink);
+  font: 600 11px var(--font-body);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 4px;
+}
+.cr-edit:disabled,
+.cr-tool:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cr-draft-tools {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cr-copy-status {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin: 20px 0 12px;
+}
+.cr-share-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cr-share-actions > .ui-button {
+  flex: 1;
+  font-size: 12px;
+  padding-inline: 12px;
+  white-space: nowrap;
+}
+.cr-confirm {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.cr-confirm > p {
+  font-size: 13px;
+  font-weight: 600;
+}
+.cr-confirm > .ui-button {
+  width: 100%;
+  margin-bottom: 12px;
+}
+.cr-fine {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink-3);
+  display: block;
+}
+.cr-powered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--ink-3);
+  border-top: 1px solid var(--line);
+  padding-top: 23px;
+  margin-top: 24px;
+}
+.cr-powered b {
+  color: var(--primary-ink);
+}
+.cr-state {
+  min-height: 335px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 15px;
+  padding: 30px 5px;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+.cr-state h2 {
+  color: var(--ink);
+  margin: 6px 0;
+}
+.cr-state > p {
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 0 0 8px;
+}
+.cr-state-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary-ink);
+  margin-bottom: 5px;
+}
+.cr-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--primary-soft);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: cr-spin 0.8s linear infinite;
+}
+@keyframes cr-float {
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+@keyframes cr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 900px) {
+  .cr-layout {
+    gap: 5%;
+  }
+  .cr-panel {
+    padding: 24px;
+  }
+  .cr-art-note {
+    left: 80px;
+  }
+  .cr-intro h1 {
+    font-size: 41px;
+  }
+  .cr-stars {
+    gap: 7px;
+  }
+  .cr-stars button {
+    width: 48px;
+    height: 55px;
+  }
+  .cr-stars svg {
+    width: 28px;
+  }
+}
+@media (max-width: 700px) {
+  .cr-page {
+    padding: 22px 18px 32px;
+  }
+  .cr-brand {
+    max-width: 450px;
+    font-size: 24px;
+  }
+  .cr-layout {
+    display: block;
+    max-width: 450px;
+    margin-top: 25px;
+  }
+  .cr-intro {
+    display: none;
+  }
+  .cr-panel {
+    border-radius: 20px;
+    padding: 26px 22px;
+  }
+  .cr-panel h2 {
+    font-size: 30px;
+  }
+  .cr-stars {
+    gap: 8px;
+    margin-top: 28px;
+  }
+  .cr-stars button {
+    width: 53px;
+    height: 60px;
+  }
+  .cr-stars svg {
+    width: 31px;
+  }
+  .cr-progress {
+    gap: 9px;
+    font-size: 10px;
+  }
+  .cr-powered {
+    font-size: 9px;
+  }
+  .cr-editor textarea {
+    font-size: 16px;
+  }
+  .cr-panel .ui-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+}
+@media (max-width: 360px) {
+  .cr-page {
+    padding-inline: 12px;
+  }
+  .cr-panel {
+    padding: 24px 18px;
+  }
+  .cr-stars {
+    gap: 5px;
+  }
+  .cr-stars button {
+    width: 44px;
+    height: 52px;
+  }
+  .cr-stars svg {
+    width: 26px;
+  }
+  .cr-progress {
+    font-size: 9px;
+    gap: 7px;
+  }
+  .cr-share-actions {
+    flex-direction: column;
+  }
+  .cr-panel h2 {
+    font-size: 28px;
+  }
+}

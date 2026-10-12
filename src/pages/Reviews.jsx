@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer,
 } from 'recharts'
-import api, { authService } from '../services/api'
+import api from '../services/api'
+import Icon from '../components/Icon'
 import { stripMarkdown } from '../utils/helpers'
 
 function cleanText(text) {
@@ -27,54 +28,9 @@ function decodeEntities(str) {
     .replace(/&#39;/g, "'")
 }
 
-// ─── Revenue helpers (mirrors Dashboard.jsx) ─────────────────────────────────
-
-const REVENUE_PER_REVIEW = {
-  healthcare_clinic: 2500,
-  salon:             1500,
-  gym:               2000,
-  restaurant:        1000,
-  coaching:         10000,
-  ca_law:            7000,
-  auto_repair:       2000,
-  real_estate:       8000,
-  other:             2000,
-  dentist:           2500,
-  ca_firm:           7000,
-}
-
-const BIZ_TYPE_KEY_MAP = {
-  'healthcare / clinic':    'healthcare_clinic',
-  'salon / beauty parlour': 'salon',
-  'gym / fitness / yoga':   'gym',
-  'restaurant / cafe':      'restaurant',
-  'coaching / tuition':     'coaching',
-  'ca / law firm':          'ca_law',
-  'auto / repair service':  'auto_repair',
-  'real estate':            'real_estate',
-  'other':                  'other',
-  'dentist':                'dentist',
-  'ca_firm':                'ca_firm',
-  'salon':                  'salon',
-  'gym':                    'gym',
-  'restaurant':             'restaurant',
-  'coaching':               'coaching',
-}
-
-function getRevenueInfo(rawBizType) {
-  const key = BIZ_TYPE_KEY_MAP[(rawBizType || '').toLowerCase().trim()] || 'other'
-  return REVENUE_PER_REVIEW[key] ?? REVENUE_PER_REVIEW.other
-}
-
-function formatINR(amount) {
-  return '₹' + Math.floor(amount || 0).toLocaleString('en-IN')
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
 const TABS = [
   { key: '',         label: 'All' },
-  { key: 'posted',   label: 'Posted' },
+  { key: 'posted',   label: 'Confirmed' },
   { key: 'pending',  label: 'Pending' },
   { key: 'private',  label: 'Private' },
   { key: 'insights', label: '🛡️ Insights' },
@@ -213,7 +169,7 @@ function Stars({ rating }) {
 
 function StatusBadge({ status }) {
   const map = {
-    posted:  { bg: 'var(--win-soft)',     color: 'var(--win)',         label: 'Posted on Google ✓' },
+    posted:  { bg: 'var(--win-soft)',     color: 'var(--win)',         label: 'Customer confirmed' },
     pending: { bg: 'var(--primary-soft)', color: 'var(--primary-ink)', label: 'Pending' },
     private: { bg: 'var(--danger-soft)',  color: 'var(--danger)',      label: 'Private feedback' },
   }
@@ -285,18 +241,12 @@ function InsightsSkeleton() {
   )
 }
 
-function InsightsPanel({ data, biz }) {
+function InsightsPanel({ data }) {
   if (!data) return null
 
-  const perReview = getRevenueInfo(biz?.business_type)
   const totalBlocked = data.total_blocked || 0
   const blockedThisMonth = data.blocked_this_month || 0
-  const revenueProtected = totalBlocked * perReview
   const currentRating = data.current_rating ? Number(data.current_rating).toFixed(1) : null
-  const ratingWithout = data.rating_without_protection ? Number(data.rating_without_protection).toFixed(1) : null
-  const ratingDiff = currentRating && ratingWithout
-    ? (Number(currentRating) - Number(ratingWithout)).toFixed(1)
-    : null
 
   // ── Empty state ────────────────────────────────────────────────
   if (totalBlocked === 0) {
@@ -363,45 +313,15 @@ function InsightsPanel({ data, biz }) {
             </div>
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 600, marginTop: 10 }}>
-            Your Rating Protected
+            Google rating
           </div>
           <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1 }}>
             {currentRating ? `${currentRating}★` : '—'}
           </div>
-          {ratingWithout && (
-            <div style={{ fontSize: 11.5, lineHeight: 1.5 }}>
-              <span style={{ color: 'var(--danger)' }}>Without Praisly: {ratingWithout}★</span>
-              {ratingDiff && Number(ratingDiff) > 0 && (
-                <span style={{ color: 'var(--win)', marginLeft: 6, fontWeight: 700 }}>
-                  Saved {ratingDiff}★
-                </span>
-              )}
-            </div>
-          )}
-          {!ratingWithout && (
-            <div style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>
-              Add more context by sharing your QR
-            </div>
-          )}
+          <div style={{fontSize:11,color:"var(--ink-3)"}}>Latest available Google rating</div>
         </div>
 
-        {/* Card 3 — Revenue protected */}
-        <div className="ins-stat-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--win-soft)', display: 'grid', placeItems: 'center', fontSize: 18 }}>
-              ₹
-            </div>
-          </div>
-          <div style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 600, marginTop: 10 }}>
-            Revenue Protected
-          </div>
-          <div style={{ fontSize: revenueProtected >= 100000 ? 28 : 34, fontWeight: 800, color: 'var(--win)', lineHeight: 1.1 }}>
-            {formatINR(revenueProtected)}
-          </div>
-          <div style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>
-            Bad reviews cost ~{formatINR(perReview)} each
-          </div>
-        </div>
+        <div className="ins-stat-card"><div style={{fontSize:13,color:'var(--ink-3)'}}>Feedback themes</div><strong style={{fontSize:34,color:'var(--primary-ink)'}}>{data.themes?.length || 0}</strong><p style={{fontSize:12,color:'var(--ink-3)'}}>Topics identified in customer feedback</p></div>
 
       </div>
 
@@ -509,7 +429,7 @@ function FunnelCard({ icon, iconBg, label, subtitle, value, barColor, barPct, is
     <div className="rv-card" style={isEmpty ? { border: '1.5px dashed var(--line)' } : {}}>
       <div className="rv-card-top">
         <div className="rv-icon" style={{ background: iconBg, opacity: isEmpty ? 0.5 : 1 }}>{icon}</div>
-        {barPct > 0 && !isEmpty && <span className="rv-pct-badge">+{barPct.toFixed(0)}%</span>}
+        {barPct > 0 && !isEmpty && <span className="rv-pct-badge">{barPct.toFixed(0)}% of submissions</span>}
       </div>
       <div className="rv-label">{label}</div>
       <div className="rv-card-sub">{subtitle}</div>
@@ -547,7 +467,6 @@ export default function Reviews() {
   const [insightsFetched, setInsightsFetched] = useState(false)
   const [error, setError] = useState(null)
 
-  const biz = authService.getBusiness()
 
   // Fetch stats and all reviews independently so one failure doesn't block the other
   useEffect(() => {
@@ -596,31 +515,29 @@ export default function Reviews() {
   // ── Funnel metrics ──────────────────────────────────────────────────────────
 
   const metrics = useMemo(() => {
-    const pageViews = data.total || allReviews.length || 0
+    const pageViews = stats?.total_reviews ?? allReviews.length
     const dist = stats?.rating_distribution || {}
     const highRatings = (stats && Object.keys(dist).length > 0)
       ? (Number(dist['4'] || 0) + Number(dist['5'] || 0))
       : allReviews.filter(r => Number(r.rating) >= 4).length
 
-    const aiDrafts = typeof stats?.drafts_sent === 'number' && stats.drafts_sent > 0
+    const aiDrafts = typeof stats?.drafts_sent === 'number'
       ? stats.drafts_sent
-      : allReviews.filter(r => r.is_positive === true).length
+      : allReviews.filter(r => Number(r.rating) >= 4).length
 
     const googleClicks = allReviews.length > 0
       ? allReviews.filter(r => r.status === 'posted' || r.is_posted_to_google === true).length
-      : (stats?.google_reviews_gained || 0)
+      : 0
 
-    const convPct     = pageViews > 0 ? (googleClicks / pageViews * 100) : 0
     const viewsToHigh = pageViews > 0 ? (highRatings / pageViews * 100) : 0
-    const highToClick = highRatings > 0 ? (googleClicks / highRatings * 100) : 0
 
     // stats.negative_saved is authoritative (all reviews, not capped at 50)
     // fallback: count reviews where status === 'private' (list endpoint never returns is_positive)
-    const privateFeedback = typeof stats?.negative_saved === 'number' && stats.negative_saved > 0
+    const privateFeedback = typeof stats?.negative_saved === 'number'
       ? stats.negative_saved
       : allReviews.filter(r => r.status === 'private').length
-    return { pageViews, highRatings, aiDrafts, googleClicks, convPct, viewsToHigh, highToClick, privateFeedback }
-  }, [stats, allReviews, data.total])
+    return { pageViews, highRatings, aiDrafts, googleClicks, viewsToHigh, privateFeedback }
+  }, [stats, allReviews])
 
   const chartData = useMemo(() => {
     const days = []
@@ -656,9 +573,9 @@ export default function Reviews() {
       <style>{PAGE_CSS}</style>
 
       {error && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#FEF2F2', color: '#DC2626', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+        <div style={{ padding: '12px 16px', backgroundColor: '#FEF2F2', color: 'var(--primary-ink)', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
           {error}
-          <button onClick={() => { setError(null); window.location.reload() }} style={{ marginLeft: '12px', textDecoration: 'underline', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => { setError(null); window.location.reload() }} style={{ marginLeft: '12px', textDecoration: 'underline', color: 'var(--primary-ink)', background: 'none', border: 'none', cursor: 'pointer' }}>
             Retry
           </button>
         </div>
@@ -671,7 +588,7 @@ export default function Reviews() {
           <p className="rv-subtitle">Tracking your customer journey and review velocity.</p>
         </div>
         <div className="rv-header-right">
-          <span className="rv-period-pill">Last 30 days</span>
+          <span className="rv-period-pill">Activity overview</span>
         </div>
       </div>
 
@@ -680,10 +597,10 @@ export default function Reviews() {
 
         {/* Private feedback banner */}
         <div style={{
-          background: '#FEF2F2',
+          background: 'var(--surface-tint)',
           borderRadius: 12,
           padding: '18px 22px',
-          borderLeft: '4px solid #EF4444',
+          borderLeft: '4px solid var(--primary)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -691,9 +608,9 @@ export default function Reviews() {
           flexWrap: 'wrap',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ fontSize: 30, lineHeight: 1 }}>🛡️</div>
+            <div style={{color: 'var(--primary-ink)'}}><Icon name="message" size={28} /></div>
             <div>
-              <div style={{ fontSize: 36, fontWeight: 800, color: '#DC2626', lineHeight: 1.1 }}>
+              <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--primary-ink)', lineHeight: 1.1 }}>
                 {metrics.privateFeedback}
               </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginTop: 2 }}>
@@ -706,42 +623,15 @@ export default function Reviews() {
               </div>
             </div>
           </div>
-          {metrics.privateFeedback > 0 && (
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 2 }}>Estimated damage prevented</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#DC2626' }}>
-                {formatINR(metrics.privateFeedback * 5000)}
-              </div>
-              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
-                Based on avg. revenue impact of a negative Google review
-              </div>
-            </div>
-          )}
+
         </div>
 
-        {/* Global conversion card */}
+        {/* Customer confirmations card */}
         <div className="rv-conv-card">
-          <div className="rv-conv-title">Global conversion</div>
-          <div className="rv-conv-pct">{metrics.convPct.toFixed(1)}%</div>
-          <div className="rv-conv-sub">Share of visits where customers tapped through to your Google review flow.</div>
-          <div className="rv-conv-row">
-            <div className="rv-conv-bar-label">
-              <span>Views → high rating</span>
-              <span>{metrics.viewsToHigh.toFixed(0)}%</span>
-            </div>
-            <div className="rv-conv-track">
-              <div className="rv-conv-fill" style={{ width: `${Math.min(metrics.viewsToHigh, 100)}%`, background: 'white' }} />
-            </div>
-          </div>
-          <div className="rv-conv-row">
-            <div className="rv-conv-bar-label">
-              <span>High rating → Google click</span>
-              <span>{metrics.highToClick.toFixed(0)}%</span>
-            </div>
-            <div className="rv-conv-track">
-              <div className="rv-conv-fill" style={{ width: `${Math.min(metrics.highToClick, 100)}%`, background: '#F5B945' }} />
-            </div>
-          </div>
+          <div className="rv-conv-title">Customer confirmations</div>
+          <div className="rv-conv-pct">{metrics.googleClicks}</div>
+          <div className="rv-conv-sub">Customer-reported posting in up to 50 recent submissions. Not independently verified on Google.</div>
+
         </div>
 
       </div>
@@ -752,18 +642,18 @@ export default function Reviews() {
         return (
           <div className="rv-cards">
             <FunnelCard
-              icon="🔗"
-              iconBg="#EFF6FF"
-              label="Page views"
-              subtitle="Customer visits to your review page"
+              icon={<Icon name="qr" />}
+              iconBg="var(--surface-tint)"
+              label="Ratings submitted"
+              subtitle="Ratings saved through Praisly"
               value={metrics.pageViews}
               barColor="#3B82F6"
               barPct={metrics.pageViews > 0 ? 100 : 0}
               isEmpty={allMetricsZero}
             />
             <FunnelCard
-              icon="⭐"
-              iconBg="#FFFBEB"
+              icon={<Icon name="star" />}
+              iconBg="var(--primary-soft)"
               label="High ratings (4–5★)"
               subtitle="From in-flow sentiment taps"
               value={metrics.highRatings}
@@ -772,8 +662,8 @@ export default function Reviews() {
               isEmpty={allMetricsZero}
             />
             <FunnelCard
-              icon="✨"
-              iconBg="#F5F3FF"
+              icon={<Icon name="edit" />}
+              iconBg="var(--surface-tint)"
               label="AI drafts used"
               subtitle="Customers who used a generated draft"
               value={metrics.aiDrafts}
@@ -782,13 +672,13 @@ export default function Reviews() {
               isEmpty={allMetricsZero}
             />
             <FunnelCard
-              icon="🔍"
+              icon={<Icon name="check" />}
               iconBg="#F0FDF4"
-              label="Google review clicks"
-              subtitle="Taps on your Google review button"
+              label="Customer confirmations"
+              subtitle="Reported posted · up to 50 recent submissions"
               value={metrics.googleClicks}
               barColor="#1F8A5B"
-              barPct={metrics.viewsToHigh > 0 ? metrics.highToClick : 0}
+              barPct={0}
               isEmpty={allMetricsZero}
             />
           </div>
@@ -798,18 +688,18 @@ export default function Reviews() {
       {/* ── Review growth chart — full width ── */}
       <div className="rv-chart-card" style={{ marginBottom: 28 }}>
         <div className="rv-chart-title">Review growth</div>
-        <div className="rv-chart-sub">Daily page views vs. Google review taps (last 7 days)</div>
+        <div className="rv-chart-sub">Recent submissions and confirmations, grouped by submission date</div>
         <div className="rv-chart-legend">
-          <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#3B82F6' }} />Page views</span>
-          <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#D89020' }} />Google clicks</span>
+          <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#3B82F6' }} />Ratings submitted</span>
+          <span className="rv-legend-label"><span className="rv-legend-dot" style={{ background: '#D89020' }} />Confirmed posts</span>
         </div>
         {hasChartData ? (
           <ResponsiveContainer width="100%" height={140}>
             <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barGap={4}>
               <XAxis dataKey="day" fontSize={11} tick={{ fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-              <Bar dataKey="views" name="Page views" fill="#3B82F6" radius={[3,3,0,0]} maxBarSize={24} />
-              <Bar dataKey="clicks" name="Google clicks" fill="#D89020" radius={[3,3,0,0]} maxBarSize={24} />
+              <Bar dataKey="views" name="Ratings submitted" fill="#3B82F6" radius={[3,3,0,0]} maxBarSize={24} />
+              <Bar dataKey="clicks" name="Confirmed posts" fill="#D89020" radius={[3,3,0,0]} maxBarSize={24} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
@@ -856,7 +746,7 @@ export default function Reviews() {
       {tab === 'insights' && (
         insightsLoading
           ? <InsightsSkeleton />
-          : <InsightsPanel data={insights} biz={biz} />
+          : <InsightsPanel data={insights} />
       )}
 
       {/* ── Review list ── */}
