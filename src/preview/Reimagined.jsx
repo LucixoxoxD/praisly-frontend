@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import QRCodeStyling from "qr-code-styling";
 import "./reimagined.css";
+import VisualLanding from "./VisualLanding";
 
 const ROOT = "/preview";
 const samples = [
@@ -1721,7 +1722,8 @@ export default function Reimagined() {
       <PreviewRibbon />
       <div id="p-preview-content" tabIndex={-1}>
         <Routes>
-          <Route index element={<Landing />} />
+          <Route index element={<VisualLanding />} />
+          <Route path="editorial" element={<Landing />} />
           <Route path="studio/*" element={<Studio />} />
           <Route path="review" element={<CustomerExperience />} />
           <Route

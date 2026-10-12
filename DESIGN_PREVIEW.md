@@ -8,7 +8,9 @@ until the owner approves the design.
 Run `npm install` and `npm run dev`, then open `/preview` on the printed local URL.
 The same routes work on the branch's Vercel preview deployment:
 
-- `/preview`: editorial homepage, dimensional animated seal, customer-journey
+- `/preview`: visual-first art direction, interactive chrome sculpture, scroll-driven
+  signal rings, oversized posters, kinetic type and a colour/shape playground.
+- `/preview/editorial`: quieter editorial homepage, dimensional animated seal, customer-journey
   selector, product sections, monthly/yearly pricing and FAQs.
 - `/preview/studio`: sample reputation workspace, location selector, chart
   period selector and sample CSV export.
@@ -30,7 +32,7 @@ On this design branch, `/` redirects to `/preview` so opening the deployment roo
 always shows the redesign, including after hosting sign-in. The original homepage
 source and authentication, onboarding, dashboard, review collection and billing
 routes are unchanged. The new experience uses a lazy `/preview/*` route. All new
-styles are scoped to `p-` classes. No packages or
+styles are scoped to `p-` and `v-` classes. No packages or
 backend changes were needed. Preview routes send `X-Robots-Tag: noindex, nofollow`
 on Vercel and add a matching document meta tag.
 
@@ -41,15 +43,24 @@ review actions for real endpoints.
 
 ## Visual direction
 
-Warm paper, deep green ink, burnt orange, generous editorial type, italic serif
-accents and dimensional artwork built from CSS. The main seal and cards float
-slowly; the homepage provides a pause control. Reduced-motion preferences disable
-animation and transitions. Keyboard focus is visible and the mobile navigation
-is an explicit expand/collapse control.
+The main edition uses near-black, acid green, oversized type, italic serif accents,
+grain, chrome and sculptural motion. A native WebGL shader draws the rotating
+chrome object and responds to the pointer; a CSS fallback remains if WebGL is
+unavailable. The playground offers acid, ultraviolet and ember palettes and three
+sculpture forms. Posters respond to selection. No conversion or pricing sections
+are included in this edition.
+
+The pause control stops autonomous and scroll-driven motion. Reduced-motion
+preferences disable animations, transitions and pointer-driven sculpture motion.
+WebGL rendering skips hidden/offscreen frames and caps pixel density. Keyboard
+focus remains visible. The earlier warm-paper/orange direction remains available
+at `/preview/editorial`.
 
 ## Validation
 
-- Production build and lint for the new React file.
+- Production build and lint for both preview React files.
+- Visual edition: chrome rendering, palette selection, shape remix, poster
+  selection and motion pause; desktop, tablet and 320/390px phone layouts.
 - Browser checks for pricing, journey selection, FAQs, motion pause, location and
   chart selection, review search/rating filters, empty results, private feedback,
   QR headline/colour rendering, cancellation/keep-plan choices, and both customer
