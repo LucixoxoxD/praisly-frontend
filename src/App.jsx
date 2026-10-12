@@ -9,7 +9,6 @@ import DashboardLayout from './components/DashboardLayout'
 // only download what they need. Critical for customers scanning a QR code
 // on slow mobile connections: they get the review page, not the dashboard.
 const CustomerReview  = lazy(() => import('./pages/CustomerReview'))
-const LandingPage     = lazy(() => import('./pages/LandingPage'))
 const Login           = lazy(() => import('./pages/Login'))
 const Signup          = lazy(() => import('./pages/Signup'))
 const Onboarding      = lazy(() => import('./pages/Onboarding'))
@@ -108,7 +107,7 @@ export default function App() {
               <Route path="/preview/*" element={<Reimagined />} />
               <Route
                 path="/"
-                element={authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LandingPage />}
+                element={<Navigate to="/preview" replace />}
               />
               <Route path="/login"           element={<AuthOnly><Login /></AuthOnly>} />
               <Route path="/signup"          element={<AuthOnly><Signup /></AuthOnly>} />

@@ -26,9 +26,11 @@ already used by the existing app remain in use, with system fallbacks.
 
 ## Implementation boundary
 
-The existing homepage, authentication, onboarding, dashboard, review collection
-and billing routes are unchanged. The only existing React entrypoint change is a
-lazy `/preview/*` route. All new styles are scoped to `p-` classes. No packages or
+On this design branch, `/` redirects to `/preview` so opening the deployment root
+always shows the redesign, including after hosting sign-in. The original homepage
+source and authentication, onboarding, dashboard, review collection and billing
+routes are unchanged. The new experience uses a lazy `/preview/*` route. All new
+styles are scoped to `p-` classes. No packages or
 backend changes were needed. Preview routes send `X-Robots-Tag: noindex, nofollow`
 on Vercel and add a matching document meta tag.
 
