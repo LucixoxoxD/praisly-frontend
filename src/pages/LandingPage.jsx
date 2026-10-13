@@ -77,6 +77,16 @@ function SculptedStar() {
           <stop offset=".4" stopColor="#ffce57" />
           <stop offset="1" stopColor="#ed8400" />
         </radialGradient>
+        <linearGradient id="pw-polish" x1="0" y1="0" x2="1" y2=".4">
+          <stop stopColor="#fff" stopOpacity="0" />
+          <stop offset=".45" stopColor="#fff" stopOpacity="0" />
+          <stop offset=".5" stopColor="#fffbe1" stopOpacity=".65" />
+          <stop offset=".55" stopColor="#fff" stopOpacity="0" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+        <clipPath id="pw-star-clip">
+          <path d="m250 31 56 139 148 11-113 102 33 150-124-79-126 79 33-150L45 181l148-11Z" />
+        </clipPath>
         <filter id="pw-shadow" x="-30%" y="-20%" width="160%" height="160%">
           <feDropShadow
             dx="8"
@@ -110,6 +120,16 @@ function SculptedStar() {
           strokeOpacity=".5"
           strokeWidth="1.5"
         />
+        <g clipPath="url(#pw-star-clip)">
+          <rect
+            className="pw-star-sheen"
+            x="-500"
+            y="0"
+            width="1000"
+            height="500"
+            fill="url(#pw-polish)"
+          />
+        </g>
       </g>
     </svg>
   );
@@ -216,9 +236,11 @@ function Showcase() {
         </div>
         <div
           className="pw-chapter-tabs"
+          style={{ "--chapter": active }}
           role="tablist"
           aria-label="Explore the Praisly experience"
         >
+          <span className="pw-tab-ink" aria-hidden="true" />
           {chapters.map((chapter, i) => (
             <button
               key={chapter.label}
@@ -261,8 +283,8 @@ function Showcase() {
               <span> / 03</span>
             </span>
           </div>
-          <div className={`pw-stage pw-stage-${active}`} key={active}>
-            <span className="pw-stage-word" aria-hidden="true">
+          <div className={`pw-stage pw-stage-${active}`}>
+            <span className="pw-stage-word" aria-hidden="true" key={active}>
               {chapters[active].word}
             </span>
             {active === 0 && (
@@ -385,6 +407,96 @@ export default function LandingPage() {
     () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
   const root = useRef(null);
+  const menuToggle = useRef(null);
+  const [activeSection, setActiveSection] = useState("");
+
+  // Keep pointer motion local to the illustration; no React renders per frame.
+  useEffect(() => {
+    const artwork = root.current.querySelector(".pw-hero-art");
+    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    let targetX = 0;
+    let targetY = 0;
+    const animate = () => {
+      x += (targetX - x) * 0.12;
+      y += (targetY - y) * 0.12;
+      artwork.style.setProperty("--pointer-x", x.toFixed(4));
+      artwork.style.setProperty("--pointer-y", y.toFixed(4));
+      frame =
+        Math.abs(targetX - x) + Math.abs(targetY - y) > 0.002
+          ? requestAnimationFrame(animate)
+          : 0;
+    };
+    const move = (event) => {
+      if (
+        !motion ||
+        !pointer.matches ||
+        reduced.matches ||
+        event.pointerType === "touch"
+      )
+        return;
+      const rect = artwork.getBoundingClientRect();
+      targetX = Math.max(
+        -1,
+        Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
+      );
+      targetY = Math.max(
+        -1,
+        Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
+      );
+      if (!frame) frame = requestAnimationFrame(animate);
+    };
+    const reset = () => {
+      targetX = targetY = 0;
+      if (!frame) frame = requestAnimationFrame(animate);
+    };
+    artwork.addEventListener("pointermove", move, { passive: true });
+    artwork.addEventListener("pointerleave", reset);
+    window.addEventListener("blur", reset);
+    return () => {
+      cancelAnimationFrame(frame);
+      artwork.removeEventListener("pointermove", move);
+      artwork.removeEventListener("pointerleave", reset);
+      window.removeEventListener("blur", reset);
+      artwork.style.removeProperty("--pointer-x");
+      artwork.style.removeProperty("--pointer-y");
+    };
+  }, [motion]);
+
+  useEffect(() => {
+    const page = root.current;
+    const sections = [...page.querySelectorAll("section[id]")];
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const height = document.documentElement.scrollHeight - innerHeight;
+      page.style.setProperty(
+        "--page-progress",
+        height > 0 ? Math.min(1, scrollY / height) : 0,
+      );
+      const current = sections
+        .filter(
+          (section) =>
+            section.getBoundingClientRect().top <= innerHeight * 0.35,
+        )
+        .at(-1);
+      setActiveSection(current?.id ?? "");
+    };
+    const queue = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    queue();
+    window.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", queue, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", queue);
+      window.removeEventListener("resize", queue);
+    };
+  }, []);
   useEffect(() => {
     const previousTitle = document.title;
     document.title = "Praisly — Good work. Great word of mouth.";
@@ -415,16 +527,45 @@ export default function LandingPage() {
       <a href="#main-content" className="pw-skip">
         Skip to content
       </a>
-      <header className="pw-header">
+      <header
+        className="pw-header"
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && menuOpen) {
+            setMenuOpen(false);
+            menuToggle.current?.focus();
+          }
+        }}
+      >
         <div className="pw-wrap pw-nav">
           <Link to="/" className="pw-logo" aria-label="Praisly home">
             <Spark />
             praisly<span>.</span>
           </Link>
           <nav className="pw-desktop-nav" aria-label="Main navigation">
-            <a href="#experience">The experience</a>
-            <a href="#features">The details</a>
-            <a href="#pricing">Pricing</a>
+            <a
+              href="#experience"
+              aria-current={
+                activeSection === "experience" ? "location" : undefined
+              }
+            >
+              The experience
+            </a>
+            <a
+              href="#features"
+              aria-current={
+                activeSection === "features" ? "location" : undefined
+              }
+            >
+              The details
+            </a>
+            <a
+              href="#pricing"
+              aria-current={
+                activeSection === "pricing" ? "location" : undefined
+              }
+            >
+              Pricing
+            </a>
           </nav>
           <div className="pw-nav-actions">
             <Link to="/login" className="pw-login">
@@ -438,6 +579,7 @@ export default function LandingPage() {
             </Link>
             <button
               className="pw-menu-toggle"
+              ref={menuToggle}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
               aria-controls="pw-mobile-nav"
@@ -490,12 +632,22 @@ export default function LandingPage() {
           <div className="pw-hero-layout">
             <div className="pw-hero-copy">
               <h1 id="pw-hero-title">
-                Good work.
-                <br />
-                Great <em>word</em>
-                <br />
-                <em>of mouth.</em>
-                <span className="pw-title-dot">✳</span>
+                <span className="pw-title-line">
+                  <span>Good work.</span>
+                </span>
+                <span className="pw-title-line">
+                  <span>
+                    Great <em>word</em>
+                  </span>
+                </span>
+                <span className="pw-title-line">
+                  <span>
+                    <em>of mouth.</em>
+                    <span className="pw-title-dot" aria-hidden="true">
+                      ✳
+                    </span>
+                  </span>
+                </span>
               </h1>
               <p>
                 You make their day.
@@ -525,12 +677,28 @@ export default function LandingPage() {
               <div className="pw-orbit pw-orbit-one" />
               <div className="pw-orbit pw-orbit-two" />
               <div className="pw-art-axis" />
+              <div className="pw-art-halo" />
+              <div className="pw-art-shadow" />
               <span className="pw-art-coordinate">
                 A LITTLE PRAISE
                 <br />
                 GOES A LONG WAY.
               </span>
-              <SculptedStar />
+              <div className="pw-star-depth">
+                <SculptedStar />
+              </div>
+              <span
+                className="pw-art-glint pw-art-glint-one"
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span
+                className="pw-art-glint pw-art-glint-two"
+                aria-hidden="true"
+              >
+                ✧
+              </span>
               <div className="pw-float-review">
                 <div>
                   <span className="pw-avatar">a.</span>
@@ -561,6 +729,11 @@ export default function LandingPage() {
                 THE EVERYDAY, EXTRAORDINARY.
               </span>
               <span className="pw-art-plus">+</span>
+              <span className="pw-art-edition" aria-hidden="true">
+                <span>01 — 05</span>
+                <i />
+                <span>A LITTLE BRILLIANCE.</span>
+              </span>
             </div>
           </div>
           <div className="pw-hero-bottom">
