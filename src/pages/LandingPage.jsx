@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./LandingPage.css";
+import HeroScene from "../components/HeroScene";
 
 function Arrow({ diagonal = false }) {
   return (
@@ -34,104 +35,6 @@ function Stars() {
     <span className="pw-stars" aria-label="5 out of 5 stars">
       ★★★★★
     </span>
-  );
-}
-
-function SculptedStar() {
-  return (
-    <svg
-      className="pw-sculpture"
-      viewBox="0 0 500 500"
-      fill="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient
-          id="pw-metal"
-          x1="100"
-          y1="50"
-          x2="390"
-          y2="460"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#fff5be" />
-          <stop offset=".26" stopColor="#ffc64d" />
-          <stop offset=".52" stopColor="#ff9900" />
-          <stop offset=".76" stopColor="#e37000" />
-          <stop offset="1" stopColor="#9f3c00" />
-        </linearGradient>
-        <linearGradient
-          id="pw-edge"
-          x1="120"
-          y1="0"
-          x2="400"
-          y2="460"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#fff1b0" />
-          <stop offset=".47" stopColor="#ffcf65" />
-          <stop offset="1" stopColor="#b74d00" />
-        </linearGradient>
-        <radialGradient id="pw-shine" cx=".28" cy=".25" r=".8">
-          <stop stopColor="#fff9d1" />
-          <stop offset=".4" stopColor="#ffce57" />
-          <stop offset="1" stopColor="#ed8400" />
-        </radialGradient>
-        <linearGradient id="pw-polish" x1="0" y1="0" x2="1" y2=".4">
-          <stop stopColor="#fff" stopOpacity="0" />
-          <stop offset=".45" stopColor="#fff" stopOpacity="0" />
-          <stop offset=".5" stopColor="#fffbe1" stopOpacity=".65" />
-          <stop offset=".55" stopColor="#fff" stopOpacity="0" />
-          <stop offset="1" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <clipPath id="pw-star-clip">
-          <path d="m250 31 56 139 148 11-113 102 33 150-124-79-126 79 33-150L45 181l148-11Z" />
-        </clipPath>
-        <filter id="pw-shadow" x="-30%" y="-20%" width="160%" height="160%">
-          <feDropShadow
-            dx="8"
-            dy="25"
-            stdDeviation="16"
-            floodColor="#963f00"
-            floodOpacity=".18"
-          />
-        </filter>
-      </defs>
-      <g filter="url(#pw-shadow)" transform="rotate(-12 250 250)">
-        <path
-          d="m250 31 56 139 148 11-113 102 33 150-124-79-126 79 33-150L45 181l148-11Z"
-          fill="#ac510a"
-          transform="translate(0 15)"
-        />
-        <path
-          d="m250 31 56 139 148 11-113 102 33 150-124-79-126 79 33-150L45 181l148-11Z"
-          fill="url(#pw-metal)"
-          stroke="url(#pw-edge)"
-          strokeWidth="5"
-          strokeLinejoin="round"
-        />
-        <path
-          d="m250 31 0 217 56-78ZM454 181l-204 67 91 35ZM374 433 250 248v106ZM124 433l126-185-93 35ZM45 181l205 67-57-78Z"
-          fill="url(#pw-shine)"
-        />
-        <path
-          d="m250 31 0 217L45 181m205 67 204-67M250 248 124 433m126-185 124 185"
-          stroke="#fff2b8"
-          strokeOpacity=".5"
-          strokeWidth="1.5"
-        />
-        <g clipPath="url(#pw-star-clip)">
-          <rect
-            className="pw-star-sheen"
-            x="-500"
-            y="0"
-            width="1000"
-            height="500"
-            fill="url(#pw-polish)"
-          />
-        </g>
-      </g>
-    </svg>
   );
 }
 
@@ -669,72 +572,7 @@ export default function LandingPage() {
                 MADE FOR LOCAL BUSINESSES. BUILT AROUND PEOPLE.
               </span>
             </div>
-            <div
-              className="pw-hero-art"
-              role="img"
-              aria-label="A sculpted golden star surrounded by sample review cards"
-            >
-              <div className="pw-orbit pw-orbit-one" />
-              <div className="pw-orbit pw-orbit-two" />
-              <div className="pw-art-axis" />
-              <div className="pw-art-halo" />
-              <div className="pw-art-shadow" />
-              <span className="pw-art-coordinate">
-                A LITTLE PRAISE
-                <br />
-                GOES A LONG WAY.
-              </span>
-              <div className="pw-star-depth">
-                <SculptedStar />
-              </div>
-              <span
-                className="pw-art-glint pw-art-glint-one"
-                aria-hidden="true"
-              >
-                ✦
-              </span>
-              <span
-                className="pw-art-glint pw-art-glint-two"
-                aria-hidden="true"
-              >
-                ✧
-              </span>
-              <div className="pw-float-review">
-                <div>
-                  <span className="pw-avatar">a.</span>
-                  <span>
-                    A moment worth sharing<small>EXAMPLE CUSTOMER REVIEW</small>
-                  </span>
-                  <span className="pw-review-spark">✦</span>
-                </div>
-                <Stars />
-                <p>
-                  “The kind of place you
-                  <br />
-                  tell your friends about.”
-                </p>
-                <span className="pw-review-bottom">
-                  Real experiences. Good words. <Arrow diagonal />
-                </span>
-              </div>
-              <div className="pw-float-tag">
-                <Spark />
-                <span>
-                  A good reputation
-                  <br />
-                  <strong>starts with you.</strong>
-                </span>
-              </div>
-              <span className="pw-art-caption">
-                THE EVERYDAY, EXTRAORDINARY.
-              </span>
-              <span className="pw-art-plus">+</span>
-              <span className="pw-art-edition" aria-hidden="true">
-                <span>01 — 05</span>
-                <i />
-                <span>A LITTLE BRILLIANCE.</span>
-              </span>
-            </div>
+            <HeroScene qr={<DecorativeQR />} />
           </div>
           <div className="pw-hero-bottom">
             <span>LESS FRICTION. MORE FEELING.</span>
