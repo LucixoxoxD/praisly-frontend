@@ -108,6 +108,7 @@ export default function App() {
                 path="/"
                 element={authService.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LandingPage />}
               />
+              <Route path="/preview" element={<LandingPage />} />
               <Route path="/login"           element={<AuthOnly><Login /></AuthOnly>} />
               <Route path="/signup"          element={<AuthOnly><Signup /></AuthOnly>} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
