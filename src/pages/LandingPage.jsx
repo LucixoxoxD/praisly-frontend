@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./LandingPage.css";
 import HeroScene from "../components/HeroScene";
+import ReviewWall from "../components/ReviewWall";
 
 function Arrow({ diagonal = false }) {
   return (
@@ -759,10 +760,12 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <ReviewWall />
+
         <section className="pw-pricing" id="pricing">
           <div className="pw-wrap pw-pricing-layout">
             <div className="pw-pricing-copy" data-reveal>
-              <span className="pw-kicker">03 / KEEP IT SIMPLE</span>
+              <span className="pw-kicker">04 / KEEP IT SIMPLE</span>
               <h2>
                 Good things.
                 <br />
@@ -839,7 +842,7 @@ export default function LandingPage() {
 
         <section className="pw-faq pw-wrap" id="questions">
           <div data-reveal>
-            <span className="pw-kicker">04 / A FEW GOOD QUESTIONS</span>
+            <span className="pw-kicker">05 / A FEW GOOD QUESTIONS</span>
             <h2>
               Glad
               <br />
