@@ -1000,7 +1000,7 @@ function MilestoneOverlay({ notif, onDismiss }) {
         <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.6, margin: '0 0 28px' }}>{notif.message}</p>
         <button
           onClick={onDismiss}
-          style={{ background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 12, padding: '13px 32px', fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+          className="app-primary-button"
         >
           Awesome! 🙌
         </button>
@@ -1113,7 +1113,7 @@ function LeaderboardSection({ stats, competitors, leaderboard, onAdd, onDelete, 
           </p>
           <button
             onClick={() => setShowModal(true)}
-            style={{ background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 12, padding: '10px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            className="app-primary-button"
           >
             Add Competitors
           </button>
@@ -1455,7 +1455,7 @@ export default function Dashboard() {
           <p style={{ color: '#64748b', fontSize: 14, marginBottom: 24 }}>Please try again.</p>
           <button
             onClick={fetchDashboardData}
-            style={{ padding: '10px 24px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            className="app-primary-button"
           >
             Retry
           </button>
@@ -1492,7 +1492,7 @@ export default function Dashboard() {
             <p style={{ fontSize: 15, fontWeight: 700, color: '#991b1b', margin: '0 0 2px' }}>{stats?.trial_expired ? 'Your 7-day free trial has ended' : stats?.location_covered === false ? 'This location needs paid capacity' : 'Your subscription access has ended'}</p>
             <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>Subscribe to continue collecting reviews.</p>
           </div>
-          <Link to="/billing" style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--primary)', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          <Link to="/billing" className="app-primary-button" style={{ display: 'inline-block', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
             Subscribe Now →
           </Link>
         </div>

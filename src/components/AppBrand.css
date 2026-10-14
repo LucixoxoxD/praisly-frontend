@@ -1,0 +1,33 @@
+.app-brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; font: 800 30px/1 var(--font-display); letter-spacing: -1.5px; }
+.app-brand > svg { width: 26px; height: 26px; color: #dd810e; flex-shrink: 0; }
+.app-brand-dot { color: #d17c11; }
+.auth-page, .workspace-shell {
+  --bg: #f6f4eb;
+  --surface: #fffcf4;
+  --surface-tint: #eeeee3;
+  --surface-2: #f6f4eb;
+  --ink: #242720;
+  --ink-2: #44483e;
+  --ink-3: #64675c;
+  --ink-4: #73776b;
+  --line: #24272026;
+  --primary-soft: #ffce492b;
+  --primary-ink: #80530c;
+}
+.auth-page h1 { font: 600 28px/1.15 var(--font-display); letter-spacing: -0.04em; margin: 24px 0 10px; }
+.auth-page .app-brand { font-size: 38px; }
+.auth-page .app-brand > svg { width: 30px; height: 30px; }
+.auth-page input, .auth-page select { min-height: 46px; }
+.auth-page input:focus-visible, .auth-page select:focus-visible { outline: 2px solid #a36a06 !important; outline-offset: 2px; }
+.app-primary-button { border: 1px solid #242720; background: #242720; color: #fffcf4; border-radius: 100px; min-height: 48px; padding: 12px 22px; font: 600 14px var(--font-body); cursor: pointer; transition: background .2s; }
+.app-primary-button:hover:not(:disabled) { background: #3d4535; }
+.app-primary-button:disabled { cursor: not-allowed; opacity: .6; }
+.auth-page :is(button,a):focus-visible, .workspace-shell :is(button,a):focus-visible { outline: 3px solid #a36a06; outline-offset: 3px; }
+.workspace-shell h1, .workspace-shell h2, .workspace-shell h3 { font-family: var(--font-display); }
+.workspace-shell .nav-link { min-height: 44px; font-size: 14px; gap: 12px; }
+.workspace-shell .nav-link.active { color: var(--ink); background: #ffce4940; }
+.workspace-shell .nav-link svg { opacity: .9; }
+.workspace-shell .d-btn-primary { background: #242720; color: #fffcf4; border-radius: 100px; min-height: 44px; padding: 10px 18px; }
+.workspace-shell .d-btn-ghost { border-radius: 100px; min-height: 44px; }
+@media (max-width: 600px) { .auth-page input, .auth-page select { font-size: 16px !important; } }
+@media (prefers-reduced-motion: reduce) { .app-primary-button { transition: none; } }

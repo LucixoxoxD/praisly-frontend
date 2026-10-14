@@ -167,17 +167,20 @@
 @media (max-width: 700px) {
   .pw-review-wall { padding: 35px 0 40px; }
   .pw-reviews-heading { display: block; padding-top: 34px; }
-  .pw-reviews-heading > p { margin-top: 24px; max-width: none; }
+  .pw-reviews-heading > p { margin-top: 24px; max-width: none; font-size: 16px; line-height: 1.7; }
   .pw-review-grid { grid-template-columns: 1fr; gap: 34px; padding: 38px 4px 40px; }
   .pw-review-paper { padding: 25px; rotate: -1deg; }
   .pw-review-paper-spark { margin-top: 0; rotate: 1deg; }
   .pw-review-paper-bowl { rotate: -1deg; }
   .pw-review-paper > svg { width: 55px; height: 55px; margin: 22px 0 18px; }
   .pw-review-paper blockquote h3 { font-size: 32px; }
-  .pw-review-paper blockquote p { font-size: 14px; }
+  .pw-review-paper blockquote p { font-size: 16px; line-height: 1.7; }
   .pw-review-paper figcaption { margin-top: 24px; }
+  .pw-review-paper figcaption strong { font-size: 14px; }
+  .pw-review-paper figcaption small { font-size: 13px; }
   .pw-reviews-endnote { flex-wrap: wrap; gap: 12px; }
-  .pw-reviews-endnote a { margin-left: 0; flex-basis: 100%; width: fit-content; }
+  .pw-reviews-endnote p { font-size: 15px; }
+  .pw-reviews-endnote a { margin-left: 0; flex-basis: 100%; width: fit-content; font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pw-review-paper { transition: none; }

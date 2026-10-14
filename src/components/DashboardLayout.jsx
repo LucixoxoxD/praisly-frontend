@@ -1,19 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import api, { authService } from '../services/api'
 import WhatsAppButton from './WhatsAppButton'
 import LocationSwitcher from './LocationSwitcher'
+import Brand from './Brand'
+import WorkspaceIcon from './WorkspaceIcon'
 
 const WORKSPACE_NAV = [
-  { to: '/dashboard', icon: '📊', label: 'Dashboard' },
-  { to: '/reviews',   icon: '⭐', label: 'Reviews' },
-  { to: '/qr',        icon: '📱', label: 'QR Code' },
-  { to: '/send',      icon: '💬', label: 'WhatsApp' },
+  { to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
+  { to: '/reviews',   icon: 'reviews', label: 'Reviews' },
+  { to: '/qr',        icon: 'qr', label: 'QR Code' },
+  { to: '/send',      icon: 'message', label: 'WhatsApp' },
 ]
 
 const ACCOUNT_NAV = [
-  { to: '/settings',  icon: '⚙️', label: 'Settings' },
-  { to: '/billing',   icon: '💳', label: 'Billing' },
+  { to: '/settings',  icon: 'settings', label: 'Settings' },
+  { to: '/billing',   icon: 'billing', label: 'Billing' },
 ]
 
 const NOTIF_ICONS = {
@@ -251,7 +253,7 @@ function NotificationBell() {
   }, [open])
 
   async function markAllRead() {
-    try { await api.post('/api/notifications/mark-read') } catch {}
+    try { await api.post('/api/notifications/mark-read') } catch { /* Keep the existing local read state when offline. */ }
     setNotifs(prev => prev.map(n => ({ ...n, is_read: true })))
     setUnread(0)
   }
@@ -343,24 +345,7 @@ function formatSubtitle(biz) {
 }
 
 // ─── Bottom navigation bar (mobile only) ─────────────────────────────────────
-const BOTTOM_ITEMS = [
-  {
-    to: '/dashboard', label: 'Home',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-  },
-  {
-    to: '/reviews', label: 'Reviews',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.24l7.19-.61L12 2l2.81 6.63 7.19.61-5.46 4.73L18.18 21z"/></svg>,
-  },
-  {
-    to: '/qr', label: 'QR Code',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/></svg>,
-  },
-  {
-    to: '/send', label: 'WhatsApp',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
-  },
-]
+const BOTTOM_ITEMS = WORKSPACE_NAV.map(item => ({ ...item, label: item.to === '/dashboard' ? 'Home' : item.label }))
 
 function BottomNav() {
   const location = useLocation()
@@ -388,8 +373,8 @@ function BottomNav() {
       {BOTTOM_ITEMS.map(({ to, label, icon }) => {
         const active = location.pathname === to
         return (
-          <button key={to} onClick={() => navigate(to)} style={btnStyle(active)} aria-label={label}>
-            {icon}
+          <button key={to} onClick={() => navigate(to)} style={btnStyle(active)} aria-label={label} aria-current={active ? 'page' : undefined}>
+            <WorkspaceIcon name={icon} size={22} />
             <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, lineHeight: 1 }}>{label}</span>
           </button>
         )
@@ -501,20 +486,7 @@ function Sidebar({ onClose, mobileDrawer = false }) {
 
       {/* Brand */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 20px' }}>
-        <Link to={logoHref} onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', cursor: 'pointer', flex: 1, minWidth: 0 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #FF7C4F, #FF5B2E)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', fontSize: 18, fontWeight: 800, flexShrink: 0,
-          }}>P</div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--ink)', lineHeight: 1.2 }}>Praisly</div>
-            <div style={{ fontSize: 10.5, color: 'var(--ink-4)', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 1 }}>
-              Rank · Review · Win
-            </div>
-          </div>
-        </Link>
+        <Brand to={logoHref} onClick={onClose} />
         {onClose && (
           <button onClick={onClose} style={{ marginLeft: 'auto', color: 'var(--ink-4)', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1, padding: 0, flexShrink: 0 }} aria-label="Close menu">
             ✕
@@ -531,7 +503,7 @@ function Sidebar({ onClose, mobileDrawer = false }) {
       </div>
       {WORKSPACE_NAV.map(item => (
         <NavLink key={item.to} to={item.to} onClick={onClose} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          <span style={{ fontSize: 15 }}>{item.icon}</span>
+          <WorkspaceIcon name={item.icon} />
           <span>{item.label}</span>
         </NavLink>
       ))}
@@ -542,7 +514,7 @@ function Sidebar({ onClose, mobileDrawer = false }) {
       </div>
       {ACCOUNT_NAV.map(item => (
         <NavLink key={item.to} to={item.to} onClick={onClose} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          <span style={{ fontSize: 15 }}>{item.icon}</span>
+          <WorkspaceIcon name={item.icon} />
           <span>{item.label}</span>
         </NavLink>
       ))}
@@ -626,7 +598,7 @@ export default function DashboardLayout({ children }) {
   useEffect(() => { document.title = 'Praisly Dashboard' }, [])
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+    <div className="workspace-shell" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
       {/* PWA swipe-back indicator */}
       {swipeProgress > 0.02 && (
         <div

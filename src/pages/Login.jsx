@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authService } from '../services/api'
+import Brand from '../components/Brand'
 
 function formatPhone(digits) {
   if (digits.length <= 5) return digits
@@ -72,6 +73,7 @@ export default function Login() {
 
   return (
     <div
+      className="auth-page"
       style={{
         minHeight: '100vh',
         background: 'var(--bg)',
@@ -84,30 +86,8 @@ export default function Login() {
       <div style={{ width: '100%', maxWidth: 400 }}>
         {/* Brand header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
-            <div
-              style={{
-                width: 38, height: 38, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #FF7C4F, #FF5B2E)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', fontSize: 20, fontWeight: 800, flexShrink: 0,
-              }}
-            >
-              P
-            </div>
-            <h1
-              style={{
-                fontSize: 28,
-                fontWeight: 800,
-                color: 'var(--ink)',
-                fontFamily: "'Plus Jakarta Sans', system-ui",
-                letterSpacing: '-0.5px',
-                margin: 0,
-              }}
-            >
-              Praisly
-            </h1>
-          </div>
+          <Brand />
+          <h1>Welcome back.</h1>
           <p style={{ color: 'var(--ink-3)', fontSize: 14, margin: 0 }}>
             Sign in to your dashboard
           </p>
@@ -298,20 +278,8 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'var(--primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: 8,
-                fontSize: 15,
-                fontWeight: 700,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
-                transition: 'all 0.15s',
-                fontFamily: 'inherit',
-              }}
+              className="app-primary-button"
+              style={{ width: '100%', marginTop: 12 }}
             >
               {loading ? 'Signing in…' : 'Sign In'}
             </button>

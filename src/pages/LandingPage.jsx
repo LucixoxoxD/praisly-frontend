@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import "./LandingPage.css";
 import HeroScene from "../components/HeroScene";
 import ReviewWall from "../components/ReviewWall";
+import CustomerFlowDemo from "../components/CustomerFlowDemo";
 
 function Arrow({ diagonal = false }) {
   return (
@@ -554,19 +555,18 @@ export default function LandingPage() {
                 </span>
               </h1>
               <p>
-                You make their day.
-                <br />
-                We help them put it into words.
+                Collect Google reviews with a simple QR code, help customers find
+                their words, and track feedback in one place.
               </p>
               <div className="pw-hero-actions">
                 <Link to="/signup" className="pw-button">
-                  Meet your new reputation{" "}
+                  Start your 7-day free trial{" "}
                   <span>
                     <Arrow diagonal />
                   </span>
                 </Link>
-                <a href="#experience" className="pw-text-link">
-                  Take a look <span>↓</span>
+                <a href="#demo" className="pw-text-link">
+                  See how it works <span>↓</span>
                 </a>
               </div>
               <span className="pw-hero-footnote">
@@ -626,6 +626,7 @@ export default function LandingPage() {
         </section>
 
         <Showcase />
+        <CustomerFlowDemo />
 
         <section className="pw-features pw-wrap" id="features">
           <div className="pw-section-top">
@@ -817,10 +818,11 @@ export default function LandingPage() {
               <div className="pw-price-line" />
               <ul>
                 {[
+                  "1 business location included",
                   "Custom QR codes & review requests",
                   "AI-assisted review drafts",
                   "Private customer feedback",
-                  "Competitor comparisons",
+                  "Track up to 3 competitors per location",
                   "Review activity & analytics",
                 ].map((feature) => (
                   <li key={feature}>
@@ -829,6 +831,10 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
+              <div className="pw-plan-scope">
+                <p><strong>More than one location?</strong> Extra locations require a separate paid add-on and an active main plan.</p>
+                <p>The 7-day trial covers your first location. Review submissions and draft retries are subject to anti-spam limits.</p>
+              </div>
               <Link to="/signup" className="pw-button">
                 Start your 7-day free trial{" "}
                 <span>
