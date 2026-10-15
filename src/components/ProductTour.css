@@ -27,7 +27,7 @@
 .pw-print-signoff { border-top:1px solid #dce0d0; padding-top:15px; margin-top:22px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
 .pw-print-signoff>span { font-size:8px; color:#727b65; }
 .pw-print-signoff strong { display:flex; align-items:center; gap:3px; font-size:15px; letter-spacing:-.06em; }
-.pw-print-signoff strong span { color:#859269; font-size:15px; }
+.pw-print-signoff .brand-mark { color:#536444; width:17px; height:17px; }
 .pw-print-bottom { display:flex; justify-content:space-between; align-items:center; gap:18px; }
 .pw-print-bottom>span { font-size:12px; line-height:1.5; color:#5d6850; }
 .pw-print-bottom>span em { font-size:16px; }

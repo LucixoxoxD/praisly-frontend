@@ -1,6 +1,6 @@
-.app-brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; font: 800 30px/1 var(--font-display); letter-spacing: -1.5px; }
-.app-brand > svg { width: 26px; height: 26px; color: #dd810e; flex-shrink: 0; }
-.app-brand-dot { color: #d17c11; }
+.app-brand { display: inline-flex; align-items: center; gap: .24em; color: #242720; text-decoration: none; font: 700 30px/1 var(--font-body); letter-spacing: -.055em; white-space: nowrap; }
+.app-brand > .brand-mark { width: 1.08em; height: 1.08em; color: #536444; flex-shrink: 0; }
+.app-brand-name { padding-bottom: .08em; }
 .auth-page, .workspace-shell {
   --bg: #f6f4eb;
   --surface: #fffcf4;
@@ -16,7 +16,6 @@
 }
 .auth-page h1 { font: 600 28px/1.15 var(--font-display); letter-spacing: -0.04em; margin: 24px 0 10px; }
 .auth-page .app-brand { font-size: 38px; }
-.auth-page .app-brand > svg { width: 30px; height: 30px; }
 .auth-page input, .auth-page select { min-height: 46px; }
 .auth-page input:focus-visible, .auth-page select:focus-visible { outline: 2px solid #a36a06 !important; outline-offset: 2px; }
 .app-primary-button { border: 1px solid #242720; background: #242720; color: #fffcf4; border-radius: 100px; min-height: 48px; padding: 12px 22px; font: 600 14px var(--font-body); cursor: pointer; transition: background .2s; }

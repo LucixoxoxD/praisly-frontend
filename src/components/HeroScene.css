@@ -55,15 +55,17 @@
   text-align: center;
 }
 .local-qr-brand {
-  font: 800 11px var(--font-display);
+  font: 700 11px var(--font-body);
   letter-spacing: -0.5px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 3px;
   align-items: center;
 }
-.local-qr-brand > span {
-  color: #af7b1c;
-  font-size: 13px;
+.local-qr-brand > .brand-mark {
+  color: #536444;
+  width: 13px;
+  height: 13px;
 }
 .local-qr-stand > strong {
   display: block;

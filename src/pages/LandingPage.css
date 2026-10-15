@@ -165,21 +165,7 @@
   gap: 38px;
 }
 .pw-logo {
-  font-family: var(--font-display);
-  font-size: 36px;
-  letter-spacing: -2px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.pw-logo > svg {
-  width: 29px;
-  color: #dd810e;
-}
-.pw-logo > span {
-  margin-left: -8px;
-  color: #d17c11;
+  font-size: 32px;
 }
 .pw-desktop-nav {
   display: flex;
@@ -249,6 +235,7 @@
   transform: rotate(45deg);
 }
 .pw-button-small {
+  white-space: nowrap;
   min-height: 44px;
   padding: 5px 5px 5px 17px;
   gap: 20px;
@@ -633,8 +620,8 @@
   border-radius: 3px;
 }
 .pw-mini-logo {
-  font-family: var(--font-display);
-  font-weight: 800;
+  font-family: var(--font-body);
+  font-weight: 700;
   font-size: 19px;
   letter-spacing: -1px;
   display: flex;
@@ -643,8 +630,9 @@
   gap: 3px;
 }
 .pw-mini-logo svg {
-  width: 13px;
-  color: #da8616;
+  width: 19px;
+  height: 19px;
+  color: #536444;
 }
 .pw-table-card h4 {
   font-size: 28px;
@@ -1455,21 +1443,22 @@
   transform: rotate(45deg);
 }
 .pw-footer-wordmark {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(150px, 24vw, 340px);
-  letter-spacing: -0.09em;
-  line-height: 0.9;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(100px, 20vw, 285px);
+  letter-spacing: -0.055em;
+  line-height: 1.2;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-left: -0.04em;
+  justify-content: center;
+  gap: .14em;
   margin-top: 40px;
   padding-bottom: 35px;
 }
 .pw-footer-wordmark > svg {
-  width: 0.58em;
-  margin-top: 0.12em;
+  width: .78em;
+  height: .78em;
+  flex-shrink: 0;
 }
 .pw-footer-bottom {
   display: flex;
@@ -2058,11 +2047,7 @@
     gap: 10px;
   }
   .pw-logo {
-    font-size: 30px;
-    gap: 7px;
-  }
-  .pw-logo > svg {
-    width: 23px;
+    font-size: 28px;
   }
   .pw-nav-actions {
     gap: 11px;
@@ -2465,7 +2450,7 @@
     width: 29px;
   }
   .pw-footer-wordmark {
-    font-size: 26vw;
+    font-size: 21vw;
     margin-top: 25px;
     padding-bottom: 25px;
   }
@@ -2489,14 +2474,12 @@
     gap: 8px;
   }
   .pw-logo {
-    font-size: 27px;
-  }
-  .pw-logo > svg {
-    width: 21px;
+    font-size: 25px;
   }
   .pw-button-small {
     font-size: 9px;
-    gap: 9px;
+    gap: 6px;
+    padding-left: 10px;
   }
   .pw-hero-actions {
     gap: 14px;

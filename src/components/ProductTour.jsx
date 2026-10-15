@@ -1,4 +1,5 @@
 import './ProductTour.css'
+import BrandMark from './BrandMark'
 export default function ProductTour() {
   return <section className="pw-tour pw-wrap" id="product" aria-labelledby="tour-title">
     <div className="pw-tour-copy">
@@ -23,7 +24,7 @@ export default function ProductTour() {
           <p className="pw-print-subtitle">A few words.<br />A little difference.</p>
           <img className="pw-print-qr" src="/images/sample-review-qr.svg" alt="Sample QR code that opens the Praisly demo" width="220" height="220" loading="lazy" />
           <p className="pw-print-scan">SCAN TO SHARE YOUR EXPERIENCE</p>
-          <div className="pw-print-signoff"><span>With a little help from</span><strong>praisly<span aria-hidden="true">✳</span></strong></div>
+          <div className="pw-print-signoff"><span>With a little help from</span><strong><BrandMark />praisly</strong></div>
         </div>
         <div className="pw-print-bottom"><span>Small code.<br /><em>Open conversation.</em></span><a href="#demo" aria-label="Try the sample review experience">Try the sample <span aria-hidden="true">↗</span></a></div>
       </div>

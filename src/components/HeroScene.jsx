@@ -1,4 +1,5 @@
 import "./HeroScene.css";
+import BrandMark from "./BrandMark";
 
 // A product vignette, not a live customer submission or a working QR code.
 export default function HeroScene({ qr }) {
@@ -214,7 +215,7 @@ export default function HeroScene({ qr }) {
         </svg>
         <div className="local-qr-stand">
           <span className="local-qr-brand">
-            praisly<span>↗</span>
+            <BrandMark />praisly
           </span>
           <strong>Enjoyed your visit?</strong>
           {qr}

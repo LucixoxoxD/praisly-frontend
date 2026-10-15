@@ -5,6 +5,8 @@ import HeroScene from "../components/HeroScene";
 import ProductTour from "../components/ProductTour";
 import marketing from "../content/marketing.json";
 import CustomerFlowDemo from "../components/CustomerFlowDemo";
+import Brand from "../components/Brand";
+import BrandMark from "../components/BrandMark";
 
 function Arrow({ diagonal = false }) {
   return (
@@ -196,8 +198,8 @@ function Showcase() {
             {active === 0 && (
               <div className="pw-table-card">
                 <span className="pw-mini-logo">
+                  <BrandMark />
                   praisly
-                  <Spark />
                 </span>
                 <h4>
                   Made your day?
@@ -422,10 +424,7 @@ export default function LandingPage() {
         }}
       >
         <div className="pw-wrap pw-nav">
-          <Link to="/" className="pw-logo" aria-label="Praisly home">
-            <Spark />
-            praisly<span>.</span>
-          </Link>
+          <Brand className="pw-logo" />
           <nav className="pw-desktop-nav" aria-label="Main navigation">
             <a
               href="#experience"
@@ -869,8 +868,8 @@ export default function LandingPage() {
               </Link>
             </div>
             <div className="pw-footer-wordmark" aria-hidden="true">
+              <BrandMark />
               praisly
-              <Spark />
             </div>
             <div className="pw-footer-bottom">
               <span>© 2026 PRAISLY · MADE FOR THE LOCAL GOOD.</span>
