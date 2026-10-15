@@ -20,7 +20,7 @@ export default function CustomerFlowDemo() {
     setCopyStatus('')
     requestAnimationFrame(() => {
       heading.current?.focus({ preventScroll: true })
-      heading.current?.scrollIntoView({ block: 'center', behavior: 'instant' })
+      heading.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' })
     })
   }
 

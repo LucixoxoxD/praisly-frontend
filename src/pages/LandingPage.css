@@ -1,3 +1,10 @@
+/* The document scrolls, not the landing-page wrapper. Keep native anchor
+   history and keyboard behavior, and honor both motion controls. */
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.pw-site.pw-motion) {
+    scroll-behavior: smooth;
+  }
+}
 .pw-site {
   --pw-paper: #f6f4eb;
   --pw-ink: #242720;
@@ -56,6 +63,9 @@
   outline-offset: 6px;
 }
 .pw-site section[id] {
+  scroll-margin-top: 105px;
+}
+.pw-site .pw-demo h3[tabindex] {
   scroll-margin-top: 105px;
 }
 .pw-plan-scope {
