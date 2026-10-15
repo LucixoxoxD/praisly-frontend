@@ -42,3 +42,8 @@
   .pw-demo-card .pw-button { font-size: 14px; gap: 12px; padding-left: 16px; width: 100%; }
   .pw-demo-card .pw-demo-help, .pw-demo-intro .pw-demo-disclaimer { font-size: 14px; }
 }
+
+.pw-demo-example { display:block; padding:12px 16px; margin:0 0 20px; border:1px solid #a8b18e; border-radius:12px; background:#eff2e5; color:#303a24; font:inherit; font-size:14px; cursor:pointer; text-align:left; }
+.pw-demo-example:focus-visible { outline:3px solid #657a41; outline-offset:3px; }
+.pw-demo-source { background:#f1f0e7; border-radius:12px; padding:16px; margin:16px 0; font-size:14px; line-height:1.6; }
+.pw-demo-source p { margin:6px 0 0; }

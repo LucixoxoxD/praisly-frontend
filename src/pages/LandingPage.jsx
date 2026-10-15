@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./LandingPage.css";
 import HeroScene from "../components/HeroScene";
-import ReviewWall from "../components/ReviewWall";
+import ProductTour from "../components/ProductTour";
+import marketing from "../content/marketing.json";
 import CustomerFlowDemo from "../components/CustomerFlowDemo";
 
 function Arrow({ diagonal = false }) {
@@ -79,20 +80,20 @@ function DecorativeQR() {
 
 const chapters = [
   {
-    label: "The invitation",
-    title: "A small scan.\nA lovely beginning.",
-    text: "Your own QR code, ready for your counter, your table, or wherever good experiences happen.",
+    label: "Invite feedback",
+    title: "Your QR code.\nReady to share.",
+    text: "Download your business QR code, print it for your counter or tables, or share your review link directly.",
     word: "hello.",
   },
   {
-    label: "The words",
-    title: "Their experience.\nTheir own words.",
-    text: "A little help finding the words. Customers can personalise an optional draft and choose what they share on Google.",
+    label: "Help with words",
+    title: "Less staring at\na blank page.",
+    text: "Customers describe their experience. An optional AI-assisted draft helps them get started; they edit the words and decide whether to publish on Google.",
     word: "lovely.",
   },
   {
-    label: "The bigger picture",
-    title: "Every little detail.\nAll in one place.",
+    label: "See the activity",
+    title: "Feedback you can\nlearn from.",
     text: "Review activity, private feedback, and nearby competitor comparisons. A clearer view of your business.",
     word: "closer.",
   },
@@ -133,9 +134,9 @@ function Showcase() {
         </div>
         <div className="pw-showcase-heading">
           <h2 id="pw-experience-title">
-            Good things.
+            From an invitation
             <br />
-            <em>Beautifully connected.</em>
+            <em>to honest feedback.</em>
           </h2>
           <Spark />
         </div>
@@ -160,7 +161,7 @@ function Showcase() {
               onKeyDown={(e) => onTabKey(e, i)}
               onClick={() => setActive(i)}
             >
-              <span>0{i + 1}</span>
+              <span>{String(i + 1).padStart(2, "0")}</span>
               {chapter.label}
               <Arrow diagonal />
             </button>
@@ -282,28 +283,7 @@ function Showcase() {
   );
 }
 
-const questions = [
-  [
-    "What exactly is Praisly?",
-    "Praisly brings QR review collection, AI-assisted drafts, private customer feedback, and competitor comparisons into one place for your local business.",
-  ],
-  [
-    "Do customers need an app?",
-    "No. Customers open your review page by scanning a QR code or following your link. To publish a Google review, they use their own Google account.",
-  ],
-  [
-    "Who writes and posts the review?",
-    "The customer stays in control. Praisly can suggest a draft, but the customer decides what to write and whether to post it on Google.",
-  ],
-  [
-    "What happens to private feedback?",
-    "Private feedback appears in your dashboard so you can understand the experience and decide how to follow up.",
-  ],
-  [
-    "Can I cancel my subscription?",
-    "Yes. You can cancel renewal from your billing page. Access continues until the end of the paid billing period.",
-  ],
-];
+const questions = marketing.questions;
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -404,7 +384,7 @@ export default function LandingPage() {
   }, []);
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = "Praisly — Good work. Great word of mouth.";
+    document.title = marketing.title;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const updateMotion = (e) => setMotion(!e.matches);
     media.addEventListener("change", updateMotion);
@@ -556,7 +536,7 @@ export default function LandingPage() {
               </h1>
               <p>
                 Collect Google reviews with a simple QR code, help customers find
-                their words, and track feedback in one place.
+                their words, and track feedback in one place. Built for cafés, salons, clinics and other local businesses.
               </p>
               <div className="pw-hero-actions">
                 <Link to="/signup" className="pw-button">
@@ -570,7 +550,7 @@ export default function LandingPage() {
                 </a>
               </div>
               <span className="pw-hero-footnote">
-                MADE FOR LOCAL BUSINESSES. BUILT AROUND PEOPLE.
+                7 DAYS FREE · NO CARD NEEDED · THEN ₹499 / MONTH
               </span>
             </div>
             <HeroScene qr={<DecorativeQR />} />
@@ -608,20 +588,11 @@ export default function LandingPage() {
         </div>
 
         <section className="pw-intro pw-wrap" data-reveal>
-          <span className="pw-kicker">YOU DO THE GOOD WORK.</span>
-          <h2>
-            Let the good words
-            <br />
-            <span>find their way</span> <em>out.</em>
-            <Spark />
-          </h2>
-          <div className="pw-intro-bottom">
-            <span className="pw-small-index">THE IDEA / 001</span>
-            <p>
-              That perfect coffee. The extra care. A familiar smile.
-              <br />
-              Praisly gives those everyday moments somewhere to go.
-            </p>
+          <span className="pw-kicker">WHY PAY FOR MORE THAN A LINK?</span>
+          <h2>A review link opens Google.<br /><em>Praisly helps with the rest.</em></h2>
+          <div className="pw-value-grid">
+            <div><span className="pw-kicker">THE STARTING POINT</span><h3>A direct Google review link</h3><p>Send customers straight to your Google review page. A good fit if all you need is a link to share.</p></div>
+            <div><span className="pw-kicker">WHAT PRAISLY ADDS</span><h3>A place to collect and learn</h3><p>Give customers help getting started, keep private feedback in one inbox, and see review activity alongside nearby businesses.</p><a className="pw-text-link" href="#demo">Try the sample experience ↓</a></div>
           </div>
         </section>
 
@@ -631,20 +602,20 @@ export default function LandingPage() {
         <section className="pw-features pw-wrap" id="features">
           <div className="pw-section-top">
             <span className="pw-kicker">
-              02 / LITTLE DETAILS. BIG DIFFERENCE.
+              02 / TOOLS FOR YOUR DAILY WORK
             </span>
-            <span className="pw-tiny">THOUGHTFULLY PUT TOGETHER.</span>
+            <span className="pw-tiny">ASK. LISTEN. UNDERSTAND.</span>
           </div>
           <div className="pw-feature-heading" data-reveal>
             <h2>
-              A little more
+              Make feedback
               <br />
-              <em>thought in everything.</em>
+              <em>part of your day.</em>
             </h2>
             <p>
-              From the first scan to the bigger picture.
+              Put your invitation where customers will see it.
               <br />
-              Made to feel effortless.
+              Give their feedback somewhere to go.
             </p>
           </div>
           <div className="pw-feature-grid">
@@ -674,11 +645,11 @@ export default function LandingPage() {
               </div>
               <div className="pw-feature-text">
                 <h3>
-                  Small code.
+                  Download. Print.
                   <br />
-                  Your whole personality.
+                  Start the conversation.
                 </h3>
-                <p>Custom QR codes that feel right at home in your business.</p>
+                <p>Your business QR code, ready to download and print. Physical stands and printing are not included.</p>
               </div>
             </article>
             <article
@@ -701,12 +672,12 @@ export default function LandingPage() {
               </div>
               <div className="pw-feature-text">
                 <h3>
-                  Hear the things
+                  Read the feedback.
                   <br />
-                  that matter.
+                  Choose your next step.
                 </h3>
                 <p>
-                  A private space for feedback. An opportunity to understand.
+                  Read private customer feedback in your dashboard and use the details to decide what needs attention.
                 </p>
               </div>
             </article>
@@ -717,13 +688,12 @@ export default function LandingPage() {
                   <Arrow diagonal />
                 </div>
                 <h3>
-                  Your neighbourhood.
+                  Know where
                   <br />
-                  <em>In a new light.</em>
+                  <em>you stand.</em>
                 </h3>
                 <p>
-                  See nearby businesses' ratings and review counts alongside
-                  your own.
+                  Compare your Google rating and review count with up to 3 competitors per location. These comparisons are not Google Maps search rankings.
                 </p>
                 <span className="pw-tiny">
                   MORE CONTEXT. A CLEARER PICTURE.
@@ -761,21 +731,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <ReviewWall />
+        <ProductTour />
 
         <section className="pw-pricing" id="pricing">
           <div className="pw-wrap pw-pricing-layout">
             <div className="pw-pricing-copy" data-reveal>
               <span className="pw-kicker">04 / KEEP IT SIMPLE</span>
               <h2>
-                Good things.
+                One location.
                 <br />
-                <em>One little plan.</em>
+                <em>One clear price.</em>
               </h2>
               <p>
-                Everything you need to bring your
+                Try Praisly with your first location for 7 days.
                 <br />
-                customer experiences together.
+                Choose a paid plan when you are ready.
               </p>
               <div className="pw-price-doodle" aria-hidden="true">
                 <Spark />
@@ -807,7 +777,7 @@ export default function LandingPage() {
               </div>
               <div className="pw-price" aria-live="polite">
                 <span>₹</span>
-                <strong>{yearly ? "416" : "499"}</strong>
+                <strong>{yearly ? Math.round(marketing.yearly / 12) : marketing.monthly}</strong>
                 <span>/ month</span>
               </div>
               <p className="pw-price-note">
@@ -832,8 +802,8 @@ export default function LandingPage() {
                 ))}
               </ul>
               <div className="pw-plan-scope">
-                <p><strong>More than one location?</strong> Extra locations require a separate paid add-on and an active main plan.</p>
-                <p>The 7-day trial covers your first location. Review submissions and draft retries are subject to anti-spam limits.</p>
+                <p><strong>More than one location?</strong> Each extra location is ₹{marketing.extraLocation}/month, billed as a separate add-on. An active main plan is required.</p>
+                <p>The trial covers your first location and ends without an automatic charge. Download and print your QR code yourself; no physical stand is included. Review submissions and draft retries are subject to anti-spam limits.</p>
               </div>
               <Link to="/signup" className="pw-button">
                 Start your 7-day free trial{" "}
@@ -862,7 +832,7 @@ export default function LandingPage() {
             {questions.map(([q, a], i) => (
               <details key={q}>
                 <summary>
-                  <span>0{i + 1}</span>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
                   <h3>{q}</h3>
                   <span className="pw-faq-plus" aria-hidden="true">
                     +

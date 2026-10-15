@@ -71,6 +71,11 @@ const { JSDOM } = require(process.env.JSDOM_MODULE || 'jsdom');
     assert.ok(button('Copy sample text'));
     await click('Start again');
   }
+  await click('Use the coffee-shop example');
+  assert.equal(w.document.querySelector('input:checked').value, '3');
+  await click('Preview your draft');
+  assert.equal(w.document.getElementById('demo-draft').value, 'The flat white was smooth, and I appreciated the quiet table. I waited 15 minutes for my order.');
+  assert.match(w.document.querySelector('.pw-demo-source').textContent, /waited 15 minutes/);
   assert.equal(networkCalls, 0);
   await w.testAct(() => w.unmount());
   w.close();

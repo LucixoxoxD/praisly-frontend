@@ -1,6 +1,9 @@
 import { useRef, useState } from 'react'
 import './CustomerFlowDemo.css'
 
+const sampleNotes = 'flat white was smooth; quiet table; waited 15 minutes'
+const sampleDraft = 'The flat white was smooth, and I appreciated the quiet table. I waited 15 minutes for my order.'
+
 const steps = ['Your experience', 'Your words', 'Your choice']
 
 export default function CustomerFlowDemo() {
@@ -24,7 +27,7 @@ export default function CustomerFlowDemo() {
   function createDraft(event) {
     event.preventDefault()
     // The preview uses only the visitor's words; it makes no AI or review API calls.
-    if (experience.trim() !== draftSource) setDraft(experience.trim())
+    if (experience.trim() !== draftSource) setDraft(experience.trim() === sampleNotes ? sampleDraft : experience.trim())
     setDraftSource(experience.trim())
     goTo(1)
   }
@@ -50,9 +53,9 @@ export default function CustomerFlowDemo() {
     <section className="pw-demo pw-wrap" id="demo" aria-labelledby="demo-title">
       <div className="pw-demo-intro">
         <span className="pw-kicker">TRY IT / NO SIGNUP NEEDED</span>
-        <h2 id="demo-title">A little scan.<br /><em>Try what comes next.</em></h2>
-        <p>Step into a customer's shoes. Choose a rating, make the words your own, and see how sharing works.</p>
-        <p className="pw-demo-disclaimer"><strong>Interactive sample</strong><br />Nothing is saved or submitted. This preview uses your text, without AI generation or a connection to Google.</p>
+        <h2 id="demo-title">A few details.<br /><em>A draft to make yours.</em></h2>
+        <p>Try a prepared example: three notes become a readable draft, with the wait time kept in. Then edit it as a customer would.</p>
+        <p className="pw-demo-disclaimer"><strong>Interactive sample</strong><br />Nothing is saved or submitted. The example is prewritten, not generated live. Custom text is kept as entered. This sample demonstrates drafting and sharing, not every step of the live feedback flow.</p>
       </div>
       <div className="pw-demo-card">
         <div className="pw-demo-business"><span aria-hidden="true">b.</span><div><strong>Bloom Coffee</strong><small>Fictional business · sample experience</small></div></div>
@@ -69,13 +72,15 @@ export default function CustomerFlowDemo() {
             </label>)}</div>
             <p aria-live="polite">{rating ? `${rating} out of 5 stars selected` : 'Choose any rating to try the sample.'}</p>
           </fieldset>
+          <button className="pw-demo-example" type="button" onClick={() => { setRating(3); setExperience(sampleNotes) }}>Use the coffee-shop example <span aria-hidden="true">↙</span></button>
           <label className="pw-demo-label" htmlFor="demo-experience">What would you like to say?</label>
           <textarea id="demo-experience" value={experience} onChange={event => setExperience(event.target.value)} placeholder="For example: The coffee was lovely, but the wait was a little long." maxLength={1200} required rows={4} aria-describedby="demo-text-help" />
           <p id="demo-text-help" className="pw-demo-help">Use a made-up visit to explore the demo. Your words stay in this page until you leave or start again.</p>
           <button className="pw-button" type="submit" disabled={!rating || !experience.trim()}>Preview your draft <span aria-hidden="true">↗</span></button>
         </form>}
         {step === 1 && <div>
-          <p className="pw-demo-help">Your sample rating: {rating}/5. This draft contains only what you entered. Edit anything before continuing.</p>
+          <p className="pw-demo-help">Your sample rating: {rating}/5. {draftSource === sampleNotes ? "This prepared example turns the notes into sentences without removing the wait time." : "Custom text is shown as entered; this preview does not run AI."} Edit anything before continuing.</p>
+          <div className="pw-demo-source"><strong>Your original notes</strong><p>{draftSource}</p></div>
           <label className="pw-demo-label" htmlFor="demo-draft">Your editable draft</label>
           <textarea id="demo-draft" value={draft} onChange={event => setDraft(event.target.value)} maxLength={1200} rows={5} />
           <div className="pw-demo-actions"><button className="pw-button" disabled={!draft.trim()} onClick={() => goTo(2)}>See posting steps <span aria-hidden="true">↗</span></button><button className="pw-demo-back" onClick={() => goTo(0)}>Back</button></div>

@@ -1,0 +1,53 @@
+{
+  "title": "Praisly — QR review collection for local businesses",
+  "description": "Collect Google reviews with QR codes, customer-controlled AI drafts, private feedback and competitor comparisons. From ₹499/month. Try 7 days free.",
+  "monthly": 499,
+  "yearly": 4990,
+  "extraLocation": 499,
+  "questions": [
+    [
+      "Why use Praisly instead of a Google review link?",
+      "A Google review link takes customers straight to Google. Praisly adds a guided review page, optional AI-assisted drafts, private feedback in your dashboard, review activity and comparisons with up to 3 competitors per location. If you only need a link, Google’s own review link may be enough."
+    ],
+    [
+      "What do I need to get started?",
+      "Create an account, add your business and connect its existing Google Business Profile using search or your Google Maps link. Then download your QR code or share your review link. You do not need your own website."
+    ],
+    [
+      "Is a printed QR stand included?",
+      "No. Your subscription includes a downloadable QR code. Download and print it yourself for your counter, tables or receipts. A physical stand and printing are not included."
+    ],
+    [
+      "Do customers need an app?",
+      "No. They scan your QR code or follow your link in a browser. Publishing a Google review requires their own Google account."
+    ],
+    [
+      "Who writes and posts the review?",
+      "The customer stays in control. Praisly can suggest a draft from their input. They can edit it, ignore it or write their own review, and decide whether to publish on Google. Praisly does not post for them."
+    ],
+    [
+      "What happens when the free trial ends?",
+      "The 7-day trial covers your first location and needs no card. When it ends, you need a paid plan to continue collecting reviews through Praisly. You are not automatically charged."
+    ],
+    [
+      "How much does another location cost?",
+      "The main plan includes 1 location. Each extra location costs ₹499 per month as a separate add-on and requires an active main plan. Extra locations are not included in the free trial."
+    ],
+    [
+      "What does the dashboard measure?",
+      "You can view activity recorded through Praisly, private feedback, Google rating and review count, and comparisons with up to 3 competitors per location. A customer’s posting confirmation is self-reported, not independent proof that Google published a particular review. Competitor comparisons are not Google Maps search positions."
+    ],
+    [
+      "Where does private feedback go?",
+      "Private feedback appears in your Praisly dashboard, where you can read what happened and decide how to follow up. It is not automatically published as a Google review."
+    ],
+    [
+      "Can I cancel my subscription?",
+      "Yes. Cancel renewal from your billing page and keep access until the end of your paid billing period."
+    ],
+    [
+      "Does Praisly guarantee more reviews or better rankings?",
+      "No. Praisly helps you ask for and understand feedback. Customers decide whether to review, and Google decides what to publish and how to rank businesses. We do not guarantee a review count, rating or search position."
+    ]
+  ]
+}
