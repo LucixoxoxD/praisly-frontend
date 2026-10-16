@@ -1,6 +1,7 @@
-// A lowercase p with an open conversation tail. Keep the counter clear at 16px.
+// Echo: two quotation marks representing customer voices and word of mouth.
 export default function BrandMark() {
   return <svg className="brand-mark" viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false">
-    <path fillRule="evenodd" d="M7 44V18C7 9.716 13.716 3 22 3H27C35.284 3 42 9.716 42 18S35.284 33 27 33H18V36L7 44ZM18 18C18 14.686 20.686 12 24 12H26C29.314 12 32 14.686 32 18S29.314 24 26 24H18V18Z" />
+    <path d="M5 10h11a5 5 0 0 1 5 5v10c0 10-5 16-14 19v-8c4-2 6-5 6-9H5a4 4 0 0 1-4-4v-9a4 4 0 0 1 4-4Z" />
+    <path d="M31 4h11a5 5 0 0 1 5 5v10c0 10-5 16-14 19v-8c4-2 6-5 6-9h-8a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4Z" />
   </svg>
 }
