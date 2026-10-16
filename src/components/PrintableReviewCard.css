@@ -1,0 +1,24 @@
+.qr-print-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 420px;
+  padding: 30px 24px 24px;
+  background: #fffdf5;
+  border: 1px solid #d7dacb;
+  color: #35402d;
+  text-align: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.qr-print-business { font-size: 26px; font-weight: 700; line-height: 1.3; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.qr-print-rule { height: 1px; background: #d7dacb; margin: 24px 0; }
+.qr-print-card .qr-print-title { font: 600 40px/1.08 'Bricolage Grotesque', sans-serif; letter-spacing: -.04em; margin: 0; color: #35402d; }
+.qr-print-title em { font-family: Georgia, serif; font-weight: 400; color: #536444; }
+.qr-print-card .qr-print-subtitle { font-size: 15px; line-height: 1.6; margin: 16px 0 20px; color: #58634e; }
+/* QRCodeStyling supplies a white quiet zone inside this square. */
+.qr-print-code { width: 220px; max-width: 100%; margin: 0 auto; background: #fff; }
+.qr-print-code > :is(svg,canvas,img) { display: block; width: 100%; height: auto; }
+.qr-print-card .qr-print-scan { font-size: 14px; line-height: 1.5; color: #35402d; margin: 14px 0 0; }
+.qr-print-signoff { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid #d7dacb; margin-top: 24px; padding-top: 18px; }
+.qr-print-signoff > span { font-size: 12px; line-height: 1.5; color: #58634e; }
+.qr-print-signoff strong { display: inline-flex; align-items: center; gap: 5px; font-size: 20px; line-height: 1.2; letter-spacing: -.055em; color: #242720; }
+.qr-print-signoff .brand-mark { width: 22px; height: 22px; color: #536444; }

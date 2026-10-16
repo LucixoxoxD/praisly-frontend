@@ -3,6 +3,7 @@ import QRCodeStyling from 'qr-code-styling'
 import html2canvas from 'html2canvas'
 import api from '../services/api'
 import { useToast } from '../components/Toast'
+import PrintableReviewCard from '../components/PrintableReviewCard'
 
 const PAGE_CSS = `
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -49,6 +50,7 @@ export default function QRCode() {
   const [downloading, setDownloading] = useState(false)
   const [reviewStats, setReviewStats] = useState(null)
   const [reviewsPage, setReviewsPage] = useState(null)
+  const [recentCutoff] = useState(() => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
 
   // Create QR instance once on mount
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function QRCode() {
       width: 220,
       height: 220,
       type: 'svg',
+      margin: 32,
       data: 'https://placeholder.com',
       dotsOptions: { color: '#1a1a1a', type: 'rounded' },
       cornersSquareOptions: { type: 'extra-rounded', color: '#1a1a1a' },
@@ -106,10 +109,9 @@ export default function QRCode() {
     const privateCount = reviews.filter(r => r.status === 'private').length
     const scans = totalReviews
     const convPct = scans > 0 ? Math.round(totalReviews / scans * 100) : 0
-    const recentCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     const scansThisWeek = reviews.filter(r => r.created_at && r.created_at >= recentCutoff).length
     return { scans, totalReviews, positive, privateCount, convPct, scansThisWeek }
-  }, [reviewStats, reviewsPage])
+  }, [reviewStats, reviewsPage, recentCutoff])
 
   async function handleCopy() {
     try {
@@ -123,16 +125,22 @@ export default function QRCode() {
   }
 
   async function handleDownload() {
-    if (!cardRef.current) return
+    if (!cardRef.current || !reviewUrl || downloading) return
     setDownloading(true)
     try {
+      await document.fonts.ready
       const canvas = await html2canvas(cardRef.current, {
         backgroundColor: '#ffffff',
-        scale: 2,
+        scale: 3,
         useCORS: true,
         logging: false,
-        width: cardRef.current.offsetWidth,
-        height: cardRef.current.offsetHeight,
+        // Capture the same print layout on phones and desktops.
+        windowWidth: 1280,
+        onclone: (_document, card) => {
+          card.style.width = '420px'
+          card.style.maxWidth = 'none'
+          card.style.padding = '30px 24px 24px'
+        },
       })
       const url = canvas.toDataURL('image/png')
       const a = document.createElement('a')
@@ -222,134 +230,17 @@ export default function QRCode() {
       {/* Card + controls + right panel */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
         gap: 20,
         alignItems: 'start',
       }}>
 
         {/* Left column: printable card + action buttons */}
         <div>
-          {/* White margin wrapper — captured by html2canvas for print-ready PNG */}
-          <div
-            ref={cardRef}
-            style={{
-              background: 'white',
-              padding: 20,
-              display: 'inline-block',
-              width: '100%',
-              maxWidth: 380,
-              boxSizing: 'border-box',
-            }}
-          >
-            <div style={{
-              borderRadius: 20,
-              overflow: 'hidden',
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
-              textAlign: 'center',
-            }}>
-
-              {/* Gold header */}
-              <div style={{
-                background: 'linear-gradient(135deg, #C4831A 0%, #E8A83A 60%, #D4922A 100%)',
-                padding: '24px 28px 22px',
-              }}>
-                <p style={{
-                  fontFamily: "'Plus Jakarta Sans', system-ui",
-                  fontSize: bizName.length > 22 ? 18 : 24,
-                  fontWeight: 800,
-                  color: 'white',
-                  margin: 0,
-                  letterSpacing: '-0.4px',
-                  lineHeight: 1.2,
-                  textShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                }}>
-                  {bizName}
-                </p>
-              </div>
-
-              {/* White body */}
-              <div style={{ background: 'white', padding: '24px 32px 20px' }}>
-
-                {/* CTA text */}
-                <div style={{ marginBottom: 18 }}>
-                  <p style={{
-                    fontSize: 24,
-                    fontWeight: 700,
-                    color: '#1a1a1a',
-                    margin: '0 0 2px',
-                    lineHeight: 1.15,
-                    letterSpacing: '-0.3px',
-                  }}>
-                    Leave Us a
-                  </p>
-                  <p style={{
-                    fontSize: 28,
-                    fontWeight: 800,
-                    color: '#1a1a1a',
-                    margin: 0,
-                    lineHeight: 1.15,
-                    letterSpacing: '-0.4px',
-                  }}>
-                    Review
-                  </p>
-                </div>
-
-                {/* QR code mount point */}
-                <div
-                  ref={qrRef}
-                  style={{
-                    width: 220,
-                    height: 220,
-                    margin: '0 auto 18px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                />
-
-                {/* Google wordmark + stars */}
-                <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                  <span style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'Arial, sans-serif', letterSpacing: '-0.5px' }}>
-                    <span style={{ color: '#4285F4' }}>G</span>
-                    <span style={{ color: '#EA4335' }}>o</span>
-                    <span style={{ color: '#FBBC05' }}>o</span>
-                    <span style={{ color: '#4285F4' }}>g</span>
-                    <span style={{ color: '#34A853' }}>l</span>
-                    <span style={{ color: '#EA4335' }}>e</span>
-                  </span>
-                  <span style={{ fontSize: '24px', color: '#FBBC05', marginLeft: '8px', letterSpacing: '2px' }}>★★★★★</span>
-                </div>
-                <p style={{ fontSize: 13, color: '#9ca3af', margin: '8px 0 0', letterSpacing: '0.2px' }}>
-                  Scan to share your experience
-                </p>
-              </div>
-
-              {/* Footer */}
-              <div style={{
-                background: '#fafafa',
-                borderTop: '1px solid #f0f0f0',
-                padding: '11px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}>
-                <span style={{ fontSize: 11, color: '#c4c4c4' }}>Powered by</span>
-                <span style={{
-                  fontFamily: "'Plus Jakarta Sans', system-ui",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#D4922A',
-                  letterSpacing: '-0.2px',
-                }}>
-                  Praisly ⭐
-                </span>
-              </div>
-            </div>
-          </div>
+          <PrintableReviewCard businessName={bizName} cardRef={cardRef} qrRef={qrRef} />
 
           <p style={{ fontSize: 13, color: '#64748b', margin: '12px 0 4px', lineHeight: 1.5 }}>
-            💡 Print this and place it at your checkout counter, reception desk, or dining table
+            Download and print for your counter, reception desk or tables. Keep the white space around the code and test a scan before printing in bulk.
           </p>
 
           {/* URL row */}
@@ -393,10 +284,12 @@ export default function QRCode() {
               onClick={handleDownload}
               disabled={downloading}
               style={{
-                flex: 1,
+                flex: '1 1 130px',
+                minHeight: 44,
+                whiteSpace: 'nowrap',
                 padding: '11px',
-                background: 'var(--primary)',
-                color: 'white',
+                background: '#242720',
+                color: '#fffdf5',
                 border: 'none',
                 borderRadius: 10,
                 fontSize: 14,
@@ -422,10 +315,12 @@ export default function QRCode() {
             <button
               onClick={handleWhatsApp}
               style={{
-                flex: 1,
+                flex: '1 1 130px',
+                minHeight: 44,
+                whiteSpace: 'nowrap',
                 padding: '11px',
-                background: '#25D366',
-                color: 'white',
+                background: '#e4e8d8',
+                color: '#35402d',
                 border: 'none',
                 borderRadius: 10,
                 fontSize: 14,
@@ -442,10 +337,12 @@ export default function QRCode() {
             <button
               onClick={handleCopy}
               style={{
-                flex: 1,
+                flex: '1 1 130px',
+                minHeight: 44,
+                whiteSpace: 'nowrap',
                 padding: '11px',
-                background: 'var(--primary)',
-                color: 'white',
+                background: '#242720',
+                color: '#fffdf5',
                 border: 'none',
                 borderRadius: 10,
                 fontSize: 14,

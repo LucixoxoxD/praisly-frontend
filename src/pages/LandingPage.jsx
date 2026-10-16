@@ -742,7 +742,7 @@ export default function LandingPage() {
                 <em>One clear price.</em>
               </h2>
               <p>
-                Try Praisly with your first location for 7 days.
+                Try Praisly with your first location for 7 days.{' '}
                 <br />
                 Choose a paid plan when you are ready.
               </p>

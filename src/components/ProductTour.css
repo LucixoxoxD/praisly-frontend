@@ -21,11 +21,11 @@
 .pw-print-rule { height:1px; background:#dce0d0; margin:22px 0; }
 .pw-site .pw-print-title { font:500 34px/1.04 var(--font-display); letter-spacing:-.045em; }
 .pw-print-title em { color:#6d7959; }
-.pw-site .pw-print-subtitle { font-size:12px; line-height:1.6; margin-top:12px; color:#727b65; }
+.pw-site .pw-print-subtitle { font-size:12px; line-height:1.6; margin-top:12px; color:#58634e; }
 .pw-print-qr { display:block; width:176px; max-width:100%; height:auto; margin:14px auto 8px; }
-.pw-site .pw-print-scan { font:7px/1.5 var(--font-mono); letter-spacing:.08em; }
-.pw-print-signoff { border-top:1px solid #dce0d0; padding-top:15px; margin-top:22px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
-.pw-print-signoff>span { font-size:8px; color:#727b65; }
+.pw-site .pw-print-scan { font:11px/1.5 var(--font-mono); letter-spacing:.08em; }
+.pw-print-signoff { border-top:1px solid #dce0d0; padding-top:15px; margin-top:22px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.pw-print-signoff>span { font-size:11px; color:#58634e; }
 .pw-print-signoff strong { display:flex; align-items:center; gap:3px; font-size:15px; letter-spacing:-.06em; }
 .pw-print-signoff .brand-mark { color:#536444; width:17px; height:17px; }
 .pw-print-bottom { display:flex; justify-content:space-between; align-items:center; gap:18px; }
